@@ -1,0 +1,173 @@
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Image,
+  TouchableOpacity,
+  TextInput,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import attractionsData from '../data/attractions.json';
+
+export default function ExploreScreen({ navigation }) {
+  const [attractions, setAttractions] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    setAttractions(attractionsData.attractions);
+  }, []);
+
+  const filteredAttractions = attractions.filter((attraction) =>
+    attraction.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    attraction.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const renderAttraction = ({ item }) => (
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() => navigation.navigate('AttractionDetails', { attraction: item })}
+    >
+      <Image source={{ uri: item.image }} style={styles.cardImage} />
+      <View style={styles.cardContent}>
+        <View style={styles.cardHeader}>
+          <Text style={styles.cardTitle}>{item.name}</Text>
+          <View style={styles.ratingContainer}>
+            <Ionicons name="star" size={16} color="#d4af37" />
+            <Text style={styles.rating}>{item.rating}</Text>
+          </View>
+        </View>
+        <Text style={styles.cardDescription} numberOfLines={2}>
+          {item.description}
+        </Text>
+        <View style={styles.cardFooter}>
+          <View style={styles.categoryBadge}>
+            <Text style={styles.categoryText}>{item.category}</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color="#8e8e93" />
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.searchContainer}>
+        <Ionicons name="search" size={20} color="#8e8e93" style={styles.searchIcon} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Поиск достопримечательностей..."
+          placeholderTextColor="#8e8e93"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+      </View>
+      <FlatList
+        data={filteredAttractions}
+        renderItem={renderAttraction}
+        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={styles.list}
+        showsVerticalScrollIndicator={false}
+      />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    margin: 16,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    height: 48,
+    fontSize: 16,
+    color: '#000',
+  },
+  list: {
+    padding: 16,
+    paddingTop: 0,
+  },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    marginBottom: 16,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  cardImage: {
+    width: '100%',
+    height: 200,
+    resizeMode: 'cover',
+  },
+  cardContent: {
+    padding: 16,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  cardTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1a4d3a',
+    flex: 1,
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff9e6',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  rating: {
+    marginLeft: 4,
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#d4af37',
+  },
+  cardDescription: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 12,
+    lineHeight: 20,
+  },
+  cardFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  categoryBadge: {
+    backgroundColor: '#e8f5e9',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+  categoryText: {
+    fontSize: 12,
+    color: '#27ae60',
+    fontWeight: '600',
+  },
+});
+
