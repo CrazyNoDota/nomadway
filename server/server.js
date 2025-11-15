@@ -67,7 +67,7 @@ app.post('/api/routes/build', async (req, res) => {
       budget,   // { min, max }
       interests, // ['food', 'nature', 'museums', etc.]
       activityLevel, // 'easy', 'moderate', 'intense'
-  ageGroup, // 'family', 'adults'
+      ageGroup, // 'family', 'young', 'adults'
       startLocation, // { latitude, longitude } optional
     } = req.body;
 

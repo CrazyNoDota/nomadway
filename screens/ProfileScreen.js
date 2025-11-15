@@ -10,9 +10,13 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useLocalization } from '../contexts/LocalizationContext';
+
+const LOGO_URL = 'https://raw.githubusercontent.com/CrazyNoDota/danik/21bad4af7ac400b27c470851e9968c5860b06407/photo_2025-11-15_23-14-57-removebg-preview.png';
 
 export default function ProfileScreen({ navigation }) {
   const [savedPlaces, setSavedPlaces] = useState([]);
+  const { t } = useLocalization();
 
   useEffect(() => {
     loadSavedPlaces();
@@ -40,12 +44,12 @@ export default function ProfileScreen({ navigation }) {
 
   const removeSavedPlace = async (id) => {
     Alert.alert(
-      'Удалить место?',
-      'Вы уверены, что хотите удалить это место из сохранённых?',
+      t('deletePlaceTitle'),
+      t('deletePlaceMessage'),
       [
-        { text: 'Отмена', style: 'cancel' },
+        { text: t('cancel'), style: 'cancel' },
         {
-          text: 'Удалить',
+          text: t('delete'),
           style: 'destructive',
           onPress: async () => {
             try {
@@ -91,9 +95,13 @@ export default function ProfileScreen({ navigation }) {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.avatarContainer}>
-          <Ionicons name="person" size={48} color="#d4af37" />
+          <Image 
+            source={{ uri: LOGO_URL }}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
         </View>
-        <Text style={styles.userName}>Путешественник</Text>
+        <Text style={styles.userName}>{t('traveler')}</Text>
         <Text style={styles.userEmail}>nomad@nomadway.kz</Text>
       </View>
 
@@ -103,21 +111,21 @@ export default function ProfileScreen({ navigation }) {
           onPress={() => navigation.navigate('Achievements')}
         >
           <Text style={styles.statNumber}>{savedPlaces.length}</Text>
-          <Text style={styles.statLabel}>Сохранено</Text>
+          <Text style={styles.statLabel}>{t('saved')}</Text>
         </TouchableOpacity>
         <TouchableOpacity 
           style={styles.statItem}
           onPress={() => navigation.navigate('AIRouteBuilder')}
         >
           <Text style={styles.statNumber}>AI</Text>
-          <Text style={styles.statLabel}>Маршруты</Text>
+          <Text style={styles.statLabel}>{t('aiRoutes')}</Text>
         </TouchableOpacity>
         <TouchableOpacity 
           style={styles.statItem}
           onPress={() => navigation.navigate('Leaderboard')}
         >
           <Text style={styles.statNumber}>🏆</Text>
-          <Text style={styles.statLabel}>Лидеры</Text>
+          <Text style={styles.statLabel}>{t('leaders')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -128,8 +136,8 @@ export default function ProfileScreen({ navigation }) {
           onPress={() => navigation.navigate('AIRouteBuilder')}
         >
           <Ionicons name="construct" size={32} color="#fff" />
-          <Text style={styles.gamificationTitle}>AI Конструктор</Text>
-          <Text style={styles.gamificationSubtitle}>Создать умный маршрут</Text>
+          <Text style={styles.gamificationTitle}>{t('aiConstructorCardTitle')}</Text>
+          <Text style={styles.gamificationSubtitle}>{t('aiConstructorCardSubtitle')}</Text>
         </TouchableOpacity>
         
         <TouchableOpacity 
@@ -137,19 +145,19 @@ export default function ProfileScreen({ navigation }) {
           onPress={() => navigation.navigate('Achievements')}
         >
           <Ionicons name="trophy" size={32} color="#fff" />
-          <Text style={styles.gamificationTitle}>Достижения</Text>
-          <Text style={styles.gamificationSubtitle}>Ваши награды</Text>
+          <Text style={styles.gamificationTitle}>{t('achievements')}</Text>
+          <Text style={styles.gamificationSubtitle}>{t('achievementsCardSubtitle')}</Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Сохранённые места</Text>
+        <Text style={styles.sectionTitle}>{t('savedPlaces')}</Text>
         {savedPlaces.length === 0 ? (
           <View style={styles.emptyState}>
             <Ionicons name="bookmark-outline" size={64} color="#8e8e93" />
-            <Text style={styles.emptyText}>Нет сохранённых мест</Text>
+            <Text style={styles.emptyText}>{t('savedEmptyTitle')}</Text>
             <Text style={styles.emptySubtext}>
-              Сохраняйте интересные места, чтобы вернуться к ним позже
+              {t('savedEmptySubtitle')}
             </Text>
           </View>
         ) : (
@@ -163,19 +171,22 @@ export default function ProfileScreen({ navigation }) {
       </View>
 
       <View style={styles.settingsSection}>
-        <TouchableOpacity style={styles.settingItem}>
+        <TouchableOpacity 
+          style={styles.settingItem}
+          onPress={() => navigation.navigate('Settings')}
+        >
           <Ionicons name="settings-outline" size={24} color="#1a4d3a" />
-          <Text style={styles.settingText}>Настройки</Text>
+          <Text style={styles.settingText}>{t('settings')}</Text>
           <Ionicons name="chevron-forward" size={20} color="#8e8e93" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.settingItem}>
           <Ionicons name="help-circle-outline" size={24} color="#1a4d3a" />
-          <Text style={styles.settingText}>Помощь</Text>
+          <Text style={styles.settingText}>{t('help')}</Text>
           <Ionicons name="chevron-forward" size={20} color="#8e8e93" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.settingItem}>
           <Ionicons name="information-circle-outline" size={24} color="#1a4d3a" />
-          <Text style={styles.settingText}>О приложении</Text>
+          <Text style={styles.settingText}>{t('aboutApp')}</Text>
           <Ionicons name="chevron-forward" size={20} color="#8e8e93" />
         </TouchableOpacity>
       </View>
@@ -202,6 +213,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
+    overflow: 'hidden',
+  },
+  logoImage: {
+    width: 90,
+    height: 90,
   },
   userName: {
     fontSize: 24,

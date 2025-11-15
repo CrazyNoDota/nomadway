@@ -21,11 +21,14 @@ import PersonalizedRouteScreen from './screens/PersonalizedRouteScreen';
 import AIRouteBuilderScreen from './screens/AIRouteBuilderScreen';
 import AchievementsScreen from './screens/AchievementsScreen';
 import LeaderboardScreen from './screens/LeaderboardScreen';
+import SettingsScreen from './screens/SettingsScreen';
+import { LocalizationProvider, useLocalization } from './contexts/LocalizationContext';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function TabNavigator() {
+  const { t } = useLocalization();
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -64,28 +67,28 @@ function TabNavigator() {
       <Tab.Screen 
         name="Explore" 
         component={ExploreScreen}
-        options={{ title: 'Исследовать' }}
+        options={{ title: t('explore') }}
       />
       <Tab.Screen 
         name="Routes" 
         component={RoutesScreen}
-        options={{ title: 'Маршруты' }}
+        options={{ title: t('routes') }}
       />
       <Tab.Screen 
         name="Community" 
         component={CommunityScreen}
-        options={{ title: 'Сообщество' }}
+        options={{ title: t('community') }}
       />
       <Tab.Screen 
         name="Profile" 
         component={ProfileScreen}
-        options={{ title: 'Профиль' }}
+        options={{ title: t('profile') }}
       />
       <Tab.Screen 
         name="AIChat" 
         component={AIGuideScreen}
         options={{ 
-          title: 'Чат с ИИ',
+          title: t('aiChat'),
           headerShown: false, // Hide default header since AIGuideScreen has custom header
         }}
       />
@@ -93,8 +96,9 @@ function TabNavigator() {
   );
 }
 
-export default function App() {
+function RootNavigator() {
   const [isLoading, setIsLoading] = useState(true);
+  const { t } = useLocalization();
 
   useEffect(() => {
     // Simulate splash screen delay
@@ -129,55 +133,68 @@ export default function App() {
         <Stack.Screen 
           name="AttractionDetails" 
           component={AttractionDetailsScreen}
-          options={{ title: 'Детали' }}
+          options={{ title: t('nav_details') }}
         />
         <Stack.Screen 
           name="RouteDetails" 
           component={RouteDetailsScreen}
-          options={{ title: 'Маршрут' }}
+          options={{ title: t('nav_route') }}
         />
         <Stack.Screen 
           name="MapScreen" 
           component={MapScreen}
-          options={{ title: 'Карта' }}
+          options={{ title: t('nav_map') }}
         />
         <Stack.Screen 
           name="TravelerTools" 
           component={TravelerToolsScreen}
-          options={{ title: 'Инструменты путешественника' }}
+          options={{ title: t('nav_tools') }}
         />
         <Stack.Screen 
           name="AIGuide" 
           component={AIGuideScreen}
-          options={{ title: 'AI-Гид' }}
+          options={{ title: t('nav_aiGuide') }}
         />
         <Stack.Screen 
           name="RegionalGuide" 
           component={RegionalGuideScreen}
-          options={{ title: 'Гид по регионам' }}
+          options={{ title: t('nav_regionalGuide') }}
         />
         <Stack.Screen 
           name="PersonalizedRoute" 
           component={PersonalizedRouteScreen}
-          options={{ title: 'Персонализированный маршрут' }}
+          options={{ title: t('nav_personalizedRoute') }}
         />
         <Stack.Screen 
           name="AIRouteBuilder" 
           component={AIRouteBuilderScreen}
-          options={{ title: 'AI Конструктор маршрутов' }}
+          options={{ title: t('nav_aiConstructor') }}
         />
         <Stack.Screen 
           name="Achievements" 
           component={AchievementsScreen}
-          options={{ title: 'Достижения' }}
+          options={{ title: t('nav_achievements') }}
         />
         <Stack.Screen 
           name="Leaderboard" 
           component={LeaderboardScreen}
-          options={{ title: 'Таблица лидеров' }}
+          options={{ title: t('nav_leaderboard') }}
+        />
+        <Stack.Screen 
+          name="Settings" 
+          component={SettingsScreen}
+          options={{ title: t('nav_settings') }}
         />
       </Stack.Navigator>
     </NavigationContainer>
+  );
+}
+
+export default function App() {
+  return (
+    <LocalizationProvider>
+      <RootNavigator />
+    </LocalizationProvider>
   );
 }
 

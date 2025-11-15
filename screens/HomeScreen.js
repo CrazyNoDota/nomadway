@@ -1,37 +1,40 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useLocalization } from '../contexts/LocalizationContext';
 
 export default function HomeScreen({ navigation }) {
+  const { t } = useLocalization();
+
   const quickActions = [
     {
       id: 1,
-      title: 'AI-Гид',
-      subtitle: 'Задайте вопрос о путешествиях',
+      titleKey: 'aiGuideTitle',
+      subtitleKey: 'aiGuideSubtitle',
       icon: 'sparkles',
       color: '#d4af37',
       screen: 'AIGuide',
     },
     {
       id: 2,
-      title: 'Инструменты',
-      subtitle: 'Валюта, переводчик, погода',
+      titleKey: 'toolsTitle',
+      subtitleKey: 'toolsSubtitle',
       icon: 'briefcase',
       color: '#3498db',
       screen: 'TravelerTools',
     },
     {
       id: 3,
-      title: 'Персонализированный маршрут',
-      subtitle: 'Создайте маршрут по вашим интересам',
+      titleKey: 'personalizedRouteTitle',
+      subtitleKey: 'personalizedRouteSubtitle',
       icon: 'map',
       color: '#27ae60',
       screen: 'PersonalizedRoute',
     },
     {
       id: 4,
-      title: 'Гид по регионам',
-      subtitle: 'Информация о городах и регионах',
+      titleKey: 'regionalGuideTitle',
+      subtitleKey: 'regionalGuideSubtitle',
       icon: 'location',
       color: '#e74c3c',
       screen: 'RegionalGuide',
@@ -41,12 +44,17 @@ export default function HomeScreen({ navigation }) {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.greeting}>Добро пожаловать!</Text>
-        <Text style={styles.subtitle}>Ваш путеводитель по миру</Text>
+        <Image 
+          source={{ uri: 'https://raw.githubusercontent.com/CrazyNoDota/danik/21bad4af7ac400b27c470851e9968c5860b06407/photo_2025-11-15_23-14-57-removebg-preview.png' }}
+          style={styles.headerLogo}
+          resizeMode="contain"
+        />
+        <Text style={styles.greeting}>{t('homeGreeting')}</Text>
+        <Text style={styles.subtitle}>{t('homeSubtitle')}</Text>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Быстрый доступ</Text>
+        <Text style={styles.sectionTitle}>{t('quickAccess')}</Text>
         <View style={styles.quickActionsGrid}>
           {quickActions.map((action) => (
             <TouchableOpacity
@@ -57,25 +65,23 @@ export default function HomeScreen({ navigation }) {
               <View style={[styles.iconContainer, { backgroundColor: action.color + '20' }]}>
                 <Ionicons name={action.icon} size={32} color={action.color} />
               </View>
-              <Text style={styles.quickActionTitle}>{action.title}</Text>
-              <Text style={styles.quickActionSubtitle}>{action.subtitle}</Text>
+              <Text style={styles.quickActionTitle}>{t(action.titleKey)}</Text>
+              <Text style={styles.quickActionSubtitle}>{t(action.subtitleKey)}</Text>
             </TouchableOpacity>
           ))}
         </View>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Популярные места</Text>
+        <Text style={styles.sectionTitle}>{t('popularPlaces')}</Text>
         <TouchableOpacity
           style={styles.featureCard}
           onPress={() => navigation.navigate('Explore')}
         >
           <Ionicons name="compass" size={24} color="#d4af37" />
           <View style={styles.featureContent}>
-            <Text style={styles.featureTitle}>Исследовать достопримечательности</Text>
-            <Text style={styles.featureSubtitle}>
-              Откройте для себя удивительные места
-            </Text>
+            <Text style={styles.featureTitle}>{t('exploreAttractions')}</Text>
+            <Text style={styles.featureSubtitle}>{t('exploreAttractionsSubtitle')}</Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color="#8e8e93" />
         </TouchableOpacity>
@@ -86,24 +92,20 @@ export default function HomeScreen({ navigation }) {
         >
           <Ionicons name="map" size={24} color="#d4af37" />
           <View style={styles.featureContent}>
-            <Text style={styles.featureTitle}>Готовые маршруты</Text>
-            <Text style={styles.featureSubtitle}>
-              Выберите готовый маршрут для путешествия
-            </Text>
+            <Text style={styles.featureTitle}>{t('readyRoutes')}</Text>
+            <Text style={styles.featureSubtitle}>{t('readyRoutesSubtitle')}</Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color="#8e8e93" />
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.featureCard}
-          onPress={() => navigation.navigate('MapScreen', { title: 'Карта Казахстана' })}
+          onPress={() => navigation.navigate('MapScreen', { title: t('mapOfKazakhstan') })}
         >
           <Ionicons name="map-outline" size={24} color="#3498db" />
           <View style={styles.featureContent}>
-            <Text style={styles.featureTitle}>Интерактивная карта</Text>
-            <Text style={styles.featureSubtitle}>
-              Просмотрите все места на карте
-            </Text>
+            <Text style={styles.featureTitle}>{t('interactiveMap')}</Text>
+            <Text style={styles.featureSubtitle}>{t('interactiveMapSubtitle')}</Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color="#8e8e93" />
         </TouchableOpacity>
@@ -122,6 +124,12 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     paddingBottom: 24,
     paddingHorizontal: 16,
+    alignItems: 'center',
+  },
+  headerLogo: {
+    width: 80,
+    height: 80,
+    marginBottom: 12,
   },
   greeting: {
     fontSize: 28,

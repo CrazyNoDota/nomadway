@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -15,14 +15,23 @@ import MapView, { Marker, Polyline } from 'react-native-maps';
 import Constants from 'expo-constants';
 import {
   USER_GROUPS,
-  USER_GROUP_LABELS,
   ACTIVITY_LEVELS,
-  ACTIVITY_LEVEL_LABELS,
   INTERESTS,
-  INTEREST_LABELS,
   DURATIONS,
-  DURATION_LABELS,
 } from '../constants/userSegments';
+import { useLocalization } from '../contexts/LocalizationContext';
+
+const DURATION_LABEL_KEYS = {
+  [DURATIONS.THREE_HOURS]: 'duration_3_hours',
+  [DURATIONS.ONE_DAY]: 'duration_1_day',
+  [DURATIONS.THREE_DAYS]: 'duration_3_days',
+};
+
+const DURATION_ORDER = [
+  DURATIONS.THREE_HOURS,
+  DURATIONS.ONE_DAY,
+  DURATIONS.THREE_DAYS,
+];
 
 const getApiBaseUrl = () => {
   if (process.env.EXPO_PUBLIC_API_URL) {
@@ -47,6 +56,7 @@ const getApiBaseUrl = () => {
 };
 
 export default function AIRouteBuilderScreen({ navigation }) {
+  const { t } = useLocalization();
   // Form state
   const [ageGroup, setAgeGroup] = useState(USER_GROUPS.FAMILY);
   const [duration, setDuration] = useState(DURATIONS.ONE_DAY);
@@ -60,6 +70,12 @@ export default function AIRouteBuilderScreen({ navigation }) {
   const [route, setRoute] = useState(null);
   const [summary, setSummary] = useState(null);
 
+  const formatSummaryDuration = (minutesValue) => {
+    const hours = Math.floor(minutesValue / 60);
+    const remainingMinutes = minutesValue % 60;
+    return `${hours}${t('hoursShort')} ${remainingMinutes}${t('minutesShort')}`;
+  };
+
   const toggleInterest = (interest) => {
     if (selectedInterests.includes(interest)) {
       setSelectedInterests(selectedInterests.filter(i => i !== interest));
@@ -70,7 +86,7 @@ export default function AIRouteBuilderScreen({ navigation }) {
 
   const buildRoute = async () => {
     if (selectedInterests.length === 0) {
-      Alert.alert('Ошибка', 'Выберите хотя бы один интерес');
+      Alert.alert(t('error'), t('errorSelectInterest'));
       return;
     }
 
@@ -100,11 +116,11 @@ export default function AIRouteBuilderScreen({ navigation }) {
         setRoute(data.route);
         setSummary(data.summary);
       } else {
-        Alert.alert('Ошибка', data.error || 'Не удалось построить маршрут');
+        Alert.alert(t('error'), data.error || t('routeBuildFailed'));
       }
     } catch (error) {
       console.error('Error building route:', error);
-      Alert.alert('Ошибка', 'Не удалось подключиться к серверу');
+      Alert.alert(t('error'), t('serverConnectionError'));
     } finally {
       setLoading(false);
     }
@@ -112,11 +128,11 @@ export default function AIRouteBuilderScreen({ navigation }) {
 
   const renderForm = () => (
     <View style={styles.formContainer}>
-      <Text style={styles.sectionTitle}>Параметры маршрута</Text>
+  <Text style={styles.sectionTitle}>{t('routeParams')}</Text>
 
       {/* Age Group Selection */}
       <View style={styles.fieldContainer}>
-        <Text style={styles.label}>Возрастная группа</Text>
+        <Text style={styles.label}>{t('ageGroup')}</Text>
         <View style={styles.buttonGroup}>
           {Object.values(USER_GROUPS).map((group) => (
             <TouchableOpacity
@@ -133,7 +149,7 @@ export default function AIRouteBuilderScreen({ navigation }) {
                   ageGroup === group && styles.optionButtonTextActive,
                 ]}
               >
-                {USER_GROUP_LABELS[group]}
+                {t(`userGroup_${group}`)}
               </Text>
             </TouchableOpacity>
           ))}
@@ -142,9 +158,9 @@ export default function AIRouteBuilderScreen({ navigation }) {
 
       {/* Duration Selection */}
       <View style={styles.fieldContainer}>
-        <Text style={styles.label}>Продолжительность</Text>
+        <Text style={styles.label}>{t('duration')}</Text>
         <View style={styles.buttonGroup}>
-          {Object.entries(DURATION_LABELS).map(([key, label]) => (
+          {DURATION_ORDER.map((key) => (
             <TouchableOpacity
               key={key}
               style={[
@@ -159,7 +175,7 @@ export default function AIRouteBuilderScreen({ navigation }) {
                   duration === key && styles.optionButtonTextActive,
                 ]}
               >
-                {label}
+                {t(DURATION_LABEL_KEYS[key])}
               </Text>
             </TouchableOpacity>
           ))}
@@ -168,11 +184,11 @@ export default function AIRouteBuilderScreen({ navigation }) {
 
       {/* Budget Input */}
       <View style={styles.fieldContainer}>
-        <Text style={styles.label}>Бюджет (₸)</Text>
+        <Text style={styles.label}>{t('budgetCurrency')}</Text>
         <View style={styles.budgetRow}>
           <TextInput
             style={styles.budgetInput}
-            placeholder="Мин."
+            placeholder={t('budgetMin')}
             keyboardType="numeric"
             value={budgetMin}
             onChangeText={setBudgetMin}
@@ -180,7 +196,7 @@ export default function AIRouteBuilderScreen({ navigation }) {
           <Text style={styles.budgetSeparator}>—</Text>
           <TextInput
             style={styles.budgetInput}
-            placeholder="Макс."
+            placeholder={t('budgetMax')}
             keyboardType="numeric"
             value={budgetMax}
             onChangeText={setBudgetMax}
@@ -190,24 +206,24 @@ export default function AIRouteBuilderScreen({ navigation }) {
 
       {/* Activity Level Selection */}
       <View style={styles.fieldContainer}>
-        <Text style={styles.label}>Уровень активности</Text>
+        <Text style={styles.label}>{t('activityLevel')}</Text>
         <View style={styles.buttonGroup}>
-          {Object.entries(ACTIVITY_LEVEL_LABELS).map(([key, label]) => (
+          {Object.values(ACTIVITY_LEVELS).map((level) => (
             <TouchableOpacity
-              key={key}
+              key={level}
               style={[
                 styles.optionButton,
-                activityLevel === key && styles.optionButtonActive,
+                activityLevel === level && styles.optionButtonActive,
               ]}
-              onPress={() => setActivityLevel(key)}
+              onPress={() => setActivityLevel(level)}
             >
               <Text
                 style={[
                   styles.optionButtonText,
-                  activityLevel === key && styles.optionButtonTextActive,
+                  activityLevel === level && styles.optionButtonTextActive,
                 ]}
               >
-                {label}
+                {t(level)}
               </Text>
             </TouchableOpacity>
           ))}
@@ -216,24 +232,24 @@ export default function AIRouteBuilderScreen({ navigation }) {
 
       {/* Interests Selection */}
       <View style={styles.fieldContainer}>
-        <Text style={styles.label}>Интересы</Text>
+        <Text style={styles.label}>{t('interests')}</Text>
         <View style={styles.interestsGrid}>
-          {Object.entries(INTEREST_LABELS).map(([key, label]) => (
+          {Object.values(INTERESTS).map((interest) => (
             <TouchableOpacity
-              key={key}
+              key={interest}
               style={[
                 styles.interestChip,
-                selectedInterests.includes(key) && styles.interestChipActive,
+                selectedInterests.includes(interest) && styles.interestChipActive,
               ]}
-              onPress={() => toggleInterest(key)}
+              onPress={() => toggleInterest(interest)}
             >
               <Text
                 style={[
                   styles.interestChipText,
-                  selectedInterests.includes(key) && styles.interestChipTextActive,
+                  selectedInterests.includes(interest) && styles.interestChipTextActive,
                 ]}
               >
-                {label}
+                {t(interest)}
               </Text>
             </TouchableOpacity>
           ))}
@@ -251,7 +267,7 @@ export default function AIRouteBuilderScreen({ navigation }) {
         ) : (
           <>
             <Ionicons name="construct-outline" size={20} color="#fff" />
-            <Text style={styles.buildButtonText}>Построить маршрут</Text>
+            <Text style={styles.buildButtonText}>{t('buildRoute')}</Text>
           </>
         )}
       </TouchableOpacity>
@@ -263,9 +279,7 @@ export default function AIRouteBuilderScreen({ navigation }) {
       return (
         <View style={styles.emptyState}>
           <Ionicons name="map-outline" size={64} color="#8e8e93" />
-          <Text style={styles.emptyStateText}>
-            Заполните параметры и нажмите "Построить маршрут"
-          </Text>
+          <Text style={styles.emptyStateText}>{t('emptyRouteState')}</Text>
         </View>
       );
     }
@@ -288,23 +302,23 @@ export default function AIRouteBuilderScreen({ navigation }) {
         {/* Summary */}
         {summary && (
           <View style={styles.summaryCard}>
-            <Text style={styles.summaryTitle}>Сводка маршрута</Text>
+            <Text style={styles.summaryTitle}>{t('summaryTitle')}</Text>
             <View style={styles.summaryRow}>
               <Ionicons name="time-outline" size={20} color="#d4af37" />
               <Text style={styles.summaryText}>
-                Время: {Math.floor(summary.totalDuration / 60)}ч {summary.totalDuration % 60}м
+                {`${t('summaryTime')}: ${formatSummaryDuration(summary.totalDuration)}`}
               </Text>
             </View>
             <View style={styles.summaryRow}>
               <Ionicons name="cash-outline" size={20} color="#d4af37" />
               <Text style={styles.summaryText}>
-                Бюджет: ~{summary.totalCost} ₸
+                {t('summaryBudget')}: ~{summary.totalCost} ₸
               </Text>
             </View>
             <View style={styles.summaryRow}>
               <Ionicons name="location-outline" size={20} color="#d4af37" />
               <Text style={styles.summaryText}>
-                Остановок: {summary.numberOfStops}
+                {t('summaryStops')}: {summary.numberOfStops}
               </Text>
             </View>
           </View>
@@ -349,12 +363,16 @@ export default function AIRouteBuilderScreen({ navigation }) {
                 <View style={styles.timelineDetails}>
                   <View style={styles.detailItem}>
                     <Ionicons name="time-outline" size={16} color="#666" />
-                    <Text style={styles.detailText}>{stop.visitDuration} мин</Text>
+                    <Text style={styles.detailText}>
+                      {`${stop.visitDuration} ${t('minutesShort')}`}
+                    </Text>
                   </View>
                   {stop.travelTime > 0 && (
                     <View style={styles.detailItem}>
                       <Ionicons name="car-outline" size={16} color="#666" />
-                      <Text style={styles.detailText}>{stop.travelTime} мин</Text>
+                      <Text style={styles.detailText}>
+                        {`${stop.travelTime} ${t('minutesShort')}`}
+                      </Text>
                     </View>
                   )}
                   <View style={styles.detailItem}>
@@ -366,7 +384,7 @@ export default function AIRouteBuilderScreen({ navigation }) {
                 {/* Alternatives */}
                 {stop.alternatives && stop.alternatives.length > 0 && (
                   <View style={styles.alternatives}>
-                    <Text style={styles.alternativesTitle}>Альтернативы:</Text>
+                    <Text style={styles.alternativesTitle}>{`${t('alternatives')}:`}</Text>
                     {stop.alternatives.map(alt => (
                       <Text key={alt.id} style={styles.alternativeItem}>
                         • {alt.name}

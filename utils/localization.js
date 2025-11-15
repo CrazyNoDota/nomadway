@@ -1,8 +1,15 @@
 // Localization constants and translations
 export const LANGUAGES = {
   RU: 'ru',
+  KK: 'kk',
   EN: 'en',
 };
+
+export const LANGUAGE_OPTIONS = [
+  { code: LANGUAGES.RU, label: 'Русский', nativeLabel: 'Русский', flag: '🇷🇺' },
+  { code: LANGUAGES.KK, label: 'Қазақша', nativeLabel: 'Қазақша', flag: '🇰🇿' },
+  { code: LANGUAGES.EN, label: 'English', nativeLabel: 'English', flag: '🇬🇧' },
+];
 
 export const translations = {
   ru: {
@@ -15,7 +22,18 @@ export const translations = {
     routeBuilder: 'Создать маршрут',
     achievements: 'Достижения',
     leaderboard: 'Лидеры',
-    
+    nav_details: 'Детали',
+    nav_route: 'Маршрут',
+    nav_map: 'Карта',
+    nav_tools: 'Инструменты путешественника',
+    nav_aiGuide: 'AI-Гид',
+    nav_regionalGuide: 'Гид по регионам',
+    nav_personalizedRoute: 'Персонализированный маршрут',
+    nav_aiConstructor: 'AI Конструктор маршрутов',
+    nav_achievements: 'Достижения',
+    nav_leaderboard: 'Таблица лидеров',
+    nav_settings: 'Настройки',
+
     // Common
     loading: 'Загрузка...',
     error: 'Ошибка',
@@ -24,31 +42,75 @@ export const translations = {
     ok: 'ОК',
     save: 'Сохранить',
     back: 'Назад',
-    
+    delete: 'Удалить',
+    all: 'Все',
+
+    // Profile
+    traveler: 'Путешественник',
+    saved: 'Сохранено',
+    aiRoutes: 'AI маршруты',
+    leaders: 'Лидеры',
+    savedPlaces: 'Сохранённые места',
+    savedEmptyTitle: 'Нет сохранённых мест',
+    savedEmptySubtitle: 'Сохраняйте интересные места, чтобы вернуться к ним позже',
+    settings: 'Настройки',
+    help: 'Помощь',
+    aboutApp: 'О приложении',
+    deletePlaceTitle: 'Удалить место?',
+    deletePlaceMessage: 'Вы уверены, что хотите удалить это место из сохранённых?',
+    aiConstructorCardTitle: 'AI Конструктор',
+    aiConstructorCardSubtitle: 'Создать умный маршрут',
+    achievementsCardSubtitle: 'Ваши награды',
+
     // Route Builder
+    routeParams: 'Параметры маршрута',
     buildRoute: 'Построить маршрут',
-    ageGroup: 'Возрастная группа',
+    ageGroup: 'Аудитория',
     duration: 'Продолжительность',
     budget: 'Бюджет',
+    budgetCurrency: 'Бюджет (₸)',
+    budgetMin: 'Мин.',
+    budgetMax: 'Макс.',
     interests: 'Интересы',
     activityLevel: 'Уровень активности',
-    
+    errorSelectInterest: 'Выберите хотя бы один интерес',
+    serverConnectionError: 'Не удалось подключиться к серверу',
+    summaryTitle: 'Сводка маршрута',
+    summaryTime: 'Время',
+    summaryBudget: 'Бюджет',
+    summaryStops: 'Остановок',
+    emptyRouteState: 'Заполните параметры и нажмите «Построить маршрут»',
+    alternatives: 'Альтернативы',
+    minutesShort: 'м',
+    hoursShort: 'ч',
+  routeBuildFailed: 'Не удалось построить маршрут',
+  duration_3_hours: '3 часа',
+  duration_1_day: '1 день',
+  duration_3_days: '3 дня',
+
     // Gamification
     points: 'Очков',
     achievements_count: 'Достижений',
     places: 'Мест',
     yourRank: 'Ваше место',
-    
+    leaderboardEmptyTitle: 'Таблица лидеров пока пуста',
+    leaderboardEmptySubtitle: 'Начните путешествовать и зарабатывать очки!',
+    filterAgeGroup: 'Аудитория',
+    filterPeriod: 'Период',
+    period_all_time: 'За всё время',
+    period_monthly: 'За месяц',
+    period_weekly: 'За неделю',
+
     // User Groups
-    children: 'Дети',
-    youth: 'Молодежь',
-    adults: 'Взрослое поколение',
-    
+    userGroup_family: 'Семейный отдых',
+    userGroup_young: 'Молодёжь',
+    userGroup_adults: 'Взрослые путешественники',
+
     // Activity Levels
     easy: 'Лёгко',
     moderate: 'Средне',
     intense: 'Интенсивно',
-    
+
     // Interests
     food: 'Еда',
     nature: 'Природа',
@@ -58,6 +120,60 @@ export const translations = {
     culture: 'Культура',
     sports: 'Спорт',
     education: 'Образование',
+
+    // Language settings
+    language: 'Язык',
+    languageSettingsTitle: 'Язык интерфейса',
+    languageSettingsSubtitle: 'Выберите язык приложения',
+    language_ru: 'Русский',
+    language_en: 'English',
+    language_kk: 'Қазақша',
+
+    // Home Screen
+    homeGreeting: 'Добро пожаловать!',
+    homeSubtitle: 'Ваш путеводитель по миру',
+    quickAccess: 'Быстрый доступ',
+    aiGuideTitle: 'AI-Гид',
+    aiGuideSubtitle: 'Задайте вопрос о путешествиях',
+    toolsTitle: 'Инструменты',
+    toolsSubtitle: 'Валюта, переводчик, погода',
+    personalizedRouteTitle: 'Персонализированный маршрут',
+    personalizedRouteSubtitle: 'Создайте маршрут по вашим интересам',
+    regionalGuideTitle: 'Гид по регионам',
+    regionalGuideSubtitle: 'Информация о городах и регионах',
+    popularPlaces: 'Популярные места',
+    exploreAttractions: 'Исследовать достопримечательности',
+    exploreAttractionsSubtitle: 'Откройте для себя удивительные места',
+    readyRoutes: 'Готовые маршруты',
+    readyRoutesSubtitle: 'Выберите готовый маршрут для путешествия',
+    interactiveMap: 'Интерактивная карта',
+    interactiveMapSubtitle: 'Просмотрите все места на карте',
+    mapOfKazakhstan: 'Карта Казахстана',
+
+    // Explore Screen
+    searchPlaceholder: 'Поиск мест...',
+    categories: 'Категории',
+    allCategories: 'Все',
+    nature_category: 'Природа',
+    history_category: 'История',
+    city_category: 'Города',
+    mountains_category: 'Горы',
+    sport_category: 'Спорт',
+
+    // Routes Screen
+    recommendedRoutes: 'Рекомендованные маршруты',
+    days: 'дней',
+    day: 'день',
+
+    // Achievements Screen
+    achievementsTitle: 'Достижения',
+    unlocked: 'Разблокировано',
+    locked: 'Заблокировано',
+    progress: 'Прогресс',
+
+    // Leaderboard Screen
+    leaderboardTitle: 'Таблица лидеров',
+    rank: 'Место',
   },
   en: {
     // Navigation
@@ -69,7 +185,18 @@ export const translations = {
     routeBuilder: 'Route Builder',
     achievements: 'Achievements',
     leaderboard: 'Leaderboard',
-    
+    nav_details: 'Details',
+    nav_route: 'Route',
+    nav_map: 'Map',
+    nav_tools: 'Traveler Tools',
+    nav_aiGuide: 'AI Guide',
+    nav_regionalGuide: 'Regional Guide',
+    nav_personalizedRoute: 'Personalized Route',
+    nav_aiConstructor: 'AI Route Builder',
+    nav_achievements: 'Achievements',
+    nav_leaderboard: 'Leaderboard',
+    nav_settings: 'Settings',
+
     // Common
     loading: 'Loading...',
     error: 'Error',
@@ -78,31 +205,75 @@ export const translations = {
     ok: 'OK',
     save: 'Save',
     back: 'Back',
-    
+    delete: 'Delete',
+    all: 'All',
+
+    // Profile
+    traveler: 'Traveler',
+    saved: 'Saved',
+    aiRoutes: 'AI Routes',
+    leaders: 'Leaders',
+    savedPlaces: 'Saved Places',
+    savedEmptyTitle: 'No saved places',
+    savedEmptySubtitle: 'Save places you like to revisit them later',
+    settings: 'Settings',
+    help: 'Help',
+    aboutApp: 'About the App',
+    deletePlaceTitle: 'Remove place?',
+    deletePlaceMessage: 'Are you sure you want to remove this place from favorites?',
+    aiConstructorCardTitle: 'AI Builder',
+    aiConstructorCardSubtitle: 'Create a smart route',
+    achievementsCardSubtitle: 'Your awards',
+
     // Route Builder
+    routeParams: 'Route parameters',
     buildRoute: 'Build Route',
-    ageGroup: 'Age Group',
+    ageGroup: 'Audience',
     duration: 'Duration',
     budget: 'Budget',
+    budgetCurrency: 'Budget (₸)',
+    budgetMin: 'Min.',
+    budgetMax: 'Max.',
     interests: 'Interests',
     activityLevel: 'Activity Level',
-    
+    errorSelectInterest: 'Select at least one interest',
+    serverConnectionError: 'Unable to reach the server',
+    summaryTitle: 'Route summary',
+    summaryTime: 'Time',
+    summaryBudget: 'Budget',
+    summaryStops: 'Stops',
+    emptyRouteState: 'Fill the parameters and tap “Build Route”',
+    alternatives: 'Alternatives',
+    minutesShort: 'm',
+    hoursShort: 'h',
+  routeBuildFailed: 'Failed to build route',
+  duration_3_hours: '3 hours',
+  duration_1_day: '1 day',
+  duration_3_days: '3 days',
+
     // Gamification
     points: 'Points',
     achievements_count: 'Achievements',
     places: 'Places',
-    yourRank: 'Your Rank',
-    
+    yourRank: 'Your rank',
+    leaderboardEmptyTitle: 'Leaderboard is empty',
+    leaderboardEmptySubtitle: 'Start exploring to earn points!',
+    filterAgeGroup: 'Audience',
+    filterPeriod: 'Period',
+    period_all_time: 'All Time',
+    period_monthly: 'Monthly',
+    period_weekly: 'Weekly',
+
     // User Groups
-    children: 'Children',
-    youth: 'Youth',
-    adults: 'Adults',
-    
+    userGroup_family: 'Family travel',
+    userGroup_young: 'Young people',
+    userGroup_adults: 'Adult travelers',
+
     // Activity Levels
     easy: 'Easy',
     moderate: 'Moderate',
     intense: 'Intense',
-    
+
     // Interests
     food: 'Food',
     nature: 'Nature',
@@ -112,18 +283,226 @@ export const translations = {
     culture: 'Culture',
     sports: 'Sports',
     education: 'Education',
+
+    // Language settings
+    language: 'Language',
+    languageSettingsTitle: 'Interface language',
+    languageSettingsSubtitle: 'Choose the app language',
+    language_ru: 'Русский',
+    language_en: 'English',
+    language_kk: 'Қазақша',
+
+    // Home Screen
+    homeGreeting: 'Welcome!',
+    homeSubtitle: 'Your guide to the world',
+    quickAccess: 'Quick Access',
+    aiGuideTitle: 'AI Guide',
+    aiGuideSubtitle: 'Ask about travel',
+    toolsTitle: 'Tools',
+    toolsSubtitle: 'Currency, translator, weather',
+    personalizedRouteTitle: 'Personalized Route',
+    personalizedRouteSubtitle: 'Create a route based on your interests',
+    regionalGuideTitle: 'Regional Guide',
+    regionalGuideSubtitle: 'Information about cities and regions',
+    popularPlaces: 'Popular Places',
+    exploreAttractions: 'Explore Attractions',
+    exploreAttractionsSubtitle: 'Discover amazing places',
+    readyRoutes: 'Ready Routes',
+    readyRoutesSubtitle: 'Choose a ready-made travel route',
+    interactiveMap: 'Interactive Map',
+    interactiveMapSubtitle: 'View all places on the map',
+    mapOfKazakhstan: 'Map of Kazakhstan',
+
+    // Explore Screen
+    searchPlaceholder: 'Search places...',
+    categories: 'Categories',
+    allCategories: 'All',
+    nature_category: 'Nature',
+    history_category: 'History',
+    city_category: 'Cities',
+    mountains_category: 'Mountains',
+    sport_category: 'Sport',
+
+    // Routes Screen
+    recommendedRoutes: 'Recommended Routes',
+    days: 'days',
+    day: 'day',
+
+    // Achievements Screen
+    achievementsTitle: 'Achievements',
+    unlocked: 'Unlocked',
+    locked: 'Locked',
+    progress: 'Progress',
+
+    // Leaderboard Screen
+    leaderboardTitle: 'Leaderboard',
+    rank: 'Rank',
+  },
+  kk: {
+    // Navigation
+    explore: 'Зерттеу',
+    routes: 'Маршруттар',
+    community: 'Қауымдастық',
+    profile: 'Профиль',
+    aiChat: 'AI чат',
+    routeBuilder: 'Маршрут құру',
+    achievements: 'Жетістіктер',
+    leaderboard: 'Көшбасшылар',
+    nav_details: 'Мәлімет',
+    nav_route: 'Маршрут',
+    nav_map: 'Карта',
+    nav_tools: 'Саяхат құралдары',
+    nav_aiGuide: 'AI-гид',
+    nav_regionalGuide: 'Аймақтық гид',
+    nav_personalizedRoute: 'Дербес маршрут',
+    nav_aiConstructor: 'AI маршрут конструкторы',
+    nav_achievements: 'Жетістіктер',
+    nav_leaderboard: 'Көшбасшылар',
+    nav_settings: 'Баптаулар',
+
+    // Common
+    loading: 'Жүктелуде...',
+    error: 'Қате',
+    success: 'Сәтті',
+    cancel: 'Бас тарту',
+    ok: 'OK',
+    save: 'Сақтау',
+    back: 'Артқа',
+    delete: 'Жою',
+    all: 'Барлығы',
+
+    // Profile
+    traveler: 'Саяхатшы',
+    saved: 'Сақталған',
+    aiRoutes: 'AI маршруттары',
+    leaders: 'Көшбасшылар',
+    savedPlaces: 'Сақталған орындар',
+    savedEmptyTitle: 'Әзірге орын жоқ',
+    savedEmptySubtitle: 'Қызықтырған орындарды кейін қайту үшін сақтаңыз',
+    settings: 'Баптаулар',
+    help: 'Көмек',
+    aboutApp: 'Қолданба туралы',
+    deletePlaceTitle: 'Орынды жою?',
+    deletePlaceMessage: 'Бұл орынды сақталғандардан жоюды қалайсыз ба?',
+    aiConstructorCardTitle: 'AI Конструктор',
+    aiConstructorCardSubtitle: 'Ақылды маршрут құру',
+    achievementsCardSubtitle: 'Сіздің марапаттар',
+
+    // Route Builder
+    routeParams: 'Маршрут параметрлері',
+    buildRoute: 'Маршрут құру',
+    ageGroup: 'Аудитория',
+    duration: 'Ұзақтығы',
+    budget: 'Бюджет',
+    budgetCurrency: 'Бюджет (₸)',
+    budgetMin: 'Мин.',
+    budgetMax: 'Макс.',
+    interests: 'Қызығушылықтар',
+    activityLevel: 'Белсенділік деңгейі',
+    errorSelectInterest: 'Кемінде бір қызығушылықты таңдаңыз',
+    serverConnectionError: 'Серверге қосылу мүмкін болмады',
+    summaryTitle: 'Маршрут қорытындысы',
+    summaryTime: 'Уақыт',
+    summaryBudget: 'Бюджет',
+    summaryStops: 'Тоқтаулар',
+    emptyRouteState: 'Параметрлерді толтырып, «Маршрут құру» батырмасын басыңыз',
+    alternatives: 'Баламалар',
+    minutesShort: 'мин',
+    hoursShort: 'сағ',
+  routeBuildFailed: 'Маршрут құра алмадық',
+  duration_3_hours: '3 сағат',
+  duration_1_day: '1 күн',
+  duration_3_days: '3 күн',
+
+    // Gamification
+    points: 'Ұпай',
+    achievements_count: 'Жетістіктер',
+    places: 'Орындар',
+    yourRank: 'Сіздің орын',
+    leaderboardEmptyTitle: 'Көшбасшылар кестесі бос',
+    leaderboardEmptySubtitle: 'Ұпай жинауды бастаңыз!',
+    filterAgeGroup: 'Аудитория',
+    filterPeriod: 'Период',
+    period_all_time: 'Барлық уақыт',
+    period_monthly: 'Ай сайын',
+    period_weekly: 'Апта сайын',
+
+    // User Groups
+    userGroup_family: 'Отбасылық демалыс',
+    userGroup_young: 'Жастар',
+    userGroup_adults: 'Ересек саяхатшылар',
+
+    // Activity Levels
+    easy: 'Жеңіл',
+    moderate: 'Орташа',
+    intense: 'Қарқынды',
+
+    // Interests
+    food: 'Тағам',
+    nature: 'Табиғат',
+    museums: 'Музейлер',
+    shopping: 'Сауда',
+    adventure: 'Шытырман',
+    culture: 'Мәдениет',
+    sports: 'Спорт',
+    education: 'Білім',
+
+    // Language settings
+    language: 'Тіл',
+    languageSettingsTitle: 'Интерфейс тілі',
+    languageSettingsSubtitle: 'Қолданба тілін таңдаңыз',
+    language_ru: 'Русский',
+    language_en: 'English',
+    language_kk: 'Қазақша',
+
+    // Home Screen
+    homeGreeting: 'Қош келдіңіз!',
+    homeSubtitle: 'Сіздің әлем бойынша гидыңыз',
+    quickAccess: 'Жылдам қол жеткізу',
+    aiGuideTitle: 'AI-Гид',
+    aiGuideSubtitle: 'Саяхат туралы сұраңыз',
+    toolsTitle: 'Құралдар',
+    toolsSubtitle: 'Валюта, аудармашы, ауа райы',
+    personalizedRouteTitle: 'Дербес маршрут',
+    personalizedRouteSubtitle: 'Қызығушылығыңызға сай маршрут жасаңыз',
+    regionalGuideTitle: 'Аймақтық гид',
+    regionalGuideSubtitle: 'Қалалар мен аймақтар туралы ақпарат',
+    popularPlaces: 'Танымал орындар',
+    exploreAttractions: 'Көрікті жерлерді зерттеу',
+    exploreAttractionsSubtitle: 'Ерекше орындарды ашыңыз',
+    readyRoutes: 'Дайын маршруттар',
+    readyRoutesSubtitle: 'Саяхатқа дайын маршрутты таңдаңыз',
+    interactiveMap: 'Интерактивті карта',
+    interactiveMapSubtitle: 'Барлық орындарды картада қараңыз',
+    mapOfKazakhstan: 'Қазақстан картасы',
+
+    // Explore Screen
+    searchPlaceholder: 'Орындарды іздеу...',
+    categories: 'Санаттар',
+    allCategories: 'Барлығы',
+    nature_category: 'Табиғат',
+    history_category: 'Тарих',
+    city_category: 'Қалалар',
+    mountains_category: 'Таулар',
+    sport_category: 'Спорт',
+
+    // Routes Screen
+    recommendedRoutes: 'Ұсынылатын маршруттар',
+    days: 'күн',
+    day: 'күн',
+
+    // Achievements Screen
+    achievementsTitle: 'Жетістіктер',
+    unlocked: 'Ашылды',
+    locked: 'Жабық',
+    progress: 'Прогресс',
+
+    // Leaderboard Screen
+    leaderboardTitle: 'Көшбасшылар кестесі',
+    rank: 'Орын',
   },
 };
 
-// Simple translation function
-let currentLanguage = LANGUAGES.RU;
-
-export const setLanguage = (lang) => {
-  currentLanguage = lang;
+export const translate = (language, key) => {
+  return translations[language]?.[key] ?? translations[LANGUAGES.RU][key] ?? key;
 };
-
-export const t = (key) => {
-  return translations[currentLanguage][key] || key;
-};
-
-export const getCurrentLanguage = () => currentLanguage;

@@ -20,7 +20,7 @@ export const ACHIEVEMENTS = {
     threshold: 5,
     points: 50,
     icon: '🎯',
-  ageGroups: ['family', 'adults'],
+    ageGroups: ['family', 'young', 'adults'],
   },
   EXPLORER_INTERMEDIATE: {
     id: 'explorer_intermediate',
@@ -32,7 +32,7 @@ export const ACHIEVEMENTS = {
     threshold: 10,
     points: 100,
     icon: '🌟',
-  ageGroups: ['family', 'adults'],
+    ageGroups: ['family', 'young', 'adults'],
   },
   EXPLORER_EXPERT: {
     id: 'explorer_expert',
@@ -44,7 +44,7 @@ export const ACHIEVEMENTS = {
     threshold: 25,
     points: 250,
     icon: '👑',
-  ageGroups: ['adults'],
+    ageGroups: ['young', 'adults'],
   },
   
   // Cities visited
@@ -58,7 +58,7 @@ export const ACHIEVEMENTS = {
     threshold: 3,
     points: 150,
     icon: '🏙️',
-  ageGroups: ['family', 'adults'],
+    ageGroups: ['family', 'young', 'adults'],
   },
   CITY_MASTER: {
     id: 'city_master',
@@ -70,7 +70,7 @@ export const ACHIEVEMENTS = {
     threshold: 5,
     points: 300,
     icon: '🗺️',
-  ageGroups: ['adults'],
+    ageGroups: ['young', 'adults'],
   },
   
   // Distance walked
@@ -84,7 +84,7 @@ export const ACHIEVEMENTS = {
     threshold: 10000, // meters
     points: 100,
     icon: '🥉',
-  ageGroups: ['family', 'adults'],
+    ageGroups: ['family', 'young', 'adults'],
   },
   WALKER_SILVER: {
     id: 'walker_silver',
@@ -96,7 +96,7 @@ export const ACHIEVEMENTS = {
     threshold: 50000, // meters
     points: 250,
     icon: '🥈',
-  ageGroups: ['adults'],
+    ageGroups: ['young', 'adults'],
   },
   WALKER_GOLD: {
     id: 'walker_gold',
@@ -108,7 +108,7 @@ export const ACHIEVEMENTS = {
     threshold: 100000, // meters
     points: 500,
     icon: '🥇',
-  ageGroups: ['adults'],
+    ageGroups: ['young', 'adults'],
   },
   
   // Age-specific achievements
@@ -134,7 +134,7 @@ export const ACHIEVEMENTS = {
     threshold: 5,
     points: 200,
     icon: '🏛️',
-    ageGroups: ['adults'],
+    ageGroups: ['young', 'adults'],
   },
   ADVENTURE_SEEKER: {
     id: 'adventure_seeker',
@@ -146,7 +146,7 @@ export const ACHIEVEMENTS = {
     threshold: 5,
     points: 200,
     icon: '⛰️',
-    ageGroups: ['adults'],
+    ageGroups: ['young', 'adults'],
   },
 };
 
@@ -163,7 +163,7 @@ export const SEASONAL_CHALLENGES = [
     requiredPlaces: ['Медеу', 'Озеро Каинды', 'Алматы - Южная столица'],
     points: 500,
     badge: '🏔️',
-  ageGroups: ['family', 'adults'],
+    ageGroups: ['family', 'young', 'adults'],
   },
   {
     id: 'winter_astana_2025',
@@ -176,7 +176,7 @@ export const SEASONAL_CHALLENGES = [
     requiredPlaces: [], // Will be configured with Astana attractions
     points: 400,
     badge: '❄️',
-  ageGroups: ['family', 'adults'],
+    ageGroups: ['family', 'young', 'adults'],
   },
   {
     id: 'spring_tulips_2025',
@@ -189,7 +189,7 @@ export const SEASONAL_CHALLENGES = [
     requiredPlaces: ['Тюльпаны в степи'],
     points: 300,
     badge: '🌷',
-  ageGroups: ['family', 'adults'],
+    ageGroups: ['family', 'young', 'adults'],
   },
 ];
 

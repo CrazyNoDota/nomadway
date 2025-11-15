@@ -7,17 +7,19 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   USER_GROUPS,
-  USER_GROUP_LABELS,
 } from '../constants/userSegments';
 import {
   LEADERBOARD_PERIODS,
-  LEADERBOARD_PERIOD_LABELS,
 } from '../constants/gamification';
+import { useLocalization } from '../contexts/LocalizationContext';
+
+const LOGO_URL = 'https://raw.githubusercontent.com/CrazyNoDota/danik/21bad4af7ac400b27c470851e9968c5860b06407/photo_2025-11-15_23-14-57-removebg-preview.png';
 
 export default function LeaderboardScreen({ navigation }) {
   const [loading, setLoading] = useState(true);
@@ -26,6 +28,7 @@ export default function LeaderboardScreen({ navigation }) {
   const [selectedAgeGroup, setSelectedAgeGroup] = useState('all');
   const [selectedPeriod, setSelectedPeriod] = useState(LEADERBOARD_PERIODS.ALL_TIME);
   const [currentUserId, setCurrentUserId] = useState(null);
+  const { t } = useLocalization();
 
   useEffect(() => {
     loadLeaderboard();
@@ -130,11 +133,21 @@ export default function LeaderboardScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
+      {/* Header with Logo */}
+      <View style={styles.headerContainer}>
+        <Image 
+          source={{ uri: LOGO_URL }}
+          style={styles.headerLogo}
+          resizeMode="contain"
+        />
+        <Text style={styles.headerTitle}>{t('leaderboardTitle')}</Text>
+      </View>
+
       {/* Filters */}
       <View style={styles.filtersContainer}>
         {/* Age Group Filter */}
         <View style={styles.filterSection}>
-          <Text style={styles.filterLabel}>Возрастная группа</Text>
+          <Text style={styles.filterLabel}>{t('filterAgeGroup')}</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <TouchableOpacity
               style={[
@@ -149,7 +162,7 @@ export default function LeaderboardScreen({ navigation }) {
                   selectedAgeGroup === 'all' && styles.filterChipTextActive,
                 ]}
               >
-                Все
+                {t('all')}
               </Text>
             </TouchableOpacity>
             {Object.values(USER_GROUPS).map((group) => (
@@ -167,7 +180,7 @@ export default function LeaderboardScreen({ navigation }) {
                     selectedAgeGroup === group && styles.filterChipTextActive,
                   ]}
                 >
-                  {USER_GROUP_LABELS[group]}
+                  {t(`userGroup_${group}`)}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -176,24 +189,24 @@ export default function LeaderboardScreen({ navigation }) {
 
         {/* Period Filter */}
         <View style={styles.filterSection}>
-          <Text style={styles.filterLabel}>Период</Text>
+          <Text style={styles.filterLabel}>{t('filterPeriod')}</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {Object.entries(LEADERBOARD_PERIOD_LABELS).map(([key, label]) => (
+            {Object.values(LEADERBOARD_PERIODS).map((period) => (
               <TouchableOpacity
-                key={key}
+                key={period}
                 style={[
                   styles.filterChip,
-                  selectedPeriod === key && styles.filterChipActive,
+                  selectedPeriod === period && styles.filterChipActive,
                 ]}
-                onPress={() => setSelectedPeriod(key)}
+                onPress={() => setSelectedPeriod(period)}
               >
                 <Text
                   style={[
                     styles.filterChipText,
-                    selectedPeriod === key && styles.filterChipTextActive,
+                    selectedPeriod === period && styles.filterChipTextActive,
                   ]}
                 >
-                  {label}
+                  {t(`period_${period}`)}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -212,10 +225,10 @@ export default function LeaderboardScreen({ navigation }) {
           <View style={styles.emptyState}>
             <Ionicons name="trophy-outline" size={64} color="#ccc" />
             <Text style={styles.emptyStateText}>
-              Таблица лидеров пока пуста
+              {t('leaderboardEmptyTitle')}
             </Text>
             <Text style={styles.emptyStateSubtext}>
-              Начните путешествовать и зарабатывать очки!
+              {t('leaderboardEmptySubtitle')}
             </Text>
           </View>
         ) : (
@@ -235,6 +248,24 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  headerContainer: {
+    backgroundColor: '#1a4d3a',
+    paddingVertical: 20,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    borderBottomWidth: 2,
+    borderBottomColor: '#d4af37',
+  },
+  headerLogo: {
+    width: 60,
+    height: 60,
+    marginBottom: 8,
+  },
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#d4af37',
   },
   filtersContainer: {
     backgroundColor: '#fff',

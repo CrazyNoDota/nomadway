@@ -11,20 +11,25 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import attractionsData from '../data/attractions.json';
+import { useLocalization } from '../contexts/LocalizationContext';
 
 export default function ExploreScreen({ navigation }) {
   const [attractions, setAttractions] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState(null);
+  const { t } = useLocalization();
 
   useEffect(() => {
     setAttractions(attractionsData.attractions);
   }, []);
 
   const filters = [
-    { key: 'nature', label: 'Природа', icon: '🌳' },
-    { key: 'history', label: 'История', icon: '🏛️' },
-    { key: 'modern', label: 'Современные развлечения', icon: '🎢' },
+    { key: 'all', labelKey: 'allCategories', icon: '🌍' },
+    { key: 'nature', labelKey: 'nature_category', icon: '🌳' },
+    { key: 'history', labelKey: 'history_category', icon: '🏛️' },
+    { key: 'city', labelKey: 'city_category', icon: '🏙️' },
+    { key: 'mountains', labelKey: 'mountains_category', icon: '⛰️' },
+    { key: 'sport', labelKey: 'sport_category', icon: '⚽' },
   ];
 
   const getFilteredAttractions = () => {
@@ -39,12 +44,18 @@ export default function ExploreScreen({ navigation }) {
     }
 
     // Apply category filter
-    if (activeFilter === 'nature') {
-      filtered = filtered.filter(a => a.category === 'Природа' || a.category === 'Горы');
-    } else if (activeFilter === 'history') {
-      filtered = filtered.filter(a => a.category === 'История');
-    } else if (activeFilter === 'modern') {
-      filtered = filtered.filter(a => a.category === 'Город' || a.category === 'Спорт');
+    if (activeFilter && activeFilter !== 'all') {
+      if (activeFilter === 'nature') {
+        filtered = filtered.filter(a => a.category === 'Природа');
+      } else if (activeFilter === 'history') {
+        filtered = filtered.filter(a => a.category === 'История');
+      } else if (activeFilter === 'city') {
+        filtered = filtered.filter(a => a.category === 'Город');
+      } else if (activeFilter === 'mountains') {
+        filtered = filtered.filter(a => a.category === 'Горы');
+      } else if (activeFilter === 'sport') {
+        filtered = filtered.filter(a => a.category === 'Спорт');
+      }
     }
 
     return filtered;
@@ -85,7 +96,7 @@ export default function ExploreScreen({ navigation }) {
         <Ionicons name="search" size={20} color="#8e8e93" style={styles.searchIcon} />
         <TextInput
           style={styles.searchInput}
-          placeholder="Поиск достопримечательностей..."
+          placeholder={t('searchPlaceholder')}
           placeholderTextColor="#8e8e93"
           value={searchQuery}
           onChangeText={setSearchQuery}
@@ -93,27 +104,12 @@ export default function ExploreScreen({ navigation }) {
       </View>
       
       <View style={styles.filtersContainer}>
+        <Text style={styles.filtersTitle}>{t('categories')}</Text>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.filtersContent}
         >
-          <TouchableOpacity
-            style={[
-              styles.filterButton,
-              activeFilter === null && styles.filterButtonActive,
-            ]}
-            onPress={() => setActiveFilter(null)}
-          >
-            <Text
-              style={[
-                styles.filterText,
-                activeFilter === null && styles.filterTextActive,
-              ]}
-            >
-              Все
-            </Text>
-          </TouchableOpacity>
           {filters.map((filter) => (
             <TouchableOpacity
               key={filter.key}
@@ -121,18 +117,16 @@ export default function ExploreScreen({ navigation }) {
                 styles.filterButton,
                 activeFilter === filter.key && styles.filterButtonActive,
               ]}
-              onPress={() =>
-                setActiveFilter(activeFilter === filter.key ? null : filter.key)
-              }
+              onPress={() => setActiveFilter(filter.key)}
             >
-              <Text style={styles.filterIcon}>{filter.icon}</Text>
+              <Text style={styles.filterEmoji}>{filter.icon}</Text>
               <Text
                 style={[
                   styles.filterText,
                   activeFilter === filter.key && styles.filterTextActive,
                 ]}
               >
-                {filter.label}
+                {t(filter.labelKey)}
               </Text>
             </TouchableOpacity>
           ))}
@@ -257,8 +251,16 @@ const styles = StyleSheet.create({
   filtersContainer: {
     backgroundColor: '#fff',
     paddingVertical: 12,
+    paddingBottom: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
+  },
+  filtersTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#666',
+    paddingHorizontal: 16,
+    marginBottom: 8,
   },
   filtersContent: {
     paddingHorizontal: 16,
@@ -278,7 +280,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff9e6',
     borderColor: '#d4af37',
   },
-  filterIcon: {
+  filterEmoji: {
     fontSize: 16,
     marginRight: 6,
   },

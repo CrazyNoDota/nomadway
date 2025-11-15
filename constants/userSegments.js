@@ -1,21 +1,25 @@
 // User age group segmentation
 export const USER_GROUPS = {
   FAMILY: 'family',
+  YOUNG: 'young',
   ADULTS: 'adults',
 };
 
 export const USER_GROUP_LABELS = {
   [USER_GROUPS.FAMILY]: 'Семейный отдых',
+  [USER_GROUPS.YOUNG]: 'Молодёжь',
   [USER_GROUPS.ADULTS]: 'Взрослые путешественники',
 };
 
 export const USER_GROUP_LABELS_EN = {
   [USER_GROUPS.FAMILY]: 'Family Travel',
+  [USER_GROUPS.YOUNG]: 'Young People',
   [USER_GROUPS.ADULTS]: 'Adults',
 };
 
 export const USER_GROUP_LABELS_KK = {
   [USER_GROUPS.FAMILY]: 'Отбасылық демалыс',
+  [USER_GROUPS.YOUNG]: 'Жастар',
   [USER_GROUPS.ADULTS]: 'Ересек саяхатшылар',
 };
 
@@ -105,6 +109,12 @@ export const AGE_GROUP_PARAMS = {
     avgVisitDuration: 60, // minutes
     restFrequency: 90, // minutes
     preferredInterests: [INTERESTS.CULTURE, INTERESTS.MUSEUMS, INTERESTS.NATURE, INTERESTS.FOOD],
+  },
+  [USER_GROUPS.YOUNG]: {
+    maxWalkingDistance: 2000, // meters
+    avgVisitDuration: 45, // minutes
+    restFrequency: 120, // minutes
+    preferredInterests: [INTERESTS.ADVENTURE, INTERESTS.SPORTS, INTERESTS.SHOPPING, INTERESTS.FOOD],
   },
   [USER_GROUPS.FAMILY]: {
     maxWalkingDistance: 800, // meters
