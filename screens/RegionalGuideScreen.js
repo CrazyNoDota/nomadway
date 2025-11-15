@@ -11,8 +11,11 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import regionsData from '../data/regions.json';
 import attractionsData from '../data/attractions.json';
+import { useLocalization } from '../contexts/LocalizationContext';
+import { getTranslatedAttractions } from '../utils/attractionTranslations';
 
 export default function RegionalGuideScreen({ navigation, route }) {
+  const { language } = useLocalization();
   const [regions, setRegions] = useState([]);
   const [selectedRegion, setSelectedRegion] = useState(null);
   const regionId = route?.params?.regionId;
@@ -27,7 +30,8 @@ export default function RegionalGuideScreen({ navigation, route }) {
 
   const getRegionAttractions = (region) => {
     if (!region.attractions || region.attractions.length === 0) return [];
-    return attractionsData.attractions.filter(a => region.attractions.includes(a.id));
+    const filtered = attractionsData.attractions.filter(a => region.attractions.includes(a.id));
+    return getTranslatedAttractions(filtered, language);
   };
 
   const renderRegion = ({ item }) => (

@@ -12,16 +12,18 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import attractionsData from '../data/attractions.json';
 import { useLocalization } from '../contexts/LocalizationContext';
+import { getTranslatedAttractions } from '../utils/attractionTranslations';
 
 export default function ExploreScreen({ navigation }) {
   const [attractions, setAttractions] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState(null);
-  const { t } = useLocalization();
+  const { t, language } = useLocalization();
 
   useEffect(() => {
-    setAttractions(attractionsData.attractions);
-  }, []);
+    const translatedAttractions = getTranslatedAttractions(attractionsData.attractions, language);
+    setAttractions(translatedAttractions);
+  }, [language]);
 
   const filters = [
     { key: 'all', labelKey: 'allCategories', icon: '🌍' },
@@ -45,17 +47,14 @@ export default function ExploreScreen({ navigation }) {
 
     // Apply category filter
     if (activeFilter && activeFilter !== 'all') {
-      if (activeFilter === 'nature') {
-        filtered = filtered.filter(a => a.category === 'Природа');
-      } else if (activeFilter === 'history') {
-        filtered = filtered.filter(a => a.category === 'История');
-      } else if (activeFilter === 'city') {
-        filtered = filtered.filter(a => a.category === 'Город');
-      } else if (activeFilter === 'mountains') {
-        filtered = filtered.filter(a => a.category === 'Горы');
-      } else if (activeFilter === 'sport') {
-        filtered = filtered.filter(a => a.category === 'Спорт');
-      }
+      const categoryMap = {
+        nature: t('nature_category'),
+        history: t('history_category'),
+        city: t('city_category'),
+        mountains: t('mountains_category'),
+        sport: t('sport_category'),
+      };
+      filtered = filtered.filter(a => a.category === categoryMap[activeFilter]);
     }
 
     return filtered;

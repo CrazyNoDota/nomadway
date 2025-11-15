@@ -13,8 +13,11 @@ import { Ionicons } from '@expo/vector-icons';
 import SimplePicker from '../components/SimplePicker';
 import attractionsData from '../data/attractions.json';
 import { buildRoute, optimizeRoute } from '../utils/routeBuilder';
+import { useLocalization } from '../contexts/LocalizationContext';
+import { getTranslatedAttractions } from '../utils/attractionTranslations';
 
 export default function PersonalizedRouteScreen({ navigation }) {
+  const { language } = useLocalization();
   const [interests, setInterests] = useState({
     nature: false,
     history: false,
@@ -46,14 +49,18 @@ export default function PersonalizedRouteScreen({ navigation }) {
   ];
 
   const generateRoute = () => {
-    let filtered = attractionsData.attractions;
+    // Get translated attractions
+    const translatedAttractions = getTranslatedAttractions(attractionsData.attractions, language);
+    let filtered = translatedAttractions;
 
-    // Filter by interests
+    // Filter by interests - categories are now translated
     if (interests.nature || interests.history || interests.modern) {
       filtered = filtered.filter(attraction => {
-        if (interests.nature && attraction.category === 'Природа') return true;
-        if (interests.history && attraction.category === 'История') return true;
-        if (interests.modern && (attraction.category === 'Город' || attraction.category === 'Спорт')) return true;
+        // Use original Russian categories for filtering since data structure uses them
+        const originalAttraction = attractionsData.attractions.find(a => a.id === attraction.id);
+        if (interests.nature && originalAttraction.category === 'Природа') return true;
+        if (interests.history && originalAttraction.category === 'История') return true;
+        if (interests.modern && (originalAttraction.category === 'Город' || originalAttraction.category === 'Спорт')) return true;
         return false;
       });
     }

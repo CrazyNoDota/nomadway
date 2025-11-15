@@ -15,11 +15,15 @@ import { Ionicons } from '@expo/vector-icons';
 import MapView, { Marker } from 'react-native-maps';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Sharing from 'expo-sharing';
+import { useLocalization } from '../contexts/LocalizationContext';
+import { getTranslatedAttraction } from '../utils/attractionTranslations';
 
 const { width } = Dimensions.get('window');
 
 export default function AttractionDetailsScreen({ route, navigation }) {
-  const { attraction } = route.params;
+  const { attraction: originalAttraction } = route.params;
+  const { language } = useLocalization();
+  const attraction = getTranslatedAttraction(originalAttraction, language);
   const [isSaved, setIsSaved] = useState(false);
 
   useEffect(() => {

@@ -10,6 +10,8 @@ import { Ionicons } from '@expo/vector-icons';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import * as Location from 'expo-location';
 import attractionsData from '../data/attractions.json';
+import { useLocalization } from '../contexts/LocalizationContext';
+import { getTranslatedAttractions } from '../utils/attractionTranslations';
 
 const { width, height } = Dimensions.get('window');
 
@@ -23,21 +25,24 @@ const KAZAKHSTAN_CENTER = {
 
 export default function MapScreen({ route, navigation }) {
   const { attractions: routeAttractions, route: routeData, title, zoomToPlace } = route.params || {};
+  const { language } = useLocalization();
   const [attractions, setAttractions] = useState([]);
   const [region, setRegion] = useState(KAZAKHSTAN_CENTER);
   const [userLocation, setUserLocation] = useState(null);
   const [showUserLocation, setShowUserLocation] = useState(false);
   const mapRef = useRef(null);
 
-  // Load attractions
+  // Load attractions with translations
   useEffect(() => {
     if (routeAttractions && routeAttractions.length > 0) {
-      setAttractions(routeAttractions);
+      const translated = getTranslatedAttractions(routeAttractions, language);
+      setAttractions(translated);
     } else {
       // Load all attractions by default
-      setAttractions(attractionsData.attractions);
+      const translated = getTranslatedAttractions(attractionsData.attractions, language);
+      setAttractions(translated);
     }
-  }, [routeAttractions]);
+  }, [routeAttractions, language]);
 
   // Set region based on attractions or zoom to specific place
   useEffect(() => {
