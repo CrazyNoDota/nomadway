@@ -98,18 +98,48 @@ export default function ProfileScreen({ navigation }) {
       </View>
 
       <View style={styles.statsContainer}>
-        <View style={styles.statItem}>
+        <TouchableOpacity 
+          style={styles.statItem}
+          onPress={() => navigation.navigate('Achievements')}
+        >
           <Text style={styles.statNumber}>{savedPlaces.length}</Text>
           <Text style={styles.statLabel}>Сохранено</Text>
-        </View>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>0</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.statItem}
+          onPress={() => navigation.navigate('AIRouteBuilder')}
+        >
+          <Text style={styles.statNumber}>AI</Text>
           <Text style={styles.statLabel}>Маршруты</Text>
-        </View>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>0</Text>
-          <Text style={styles.statLabel}>Отзывы</Text>
-        </View>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.statItem}
+          onPress={() => navigation.navigate('Leaderboard')}
+        >
+          <Text style={styles.statNumber}>🏆</Text>
+          <Text style={styles.statLabel}>Лидеры</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Gamification Section */}
+      <View style={styles.gamificationSection}>
+        <TouchableOpacity 
+          style={styles.gamificationCard}
+          onPress={() => navigation.navigate('AIRouteBuilder')}
+        >
+          <Ionicons name="construct" size={32} color="#fff" />
+          <Text style={styles.gamificationTitle}>AI Конструктор</Text>
+          <Text style={styles.gamificationSubtitle}>Создать умный маршрут</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={[styles.gamificationCard, styles.achievementsCard]}
+          onPress={() => navigation.navigate('Achievements')}
+        >
+          <Ionicons name="trophy" size={32} color="#fff" />
+          <Text style={styles.gamificationTitle}>Достижения</Text>
+          <Text style={styles.gamificationSubtitle}>Ваши награды</Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.section}>
@@ -303,6 +333,37 @@ const styles = StyleSheet.create({
     marginLeft: 16,
     fontSize: 16,
     color: '#1a4d3a',
+  },
+  gamificationSection: {
+    flexDirection: 'row',
+    padding: 16,
+    gap: 12,
+  },
+  gamificationCard: {
+    flex: 1,
+    backgroundColor: '#1a4d3a',
+    borderRadius: 16,
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 120,
+  },
+  achievementsCard: {
+    backgroundColor: '#d4af37',
+  },
+  gamificationTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  gamificationSubtitle: {
+    fontSize: 12,
+    color: '#fff',
+    opacity: 0.8,
+    marginTop: 4,
+    textAlign: 'center',
   },
 });
 

@@ -9,7 +9,12 @@
       "latitude": 43.35,
       "longitude": 79.07,
       "category": "Природа",
-      "rating": 4.8
+      "rating": 4.8,
+  "ageGroups": ["adults"],
+      "activityLevel": "moderate",
+      "interests": ["nature", "adventure"],
+      "averageVisitDuration": 180,
+      "budget": { "min": 2000, "max": 5000 }
     },
     {
       "id": 2,
@@ -20,7 +25,12 @@
       "latitude": 53.08,
       "longitude": 70.32,
       "category": "Природа",
-      "rating": 4.9
+      "rating": 4.9,
+  "ageGroups": ["family", "adults"],
+      "activityLevel": "easy",
+      "interests": ["nature", "adventure"],
+      "averageVisitDuration": 240,
+      "budget": { "min": 3000, "max": 8000 }
     },
     {
       "id": 3,
@@ -31,7 +41,12 @@
       "latitude": 43.2975,
       "longitude": 68.2517,
       "category": "История",
-      "rating": 4.7
+      "rating": 4.7,
+  "ageGroups": ["family", "adults"],
+      "activityLevel": "easy",
+      "interests": ["culture", "museums", "education"],
+      "averageVisitDuration": 90,
+      "budget": { "min": 500, "max": 2000 }
     },
     {
       "id": 4,
@@ -42,7 +57,12 @@
       "latitude": 42.9833,
       "longitude": 78.4167,
       "category": "Природа",
-      "rating": 4.9
+      "rating": 4.9,
+  "ageGroups": ["adults"],
+      "activityLevel": "moderate",
+      "interests": ["nature", "adventure"],
+      "averageVisitDuration": 120,
+      "budget": { "min": 3000, "max": 7000 }
     },
     {
       "id": 5,
@@ -53,7 +73,12 @@
       "latitude": 43.2220,
       "longitude": 76.8512,
       "category": "Город",
-      "rating": 4.6
+      "rating": 4.6,
+  "ageGroups": ["family", "adults"],
+      "activityLevel": "easy",
+      "interests": ["culture", "food", "shopping", "museums"],
+      "averageVisitDuration": 360,
+      "budget": { "min": 5000, "max": 15000 }
     },
     {
       "id": 6,
@@ -64,7 +89,12 @@
       "latitude": 44.0,
       "longitude": 76.0,
       "category": "Природа",
-      "rating": 4.8
+      "rating": 4.8,
+  "ageGroups": ["family", "adults"],
+      "activityLevel": "easy",
+      "interests": ["nature", "education"],
+      "averageVisitDuration": 90,
+      "budget": { "min": 1000, "max": 3000 }
     },
     {
       "id": 7,
@@ -75,7 +105,12 @@
       "latitude": 42.2067,
       "longitude": 80.1750,
       "category": "Горы",
-      "rating": 5.0
+      "rating": 5.0,
+  "ageGroups": ["adults"],
+      "activityLevel": "intense",
+      "interests": ["adventure", "nature", "sports"],
+      "averageVisitDuration": 480,
+      "budget": { "min": 50000, "max": 150000 }
     },
     {
       "id": 8,
@@ -86,7 +121,12 @@
       "latitude": 43.1556,
       "longitude": 77.0611,
       "category": "Спорт",
-      "rating": 4.7
+      "rating": 4.7,
+  "ageGroups": ["family", "adults"],
+      "activityLevel": "moderate",
+      "interests": ["sports", "adventure"],
+      "averageVisitDuration": 120,
+      "budget": { "min": 2000, "max": 5000 }
     }
   ]
 }

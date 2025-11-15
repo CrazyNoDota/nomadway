@@ -14,6 +14,13 @@ import ProfileScreen from './screens/ProfileScreen';
 import AttractionDetailsScreen from './screens/AttractionDetailsScreen';
 import RouteDetailsScreen from './screens/RouteDetailsScreen';
 import MapScreen from './screens/MapScreen';
+import TravelerToolsScreen from './screens/TravelerToolsScreen';
+import AIGuideScreen from './screens/AIGuideScreen';
+import RegionalGuideScreen from './screens/RegionalGuideScreen';
+import PersonalizedRouteScreen from './screens/PersonalizedRouteScreen';
+import AIRouteBuilderScreen from './screens/AIRouteBuilderScreen';
+import AchievementsScreen from './screens/AchievementsScreen';
+import LeaderboardScreen from './screens/LeaderboardScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -33,6 +40,8 @@ function TabNavigator() {
             iconName = focused ? 'people' : 'people-outline';
           } else if (route.name === 'Profile') {
             iconName = focused ? 'person' : 'person-outline';
+          } else if (route.name === 'AIChat') {
+            iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;
@@ -71,6 +80,14 @@ function TabNavigator() {
         name="Profile" 
         component={ProfileScreen}
         options={{ title: 'Профиль' }}
+      />
+      <Tab.Screen 
+        name="AIChat" 
+        component={AIGuideScreen}
+        options={{ 
+          title: 'Чат с ИИ',
+          headerShown: false, // Hide default header since AIGuideScreen has custom header
+        }}
       />
     </Tab.Navigator>
   );
@@ -123,6 +140,41 @@ export default function App() {
           name="MapScreen" 
           component={MapScreen}
           options={{ title: 'Карта' }}
+        />
+        <Stack.Screen 
+          name="TravelerTools" 
+          component={TravelerToolsScreen}
+          options={{ title: 'Инструменты путешественника' }}
+        />
+        <Stack.Screen 
+          name="AIGuide" 
+          component={AIGuideScreen}
+          options={{ title: 'AI-Гид' }}
+        />
+        <Stack.Screen 
+          name="RegionalGuide" 
+          component={RegionalGuideScreen}
+          options={{ title: 'Гид по регионам' }}
+        />
+        <Stack.Screen 
+          name="PersonalizedRoute" 
+          component={PersonalizedRouteScreen}
+          options={{ title: 'Персонализированный маршрут' }}
+        />
+        <Stack.Screen 
+          name="AIRouteBuilder" 
+          component={AIRouteBuilderScreen}
+          options={{ title: 'AI Конструктор маршрутов' }}
+        />
+        <Stack.Screen 
+          name="Achievements" 
+          component={AchievementsScreen}
+          options={{ title: 'Достижения' }}
+        />
+        <Stack.Screen 
+          name="Leaderboard" 
+          component={LeaderboardScreen}
+          options={{ title: 'Таблица лидеров' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

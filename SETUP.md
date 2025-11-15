@@ -1,4 +1,4 @@
-npmn# Quick Setup Guide
+# Quick Setup Guide
 
 ## 🚀 Getting Started
 
@@ -17,7 +17,21 @@ npm start
 
 This will start the Expo development server and show a QR code.
 
-### 3. Run on Your Device
+### 3. (Optional) Start the AI Chat Backend Server
+
+For AI Chat functionality, you need to run the backend server:
+
+```bash
+cd server
+npm install
+cp env.example .env
+# Edit .env and add your OpenAI API key
+npm start
+```
+
+See `AI_CHAT_SETUP.md` for detailed setup instructions.
+
+### 4. Run on Your Device
 
 **Option A: Using Expo Go App**
 1. Install "Expo Go" from App Store (iOS) or Google Play (Android)
@@ -45,7 +59,10 @@ This will start the Expo development server and show a QR code.
 - ✅ View attraction details with map
 - ✅ Save/unsave attractions (bookmark icon)
 - ✅ View route details with polyline on map
-- ✅ Navigate to full map view
+- ✅ Navigate to full map view (default Kazakhstan view)
+- ✅ Interactive map with all places displayed
+- ✅ Zoom to specific places from attraction details
+- ✅ AI Chat with OpenAI integration (requires backend server)
 - ✅ Read community reviews
 - ✅ View saved places in Profile
 
@@ -66,8 +83,10 @@ This will start the Expo development server and show a QR code.
 
 - Images are loaded from Unsplash (requires internet connection)
 - Maps require internet for initial load (then cached)
-- All data is stored locally (no backend needed)
+- All data is stored locally (no backend needed for core features)
 - Saved places persist using AsyncStorage
+- **AI Chat requires backend server** - See `AI_CHAT_SETUP.md` for setup
+- Map defaults to Kazakhstan view (48.0196, 66.9237) with zoom level 5
 
 ## 🐛 Troubleshooting
 

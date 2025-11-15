@@ -7,6 +7,7 @@ import {
   Image,
   TouchableOpacity,
   TextInput,
+  ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import attractionsData from '../data/attractions.json';
@@ -14,15 +15,42 @@ import attractionsData from '../data/attractions.json';
 export default function ExploreScreen({ navigation }) {
   const [attractions, setAttractions] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeFilter, setActiveFilter] = useState(null);
 
   useEffect(() => {
     setAttractions(attractionsData.attractions);
   }, []);
 
-  const filteredAttractions = attractions.filter((attraction) =>
-    attraction.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    attraction.description.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filters = [
+    { key: 'nature', label: 'Природа', icon: '🌳' },
+    { key: 'history', label: 'История', icon: '🏛️' },
+    { key: 'modern', label: 'Современные развлечения', icon: '🎢' },
+  ];
+
+  const getFilteredAttractions = () => {
+    let filtered = attractions;
+
+    // Apply search filter
+    if (searchQuery) {
+      filtered = filtered.filter((attraction) =>
+        attraction.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        attraction.description.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Apply category filter
+    if (activeFilter === 'nature') {
+      filtered = filtered.filter(a => a.category === 'Природа' || a.category === 'Горы');
+    } else if (activeFilter === 'history') {
+      filtered = filtered.filter(a => a.category === 'История');
+    } else if (activeFilter === 'modern') {
+      filtered = filtered.filter(a => a.category === 'Город' || a.category === 'Спорт');
+    }
+
+    return filtered;
+  };
+
+  const filteredAttractions = getFilteredAttractions();
 
   const renderAttraction = ({ item }) => (
     <TouchableOpacity
@@ -63,12 +91,69 @@ export default function ExploreScreen({ navigation }) {
           onChangeText={setSearchQuery}
         />
       </View>
+      
+      <View style={styles.filtersContainer}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.filtersContent}
+        >
+          <TouchableOpacity
+            style={[
+              styles.filterButton,
+              activeFilter === null && styles.filterButtonActive,
+            ]}
+            onPress={() => setActiveFilter(null)}
+          >
+            <Text
+              style={[
+                styles.filterText,
+                activeFilter === null && styles.filterTextActive,
+              ]}
+            >
+              Все
+            </Text>
+          </TouchableOpacity>
+          {filters.map((filter) => (
+            <TouchableOpacity
+              key={filter.key}
+              style={[
+                styles.filterButton,
+                activeFilter === filter.key && styles.filterButtonActive,
+              ]}
+              onPress={() =>
+                setActiveFilter(activeFilter === filter.key ? null : filter.key)
+              }
+            >
+              <Text style={styles.filterIcon}>{filter.icon}</Text>
+              <Text
+                style={[
+                  styles.filterText,
+                  activeFilter === filter.key && styles.filterTextActive,
+                ]}
+              >
+                {filter.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+
       <FlatList
         data={filteredAttractions}
         renderItem={renderAttraction}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Ionicons name="search-outline" size={64} color="#8e8e93" />
+            <Text style={styles.emptyText}>Ничего не найдено</Text>
+            <Text style={styles.emptySubtext}>
+              Попробуйте изменить параметры поиска
+            </Text>
+          </View>
+        }
       />
     </View>
   );
@@ -168,6 +253,61 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#27ae60',
     fontWeight: '600',
+  },
+  filtersContainer: {
+    backgroundColor: '#fff',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  filtersContent: {
+    paddingHorizontal: 16,
+  },
+  filterButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: '#f5f5f5',
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+  filterButtonActive: {
+    backgroundColor: '#fff9e6',
+    borderColor: '#d4af37',
+  },
+  filterIcon: {
+    fontSize: 16,
+    marginRight: 6,
+  },
+  filterText: {
+    fontSize: 14,
+    color: '#666',
+    fontWeight: '500',
+  },
+  filterTextActive: {
+    color: '#d4af37',
+    fontWeight: '600',
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 60,
+  },
+  emptyText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#8e8e93',
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: '#8e8e93',
+    textAlign: 'center',
+    paddingHorizontal: 40,
   },
 });
 

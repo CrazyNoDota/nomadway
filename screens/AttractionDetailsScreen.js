@@ -7,10 +7,14 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
+  TextInput,
+  Modal,
+  FlatList,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import MapView, { Marker } from 'react-native-maps';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Sharing from 'expo-sharing';
 
 const { width } = Dimensions.get('window');
 
@@ -49,7 +53,26 @@ export default function AttractionDetailsScreen({ route, navigation }) {
     navigation.navigate('MapScreen', {
       attractions: [attraction],
       title: attraction.name,
+      zoomToPlace: {
+        latitude: attraction.latitude,
+        longitude: attraction.longitude,
+      },
     });
+  };
+
+  const shareAttraction = async () => {
+    try {
+      const isAvailable = await Sharing.isAvailableAsync();
+      if (isAvailable) {
+        await Sharing.shareAsync({
+          message: `Посмотрите на это место: ${attraction.name}\n${attraction.description}\n\nНайдено в NomadWay`,
+        });
+      } else {
+        alert('Функция "Поделиться" недоступна на этом устройстве');
+      }
+    } catch (error) {
+      console.error('Error sharing:', error);
+    }
   };
 
   return (
@@ -65,13 +88,18 @@ export default function AttractionDetailsScreen({ route, navigation }) {
               <Text style={styles.rating}>{attraction.rating}</Text>
             </View>
           </View>
-          <TouchableOpacity onPress={toggleSave} style={styles.saveButton}>
-            <Ionicons
-              name={isSaved ? 'bookmark' : 'bookmark-outline'}
-              size={24}
-              color={isSaved ? '#d4af37' : '#8e8e93'}
-            />
-          </TouchableOpacity>
+          <View style={styles.headerActions}>
+            <TouchableOpacity onPress={shareAttraction} style={styles.shareButton}>
+              <Ionicons name="share-outline" size={24} color="#1a4d3a" />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={toggleSave} style={styles.saveButton}>
+              <Ionicons
+                name={isSaved ? 'bookmark' : 'bookmark-outline'}
+                size={24}
+                color={isSaved ? '#d4af37' : '#8e8e93'}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
 
         <View style={styles.categoryBadge}>
@@ -153,6 +181,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#d4af37',
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  shareButton: {
+    padding: 8,
+    marginRight: 8,
   },
   saveButton: {
     padding: 8,
