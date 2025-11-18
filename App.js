@@ -9,7 +9,7 @@ import SplashScreen from './screens/SplashScreen';
 import HomeScreen from './screens/HomeScreen';
 import ExploreScreen from './screens/ExploreScreen';
 import RoutesScreen from './screens/RoutesScreen';
-import CommunityScreen from './screens/CommunityScreen';
+import CommunityScreen from './screens/CommunityFeedScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import AttractionDetailsScreen from './screens/AttractionDetailsScreen';
 import RouteDetailsScreen from './screens/RouteDetailsScreen';
@@ -184,6 +184,21 @@ function RootNavigator() {
           name="Settings" 
           component={SettingsScreen}
           options={{ title: t('nav_settings') }}
+        />
+        <Stack.Screen 
+          name="PostDetails" 
+          component={require('./screens/PostDetailsScreen').default}
+          options={{ title: t('nav_postDetails') || 'Post' }}
+        />
+        <Stack.Screen 
+          name="CreatePost" 
+          component={require('./screens/CreatePostScreen').default}
+          options={{ title: t('nav_createPost') || 'Create Post' }}
+        />
+        <Stack.Screen 
+          name="CommunityProfile" 
+          component={require('./screens/CommunityProfileScreen').default}
+          options={{ title: t('nav_profile') || 'Profile' }}
         />
       </Stack.Navigator>
     </NavigationContainer>
