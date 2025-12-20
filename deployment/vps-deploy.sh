@@ -200,6 +200,8 @@ fi
 if [ -d "$PROJECT_DIR/website" ]; then
     cd $PROJECT_DIR/website
     npm install
+    # Install terser for production builds (required by Vite when using terser minifier)
+    npm install terser --save-dev 2>/dev/null || true
     npm run build
     print_status "Website built successfully"
 else
