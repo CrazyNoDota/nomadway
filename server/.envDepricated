@@ -1,0 +1,12 @@
+OPENAI_API_KEY=
+
+# Database Configuration
+DATABASE_URL=""
+
+# JWT Secrets (Generated for development)
+JWT_SECRET="dev_secret_key_change_in_production_123456789"
+JWT_REFRESH_SECRET="dev_refresh_secret_key_change_in_production_987654321"
+
+# Server Configuration
+PORT=3000
+NODE_ENV=development

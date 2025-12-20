@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -7,77 +7,72 @@ import {
   Image,
   TouchableOpacity,
   Alert,
+  ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useLocalization } from '../contexts/LocalizationContext';
+import { useTheme } from '../contexts/ThemeContext';
+import { useAuth } from '../contexts/AuthContext';
+import { useFavorites } from '../contexts/FavoritesContext';
+import AvatarUpload from '../components/AvatarUpload';
+
+const LOGO_URL = 'https://raw.githubusercontent.com/CrazyNoDota/danik/21bad4af7ac400b27c470851e9968c5860b06407/photo_2025-11-15_23-14-57-removebg-preview.png';
 
 export default function ProfileScreen({ navigation }) {
-  const [savedPlaces, setSavedPlaces] = useState([]);
+  const { t, isRussian } = useLocalization();
+  const { colors, isDark } = useTheme();
+  const { user, isAuthenticated, logout } = useAuth();
+  const { favorites, removeFromFavorites } = useFavorites();
 
-  useEffect(() => {
-    loadSavedPlaces();
-    const unsubscribe = navigation.addListener('focus', () => {
-      loadSavedPlaces();
-    });
-    return unsubscribe;
-  }, [navigation]);
-
-  const loadSavedPlaces = async () => {
-    try {
-      const keys = await AsyncStorage.getAllKeys();
-      const savedKeys = keys.filter((key) => key.startsWith('saved_'));
-      const places = await Promise.all(
-        savedKeys.map(async (key) => {
-          const data = await AsyncStorage.getItem(key);
-          return JSON.parse(data);
-        })
-      );
-      setSavedPlaces(places);
-    } catch (error) {
-      console.error('Error loading saved places:', error);
-    }
-  };
-
-  const removeSavedPlace = async (id) => {
+  const handleLogout = () => {
     Alert.alert(
-      'Удалить место?',
-      'Вы уверены, что хотите удалить это место из сохранённых?',
+      isRussian ? 'Выход' : 'Logout',
+      isRussian ? 'Вы уверены, что хотите выйти?' : 'Are you sure you want to logout?',
       [
-        { text: 'Отмена', style: 'cancel' },
+        { text: isRussian ? 'Отмена' : 'Cancel', style: 'cancel' },
         {
-          text: 'Удалить',
+          text: isRussian ? 'Выйти' : 'Logout',
           style: 'destructive',
           onPress: async () => {
-            try {
-              await AsyncStorage.removeItem(`saved_${id}`);
-              loadSavedPlaces();
-            } catch (error) {
-              console.error('Error removing saved place:', error);
-            }
+            await logout();
           },
         },
       ]
     );
   };
 
-  const renderSavedPlace = ({ item }) => (
+  const renderFavoriteItem = ({ item }) => (
     <TouchableOpacity
-      style={styles.card}
-      onPress={() => navigation.navigate('AttractionDetails', { attraction: item })}
+      style={[styles.card, { backgroundColor: colors.card }]}
+      onPress={() => {
+        if (item.type === 'route') {
+          navigation.navigate('RouteDetails', { route: item });
+        } else {
+          navigation.navigate('AttractionDetails', { attraction: item });
+        }
+      }}
     >
       <Image source={{ uri: item.image }} style={styles.cardImage} />
       <View style={styles.cardContent}>
-        <Text style={styles.cardTitle}>{item.name}</Text>
-        <Text style={styles.cardDescription} numberOfLines={2}>
-          {item.description}
+        <Text style={[styles.cardTitle, { color: colors.text }]}>{item.name}</Text>
+        <Text style={[styles.cardDescription, { color: colors.textSecondary }]} numberOfLines={2}>
+          {item.region} • {item.category}
         </Text>
         <View style={styles.cardFooter}>
-          <View style={styles.ratingContainer}>
-            <Ionicons name="star" size={16} color="#d4af37" />
-            <Text style={styles.rating}>{item.rating}</Text>
+          <View style={[styles.typeTag, { backgroundColor: isDark ? '#3d3420' : '#fff9e6' }]}>
+            <Ionicons 
+              name={item.type === 'route' ? 'map' : 'location'} 
+              size={14} 
+              color="#d4af37" 
+            />
+            <Text style={styles.typeText}>
+              {item.type === 'route' 
+                ? (isRussian ? 'Маршрут' : 'Route') 
+                : (isRussian ? 'Место' : 'Place')}
+            </Text>
           </View>
           <TouchableOpacity
-            onPress={() => removeSavedPlace(item.id)}
+            onPress={() => removeFromFavorites(item.id, item.type)}
             style={styles.removeButton}
           >
             <Ionicons name="trash-outline" size={20} color="#e74c3c" />
@@ -87,98 +82,181 @@ export default function ProfileScreen({ navigation }) {
     </TouchableOpacity>
   );
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.avatarContainer}>
-          <Ionicons name="person" size={48} color="#d4af37" />
-        </View>
-        <Text style={styles.userName}>Путешественник</Text>
-        <Text style={styles.userEmail}>nomad@nomadway.kz</Text>
-      </View>
-
-      <View style={styles.statsContainer}>
-        <TouchableOpacity 
-          style={styles.statItem}
-          onPress={() => navigation.navigate('Achievements')}
-        >
-          <Text style={styles.statNumber}>{savedPlaces.length}</Text>
-          <Text style={styles.statLabel}>Сохранено</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.statItem}
-          onPress={() => navigation.navigate('AIRouteBuilder')}
-        >
-          <Text style={styles.statNumber}>AI</Text>
-          <Text style={styles.statLabel}>Маршруты</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.statItem}
-          onPress={() => navigation.navigate('Leaderboard')}
-        >
-          <Text style={styles.statNumber}>🏆</Text>
-          <Text style={styles.statLabel}>Лидеры</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Gamification Section */}
-      <View style={styles.gamificationSection}>
-        <TouchableOpacity 
-          style={styles.gamificationCard}
-          onPress={() => navigation.navigate('AIRouteBuilder')}
-        >
-          <Ionicons name="construct" size={32} color="#fff" />
-          <Text style={styles.gamificationTitle}>AI Конструктор</Text>
-          <Text style={styles.gamificationSubtitle}>Создать умный маршрут</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={[styles.gamificationCard, styles.achievementsCard]}
-          onPress={() => navigation.navigate('Achievements')}
-        >
-          <Ionicons name="trophy" size={32} color="#fff" />
-          <Text style={styles.gamificationTitle}>Достижения</Text>
-          <Text style={styles.gamificationSubtitle}>Ваши награды</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Сохранённые места</Text>
-        {savedPlaces.length === 0 ? (
-          <View style={styles.emptyState}>
-            <Ionicons name="bookmark-outline" size={64} color="#8e8e93" />
-            <Text style={styles.emptyText}>Нет сохранённых мест</Text>
-            <Text style={styles.emptySubtext}>
-              Сохраняйте интересные места, чтобы вернуться к ним позже
+  if (!isAuthenticated) {
+    return (
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <View style={styles.guestContent}>
+          <Image source={{ uri: LOGO_URL }} style={styles.guestLogo} />
+          <Text style={[styles.guestTitle, { color: colors.text }]}>
+            {isRussian ? 'Добро пожаловать в NomadWay' : 'Welcome to NomadWay'}
+          </Text>
+          <Text style={[styles.guestSubtitle, { color: colors.textSecondary }]}>
+            {isRussian 
+              ? 'Войдите, чтобы сохранять маршруты, получать достижения и общаться с сообществом' 
+              : 'Sign in to save routes, earn achievements, and connect with the community'}
+          </Text>
+          
+          <TouchableOpacity
+            style={styles.loginButton}
+            onPress={() => navigation.navigate('Auth')}
+          >
+            <Text style={styles.loginButtonText}>
+              {isRussian ? 'Войти / Регистрация' : 'Login / Register'}
             </Text>
-          </View>
-        ) : (
-          <FlatList
-            data={savedPlaces}
-            renderItem={renderSavedPlace}
-            keyExtractor={(item) => item.id.toString()}
-            showsVerticalScrollIndicator={false}
-          />
-        )}
-      </View>
+          </TouchableOpacity>
 
-      <View style={styles.settingsSection}>
-        <TouchableOpacity style={styles.settingItem}>
-          <Ionicons name="settings-outline" size={24} color="#1a4d3a" />
-          <Text style={styles.settingText}>Настройки</Text>
-          <Ionicons name="chevron-forward" size={20} color="#8e8e93" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.settingItem}>
-          <Ionicons name="help-circle-outline" size={24} color="#1a4d3a" />
-          <Text style={styles.settingText}>Помощь</Text>
-          <Ionicons name="chevron-forward" size={20} color="#8e8e93" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.settingItem}>
-          <Ionicons name="information-circle-outline" size={24} color="#1a4d3a" />
-          <Text style={styles.settingText}>О приложении</Text>
-          <Ionicons name="chevron-forward" size={20} color="#8e8e93" />
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.settingsButton, { backgroundColor: colors.card }]}
+            onPress={() => navigation.navigate('Settings')}
+          >
+            <Ionicons name="settings-outline" size={20} color={colors.text} />
+            <Text style={[styles.settingsButtonText, { color: colors.text }]}>
+              {isRussian ? 'Настройки' : 'Settings'}
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
+    );
+  }
+
+  return (
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Header Section */}
+        <View style={[styles.header, { backgroundColor: colors.headerBackground }]}>
+          <View style={styles.profileHeader}>
+            <AvatarUpload size={100} />
+            <View style={styles.userInfo}>
+              <Text style={styles.userName}>{user?.fullName || user?.displayName || 'Nomad'}</Text>
+              <Text style={styles.userEmail}>{user?.email}</Text>
+              <View style={styles.roleTag}>
+                <Text style={styles.roleText}>
+                  {user?.role === 'ADMIN' ? 'Admin' : 'Traveler'}
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.statsRow}>
+            <TouchableOpacity 
+              style={styles.statItem}
+              onPress={() => navigation.navigate('Achievements')}
+            >
+              <Text style={styles.statValue}>{user?.points || 0}</Text>
+              <Text style={styles.statLabel}>{isRussian ? 'Баллы' : 'Points'}</Text>
+            </TouchableOpacity>
+            <View style={styles.statDivider} />
+            <TouchableOpacity 
+              style={styles.statItem}
+              onPress={() => navigation.navigate('Achievements')}
+            >
+              <Text style={styles.statValue}>{favorites.length}</Text>
+              <Text style={styles.statLabel}>{isRussian ? 'Избранное' : 'Favorites'}</Text>
+            </TouchableOpacity>
+            <View style={styles.statDivider} />
+            <TouchableOpacity 
+              style={styles.statItem}
+              onPress={() => navigation.navigate('CommunityProfile')}
+            >
+              <Text style={styles.statValue}>0</Text>
+              <Text style={styles.statLabel}>{isRussian ? 'Посты' : 'Posts'}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Menu Actions */}
+        <View style={styles.menuContainer}>
+          <TouchableOpacity
+            style={[styles.menuItem, { backgroundColor: colors.card }]}
+            onPress={() => navigation.navigate('PersonalizedRoute')}
+          >
+            <View style={[styles.menuIcon, { backgroundColor: '#e3f2fd' }]}>
+              <Ionicons name="map" size={22} color="#1976d2" />
+            </View>
+            <Text style={[styles.menuText, { color: colors.text }]}>
+              {isRussian ? 'Мои маршруты' : 'My Routes'}
+            </Text>
+            <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.menuItem, { backgroundColor: colors.card }]}
+            onPress={() => navigation.navigate('Achievements')}
+          >
+            <View style={[styles.menuIcon, { backgroundColor: '#fff3e0' }]}>
+              <Ionicons name="trophy" size={22} color="#f57c00" />
+            </View>
+            <Text style={[styles.menuText, { color: colors.text }]}>
+              {isRussian ? 'Достижения' : 'Achievements'}
+            </Text>
+            <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.menuItem, { backgroundColor: colors.card }]}
+            onPress={() => navigation.navigate('Settings')}
+          >
+            <View style={[styles.menuIcon, { backgroundColor: '#f3e5f5' }]}>
+              <Ionicons name="settings" size={22} color="#7b1fa2" />
+            </View>
+            <Text style={[styles.menuText, { color: colors.text }]}>
+              {isRussian ? 'Настройки' : 'Settings'}
+            </Text>
+            <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
+          </TouchableOpacity>
+
+          {user?.role === 'ADMIN' && (
+            <TouchableOpacity
+              style={[styles.menuItem, { backgroundColor: colors.card }]}
+              onPress={() => Alert.alert('Admin Dashboard', 'Coming soon!')}
+            >
+              <View style={[styles.menuIcon, { backgroundColor: '#ffebee' }]}>
+                <Ionicons name="shield-checkmark" size={22} color="#d32f2f" />
+              </View>
+              <Text style={[styles.menuText, { color: colors.text }]}>
+                Admin Dashboard
+              </Text>
+              <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* Favorites Section */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            {isRussian ? 'Избранное' : 'Favorites'}
+          </Text>
+          {favorites.length > 0 ? (
+            favorites.map((item) => (
+              <View key={`${item.type}_${item.id}`}>
+                {renderFavoriteItem({ item })}
+              </View>
+            ))
+          ) : (
+            <View style={[styles.emptyState, { backgroundColor: colors.card }]}>
+              <Ionicons name="heart-outline" size={48} color={colors.textSecondary} />
+              <Text style={[styles.emptyStateText, { color: colors.textSecondary }]}>
+                {isRussian ? 'У вас пока нет избранных мест' : 'No favorites yet'}
+              </Text>
+            </View>
+          )}
+        </View>
+
+        <TouchableOpacity
+          style={styles.logoutButton}
+          onPress={handleLogout}
+        >
+          <Text style={styles.logoutText}>
+            {isRussian ? 'Выйти из аккаунта' : 'Log Out'}
+          </Text>
+        </TouchableOpacity>
+
+        <View style={styles.footer}>
+          <Text style={[styles.versionText, { color: colors.textSecondary }]}>
+            Version 2.0.0
+          </Text>
+        </View>
+      </ScrollView>
     </View>
   );
 }
@@ -186,22 +264,78 @@ export default function ProfileScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
-  header: {
-    backgroundColor: '#1a4d3a',
-    paddingTop: 40,
-    paddingBottom: 24,
+  // Guest Styles
+  guestContent: {
+    flex: 1,
     alignItems: 'center',
-  },
-  avatarContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: '#2d6a4f',
     justifyContent: 'center',
-    alignItems: 'center',
+    padding: 24,
+  },
+  guestLogo: {
+    width: 120,
+    height: 120,
+    marginBottom: 24,
+    borderRadius: 60,
+  },
+  guestTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
     marginBottom: 12,
+    textAlign: 'center',
+  },
+  guestSubtitle: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 32,
+    lineHeight: 24,
+  },
+  loginButton: {
+    backgroundColor: '#FF6B35',
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    borderRadius: 12,
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  loginButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  settingsButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+  },
+  settingsButtonText: {
+    marginLeft: 8,
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  // Authenticated Styles
+  header: {
+    padding: 24,
+    paddingTop: 60,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  profileHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  userInfo: {
+    marginLeft: 20,
+    flex: 1,
   },
   userName: {
     fontSize: 24,
@@ -211,159 +345,160 @@ const styles = StyleSheet.create({
   },
   userEmail: {
     fontSize: 14,
-    color: '#d4af37',
+    color: 'rgba(255, 255, 255, 0.8)',
+    marginBottom: 8,
   },
-  statsContainer: {
+  roleTag: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+  },
+  roleText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  statsRow: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
-    paddingVertical: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 16,
+    padding: 16,
   },
   statItem: {
-    flex: 1,
     alignItems: 'center',
+    flex: 1,
   },
-  statNumber: {
-    fontSize: 24,
+  statValue: {
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#1a4d3a',
-    marginBottom: 4,
+    color: '#fff',
   },
   statLabel: {
     fontSize: 12,
-    color: '#8e8e93',
+    color: 'rgba(255, 255, 255, 0.8)',
+    marginTop: 4,
   },
-  section: {
-    flex: 1,
+  statDivider: {
+    width: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  // Menu
+  menuContainer: {
+    padding: 24,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 16,
+    borderRadius: 16,
+    marginBottom: 12,
+  },
+  menuIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  menuText: {
+    flex: 1,
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  // Favorites
+  section: {
+    padding: 24,
+    paddingTop: 0,
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#1a4d3a',
     marginBottom: 16,
   },
-  emptyState: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 60,
-  },
-  emptyText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#8e8e93',
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  emptySubtext: {
-    fontSize: 14,
-    color: '#8e8e93',
-    textAlign: 'center',
-    paddingHorizontal: 40,
-  },
   card: {
-    backgroundColor: '#fff',
+    flexDirection: 'row',
     borderRadius: 16,
-    marginBottom: 12,
+    marginBottom: 16,
     overflow: 'hidden',
+    elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowRadius: 4,
   },
   cardImage: {
-    width: '100%',
-    height: 150,
-    resizeMode: 'cover',
+    width: 100,
+    height: 100,
   },
   cardContent: {
-    padding: 16,
+    flex: 1,
+    padding: 12,
   },
   cardTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
-    color: '#1a4d3a',
-    marginBottom: 8,
+    marginBottom: 4,
   },
   cardDescription: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 12,
-    lineHeight: 20,
+    fontSize: 12,
+    marginBottom: 8,
   },
   cardFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  ratingContainer: {
+  typeTag: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff9e6',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8,
   },
-  rating: {
-    marginLeft: 4,
-    fontSize: 14,
+  typeText: {
+    fontSize: 12,
     fontWeight: '600',
     color: '#d4af37',
+    marginLeft: 4,
   },
   removeButton: {
-    padding: 8,
+    padding: 4,
   },
-  settingsSection: {
-    backgroundColor: '#fff',
-    paddingVertical: 8,
-    borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
-  },
-  settingItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  settingText: {
-    flex: 1,
-    marginLeft: 16,
-    fontSize: 16,
-    color: '#1a4d3a',
-  },
-  gamificationSection: {
-    flexDirection: 'row',
-    padding: 16,
-    gap: 12,
-  },
-  gamificationCard: {
-    flex: 1,
-    backgroundColor: '#1a4d3a',
-    borderRadius: 16,
-    padding: 20,
+  emptyState: {
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 120,
+    padding: 32,
+    borderRadius: 16,
   },
-  achievementsCard: {
-    backgroundColor: '#d4af37',
-  },
-  gamificationTitle: {
+  emptyStateText: {
+    marginTop: 12,
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginTop: 8,
-    textAlign: 'center',
   },
-  gamificationSubtitle: {
+  // Logout
+  logoutButton: {
+    margin: 24,
+    marginTop: 0,
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#e74c3c',
+    alignItems: 'center',
+  },
+  logoutText: {
+    color: '#e74c3c',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  footer: {
+    alignItems: 'center',
+    marginBottom: 32,
+  },
+  versionText: {
     fontSize: 12,
-    color: '#fff',
-    opacity: 0.8,
-    marginTop: 4,
-    textAlign: 'center',
   },
 });
 

@@ -3,131 +3,1058 @@
     {
       "id": 1,
       "name": "Чарынский каньон",
+      "nameEn": "Charyn Canyon",
       "description": "Уникальный природный памятник, напоминающий Гранд-Каньон. Расположен в Алматинской области, это одно из самых впечатляющих мест Казахстана.",
+      "descriptionEn": "A unique natural monument resembling the Grand Canyon. Located in Almaty region, this is one of the most impressive places in Kazakhstan.",
       "longDescription": "Чарынский каньон — это природный памятник возрастом более 12 миллионов лет. Его красные скалы и причудливые формы создают незабываемое зрелище. Каньон протянулся на 154 км вдоль реки Чарын. Особенно популярна Долина замков — участок с уникальными скальными образованиями, напоминающими древние крепости.",
-      "image": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
+      "image": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800",
+      "reviews": [
+        {
+          "id": 1,
+          "author": "Алексей К.",
+          "rating": 5,
+          "date": "2024-09-15",
+          "text": "Невероятное место! Каньон просто потрясающий, особенно на рассвете. Дорога непростая, но оно того стоит."
+        },
+        {
+          "id": 2,
+          "author": "Maria S.",
+          "rating": 4,
+          "date": "2024-08-20",
+          "text": "Beautiful canyon, reminds me of Arizona. Bring plenty of water and sunscreen!"
+        },
+        {
+          "id": 3,
+          "author": "Динара М.",
+          "rating": 5,
+          "date": "2024-07-10",
+          "text": "Долина замков - обязательна к посещению. Виды нереальные, фотографии получаются сказочные."
+        }
+      ],
+      "aiSummary": {
+        "pros": [
+          "Уникальные 'марсианские' пейзажи",
+          "Идеально для фотосессий",
+          "Относительно недорого"
+        ],
+        "cons": [
+          "Далеко от города (4 часа)",
+          "Летом очень жарко"
+        ],
+        "summary": "Один из лучших природных памятников Казахстана. Рекомендуем посещать весной или осенью."
+      },
       "latitude": 43.35,
       "longitude": 79.07,
+      "city": "Алматинская область",
+      "region": "south",
       "category": "Природа",
+      "tourType": "nature",
       "rating": 4.8,
-  "ageGroups": ["adults"],
+      "ageGroups": [
+        "young",
+        "adults"
+      ],
       "activityLevel": "moderate",
-      "interests": ["nature", "adventure"],
+      "interests": [
+        "nature",
+        "adventure"
+      ],
       "averageVisitDuration": 180,
-      "budget": { "min": 2000, "max": 5000 }
+      "budget": {
+        "min": 2000,
+        "max": 5000
+      },
+      "bestSeason": [
+        "spring",
+        "summer",
+        "autumn"
+      ],
+      "difficultyLevel": "medium"
     },
     {
       "id": 2,
       "name": "Боровое",
+      "nameEn": "Burabay (Borovoe)",
       "description": "Живописный курортный регион с озёрами и горами. Идеальное место для отдыха и активного туризма.",
+      "descriptionEn": "A picturesque resort region with lakes and mountains. Perfect for relaxation and active tourism.",
       "longDescription": "Боровое (Бурабай) — это жемчужина Казахстана, расположенная в Акмолинской области. Регион славится своими кристально чистыми озёрами, сосновыми лесами и гранитными скалами причудливой формы. Здесь можно заняться пешим туризмом, покататься на лодке или просто насладиться природой.",
-      "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800",
+      "image": "https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800",
+      "reviews": [
+        {
+          "id": 1,
+          "author": "Елена В.",
+          "rating": 5,
+          "date": "2024-08-25",
+          "text": "Жемчужина Казахстана! Чистейшие озёра, сосновый воздух. Отдыхали с семьёй, дети в восторге."
+        },
+        {
+          "id": 2,
+          "author": "John D.",
+          "rating": 5,
+          "date": "2024-07-15",
+          "text": "Stunning natural beauty. The rock formations are incredible. Great for hiking and photography."
+        },
+        {
+          "id": 3,
+          "author": "Асель Т.",
+          "rating": 4,
+          "date": "2024-06-20",
+          "text": "Красиво, но летом много туристов. Лучше приезжать в будни."
+        }
+      ],
+      "aiSummary": {
+        "pros": [
+          "Подходит для семейного отдыха",
+          "Развитая инфраструктура",
+          "Красивейшие виды"
+        ],
+        "cons": [
+          "Высокие цены в сезон",
+          "Много людей летом"
+        ],
+        "summary": "Идеальное место для отдыха на природе. Подходит для всех возрастов."
+      },
       "latitude": 53.08,
       "longitude": 70.32,
+      "city": "Акмолинская область",
+      "region": "north",
       "category": "Природа",
+      "tourType": "nature",
       "rating": 4.9,
-  "ageGroups": ["family", "adults"],
+      "ageGroups": [
+        "family",
+        "young",
+        "adults"
+      ],
       "activityLevel": "easy",
-      "interests": ["nature", "adventure"],
-      "averageVisitDuration": 240,
-      "budget": { "min": 3000, "max": 8000 }
+      "interests": [
+        "nature",
+        "adventure",
+        "relaxation"
+      ],
+      "averageVisitDuration": 480,
+      "budget": {
+        "min": 3000,
+        "max": 8000
+      },
+      "bestSeason": [
+        "spring",
+        "summer",
+        "autumn"
+      ],
+      "difficultyLevel": "easy"
     },
     {
       "id": 3,
       "name": "Мавзолей Ходжи Ахмеда Ясави",
+      "nameEn": "Khoja Ahmed Yasawi Mausoleum",
       "description": "Величественный мавзолей XIV века в Туркестане, объект Всемирного наследия ЮНЕСКО.",
+      "descriptionEn": "A magnificent 14th-century mausoleum in Turkestan, a UNESCO World Heritage Site.",
       "longDescription": "Мавзолей Ходжи Ахмеда Ясави — один из самых значимых архитектурных памятников Казахстана. Построенный в период правления Тамерлана, мавзолей является шедевром средневековой архитектуры Центральной Азии. Комплекс включает мечеть, библиотеку и мавзолей самого Ясави — известного суфийского поэта и философа.",
-      "image": "https://images.unsplash.com/photo-1539650116574-75c0c6d73a6e?w=800",
+      "image": "https://images.unsplash.com/photo-1572107998699-a5c2c60bc5fc?w=800",
+      "reviews": [
+        {
+          "id": 1,
+          "author": "Нурлан А.",
+          "rating": 5,
+          "date": "2024-10-05",
+          "text": "Духовное место с великой историей. Архитектура мавзолея впечатляет."
+        },
+        {
+          "id": 2,
+          "author": "Sarah J.",
+          "rating": 4,
+          "date": "2024-09-10",
+          "text": "Fascinating UNESCO site. The tile work is beautiful. Hire a guide for the full experience."
+        },
+        {
+          "id": 3,
+          "author": "Бахыт К.",
+          "rating": 5,
+          "date": "2024-08-01",
+          "text": "Обязательно к посещению для каждого казахстанца. Гордость нашей страны."
+        }
+      ],
+      "aiSummary": {
+        "pros": [
+          "Объект ЮНЕСКО",
+          "Богатая история",
+          "Недорогой вход"
+        ],
+        "cons": [
+          "Далеко от Алматы",
+          "Жарко летом"
+        ],
+        "summary": "Главная историческая достопримечательность Казахстана. Лучше посещать с гидом."
+      },
       "latitude": 43.2975,
       "longitude": 68.2517,
+      "city": "Туркестан",
+      "region": "south",
       "category": "История",
+      "tourType": "historical",
       "rating": 4.7,
-  "ageGroups": ["family", "adults"],
+      "ageGroups": [
+        "family",
+        "young",
+        "adults"
+      ],
       "activityLevel": "easy",
-      "interests": ["culture", "museums", "education"],
+      "interests": [
+        "culture",
+        "museums",
+        "education",
+        "pilgrimage"
+      ],
       "averageVisitDuration": 90,
-      "budget": { "min": 500, "max": 2000 }
+      "budget": {
+        "min": 500,
+        "max": 2000
+      },
+      "bestSeason": [
+        "spring",
+        "autumn",
+        "winter"
+      ],
+      "difficultyLevel": "easy"
     },
     {
       "id": 4,
       "name": "Озеро Каинды",
+      "nameEn": "Kaindy Lake",
       "description": "Загадочное подводное озеро с затопленным хвойным лесом. Уникальное место для дайвинга.",
+      "descriptionEn": "A mysterious underwater lake with a sunken conifer forest. A unique diving destination.",
       "longDescription": "Озеро Каинды, также известное как 'Затонувший лес', образовалось в 1911 году после землетрясения. Вода затопила еловый лес, и теперь стволы деревьев торчат из воды, создавая сюрреалистический пейзаж. Озеро находится на высоте 2000 метров над уровнем моря и имеет изумрудно-голубой цвет.",
-      "image": "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800",
+      "image": "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800",
+      "reviews": [
+        {
+          "id": 1,
+          "author": "Дмитрий Л.",
+          "rating": 5,
+          "date": "2024-09-20",
+          "text": "Затонувший лес - это что-то нереальное! Вода изумрудного цвета, торчащие ели. Как в сказке."
+        },
+        {
+          "id": 2,
+          "author": "Anna K.",
+          "rating": 5,
+          "date": "2024-08-15",
+          "text": "One of the most unique lakes I've ever seen. The sunken forest is surreal. Worth the trip!"
+        },
+        {
+          "id": 3,
+          "author": "Марат С.",
+          "rating": 4,
+          "date": "2024-07-25",
+          "text": "Очень красиво, но дорога сложная. Нужен внедорожник или заказать тур."
+        }
+      ],
+      "aiSummary": {
+        "pros": [
+          "Уникальный затонувший лес",
+          "Отличные фото",
+          "Меньше туристов чем на Кольсае"
+        ],
+        "cons": [
+          "Труднодоступность",
+          "Нужен внедорожник"
+        ],
+        "summary": "Магическое озеро с затонувшими елями. Обязательно посетите для уникальных фотографий."
+      },
       "latitude": 42.9833,
       "longitude": 78.4167,
+      "city": "Алматинская область",
+      "region": "south",
       "category": "Природа",
+      "tourType": "nature",
       "rating": 4.9,
-  "ageGroups": ["adults"],
+      "ageGroups": [
+        "young",
+        "adults"
+      ],
       "activityLevel": "moderate",
-      "interests": ["nature", "adventure"],
+      "interests": [
+        "nature",
+        "adventure"
+      ],
       "averageVisitDuration": 120,
-      "budget": { "min": 3000, "max": 7000 }
+      "budget": {
+        "min": 3000,
+        "max": 7000
+      },
+      "bestSeason": [
+        "summer",
+        "autumn"
+      ],
+      "difficultyLevel": "medium"
     },
     {
       "id": 5,
       "name": "Алматы - Южная столица",
+      "nameEn": "Almaty - Southern Capital",
       "description": "Крупнейший город Казахстана, окружённый горами Заилийского Алатау.",
+      "descriptionEn": "The largest city of Kazakhstan, surrounded by the Zailiysky Alatau mountains.",
       "longDescription": "Алматы — культурный и экономический центр Казахстана. Город расположен у подножия Заилийского Алатау, что создаёт потрясающий контраст между урбанистическим пейзажем и горными вершинами. Здесь можно посетить Центральный парк, подняться на Кок-Тобе, посетить музеи и насладиться местной кухней.",
       "image": "https://images.unsplash.com/photo-1514565131-fce0801e5785?w=800",
       "latitude": 43.2220,
       "longitude": 76.8512,
+      "city": "Алматы",
+      "region": "south",
       "category": "Город",
+      "tourType": "cultural",
       "rating": 4.6,
-  "ageGroups": ["family", "adults"],
+      "ageGroups": [
+        "family",
+        "young",
+        "adults"
+      ],
       "activityLevel": "easy",
-      "interests": ["culture", "food", "shopping", "museums"],
+      "interests": [
+        "culture",
+        "food",
+        "shopping",
+        "museums"
+      ],
       "averageVisitDuration": 360,
-      "budget": { "min": 5000, "max": 15000 }
+      "budget": {
+        "min": 5000,
+        "max": 15000
+      },
+      "bestSeason": [
+        "spring",
+        "summer",
+        "autumn",
+        "winter"
+      ],
+      "difficultyLevel": "easy"
     },
     {
       "id": 6,
       "name": "Тюльпаны в степи",
+      "nameEn": "Steppe Tulips",
       "description": "Весеннее цветение тюльпанов в казахстанской степи — незабываемое зрелище.",
+      "descriptionEn": "Spring tulip blooming in the Kazakh steppe - an unforgettable spectacle.",
       "longDescription": "Казахстан является родиной многих видов диких тюльпанов. Весной степи покрываются ковром из цветущих тюльпанов различных оттенков — от ярко-красных до нежно-жёлтых. Особенно известны тюльпаны Грейга и Кауфмана, которые можно увидеть в заповедниках и степных районах.",
-      "image": "https://images.unsplash.com/photo-1520763185298-1b434c919102?w=800",
+      "image": "https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800",
+      "reviews": [
+        {
+          "id": 1,
+          "author": "Сабина Р.",
+          "rating": 5,
+          "date": "2024-04-15",
+          "text": "Весной степь превращается в ковёр из тюльпанов! Незабываемое зрелище."
+        },
+        {
+          "id": 2,
+          "author": "Lisa M.",
+          "rating": 4,
+          "date": "2024-04-10",
+          "text": "Amazing spring spectacle. Very short season though - only 2-3 weeks in April."
+        },
+        {
+          "id": 3,
+          "author": "Арман Б.",
+          "rating": 5,
+          "date": "2024-04-05",
+          "text": "Казахстан - родина тюльпанов! Обязательно посетите в апреле."
+        }
+      ],
+      "aiSummary": {
+        "pros": [
+          "Уникальное природное явление",
+          "Недорого",
+          "Красивые фото"
+        ],
+        "cons": [
+          "Очень короткий сезон (2-3 недели)",
+          "Зависит от погоды"
+        ],
+        "summary": "Посетите в апреле, чтобы увидеть дикие тюльпаны во всей красе."
+      },
       "latitude": 44.0,
       "longitude": 76.0,
+      "city": "Алматинская область",
+      "region": "south",
       "category": "Природа",
+      "tourType": "nature",
       "rating": 4.8,
-  "ageGroups": ["family", "adults"],
+      "ageGroups": [
+        "family",
+        "young",
+        "adults"
+      ],
       "activityLevel": "easy",
-      "interests": ["nature", "education"],
+      "interests": [
+        "nature",
+        "education"
+      ],
       "averageVisitDuration": 90,
-      "budget": { "min": 1000, "max": 3000 }
+      "budget": {
+        "min": 1000,
+        "max": 3000
+      },
+      "bestSeason": [
+        "spring"
+      ],
+      "difficultyLevel": "easy"
     },
     {
       "id": 7,
       "name": "Пик Хан-Тенгри",
+      "nameEn": "Khan Tengri Peak",
       "description": "Легендарная вершина Тянь-Шаня высотой 7010 метров. Мечта альпинистов.",
+      "descriptionEn": "Legendary peak of Tian Shan at 7010 meters. A mountaineer's dream.",
       "longDescription": "Хан-Тенгри — одна из самых красивых и сложных вершин мира. Название переводится как 'Повелитель духов'. Гора находится на границе Казахстана, Кыргызстана и Китая. Её пирамидальная форма и розовый оттенок на закате делают её особенно фотогеничной. Восхождение требует серьёзной подготовки и опыта.",
       "image": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
       "latitude": 42.2067,
       "longitude": 80.1750,
+      "city": "Алматинская область",
+      "region": "south",
       "category": "Горы",
+      "tourType": "mountain",
       "rating": 5.0,
-  "ageGroups": ["adults"],
+      "ageGroups": [
+        "young",
+        "adults"
+      ],
       "activityLevel": "intense",
-      "interests": ["adventure", "nature", "sports"],
+      "interests": [
+        "adventure",
+        "nature",
+        "sports"
+      ],
       "averageVisitDuration": 480,
-      "budget": { "min": 50000, "max": 150000 }
+      "budget": {
+        "min": 50000,
+        "max": 150000
+      },
+      "bestSeason": [
+        "summer"
+      ],
+      "difficultyLevel": "hard"
     },
     {
       "id": 8,
       "name": "Медеу - Высокогорный каток",
+      "nameEn": "Medeu - High Mountain Ice Rink",
       "description": "Самый высокогорный каток в мире, расположенный на высоте 1691 метр.",
+      "descriptionEn": "The highest mountain ice rink in the world, located at 1691 meters altitude.",
       "longDescription": "Медеу — это уникальный высокогорный каток, построенный в 1972 году. Он расположен в ущелье Медеу недалеко от Алматы. Каток использовался для установления множества мировых рекордов по конькобежному спорту благодаря разрежённому воздуху и идеальному льду. Сегодня это популярное место для катания и спортивных мероприятий.",
-      "image": "https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?w=800",
+      "image": "https://images.unsplash.com/photo-1551524559-8af4e6624178?w=800",
+      "reviews": [
+        {
+          "id": 1,
+          "author": "Ольга Н.",
+          "rating": 5,
+          "date": "2024-12-20",
+          "text": "Лучший каток в мире! Горный воздух, красивые виды. Кататься одно удовольствие."
+        },
+        {
+          "id": 2,
+          "author": "James P.",
+          "rating": 4,
+          "date": "2024-01-15",
+          "text": "Beautiful setting for ice skating. Can get crowded on weekends. Great cafe nearby."
+        },
+        {
+          "id": 3,
+          "author": "Тимур С.",
+          "rating": 5,
+          "date": "2024-02-10",
+          "text": "Символ Алматы! Обязательно посетите зимой."
+        }
+      ],
+      "aiSummary": {
+        "pros": [
+          "Высочайший каток в мире",
+          "Красивые горы",
+          "Доступно"
+        ],
+        "cons": [
+          "Много людей на выходных",
+          "Холодно зимой"
+        ],
+        "summary": "Икона Алматы. Отличное место для катания и фото."
+      },
       "latitude": 43.1556,
       "longitude": 77.0611,
+      "city": "Алматы",
+      "region": "south",
       "category": "Спорт",
+      "tourType": "adventure",
       "rating": 4.7,
-  "ageGroups": ["family", "adults"],
+      "ageGroups": [
+        "family",
+        "young",
+        "adults"
+      ],
       "activityLevel": "moderate",
-      "interests": ["sports", "adventure"],
+      "interests": [
+        "sports",
+        "adventure"
+      ],
       "averageVisitDuration": 120,
-      "budget": { "min": 2000, "max": 5000 }
+      "budget": {
+        "min": 2000,
+        "max": 5000
+      },
+      "bestSeason": [
+        "winter",
+        "autumn",
+        "spring"
+      ],
+      "difficultyLevel": "easy"
+    },
+    {
+      "id": 9,
+      "name": "Озёра Кольсай",
+      "nameEn": "Kolsai Lakes",
+      "description": "Каскад из трёх живописных горных озёр в отрогах Северного Тянь-Шаня.",
+      "descriptionEn": "A cascade of three picturesque mountain lakes in the foothills of the Northern Tian Shan.",
+      "longDescription": "Кольсайские озёра — это система из трёх высокогорных озёр, расположенных на высотах от 1818 до 2850 метров. Озёра окружены хвойными лесами и альпийскими лугами. Первое озеро самое доступное, до второго можно добраться пешком или на лошадях, третье требует серьёзного похода.",
+      "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800",
+      "latitude": 42.8333,
+      "longitude": 78.3333,
+      "city": "Алматинская область",
+      "region": "south",
+      "category": "Природа",
+      "tourType": "mountain",
+      "rating": 4.9,
+      "ageGroups": [
+        "young",
+        "adults"
+      ],
+      "activityLevel": "moderate",
+      "interests": [
+        "nature",
+        "adventure",
+        "hiking"
+      ],
+      "averageVisitDuration": 360,
+      "budget": {
+        "min": 5000,
+        "max": 12000
+      },
+      "bestSeason": [
+        "summer",
+        "autumn"
+      ],
+      "difficultyLevel": "medium"
+    },
+    {
+      "id": 10,
+      "name": "Мангистау - Бозжира",
+      "nameEn": "Mangystau - Bozzhira",
+      "description": "Марсианские пейзажи на дне древнего океана Тетис. Бозжира — визитная карточка Мангистау.",
+      "descriptionEn": "Martian landscapes on the bottom of the ancient Tethys Ocean. Bozzhira is the hallmark of Mangystau.",
+      "longDescription": "Бозжира — это урочище на плато Устюрт в Мангистауской области. Белые меловые скалы, останцы причудливых форм и бескрайние просторы создают ощущение другой планеты. Миллионы лет назад здесь было дно древнего океана Тетис. Место идеально для фотографов и любителей экстремального туризма.",
+      "image": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
+      "latitude": 43.4167,
+      "longitude": 54.0833,
+      "city": "Актау",
+      "region": "west",
+      "category": "Природа",
+      "tourType": "nature",
+      "rating": 4.9,
+      "ageGroups": [
+        "young",
+        "adults"
+      ],
+      "activityLevel": "moderate",
+      "interests": [
+        "nature",
+        "adventure",
+        "photography"
+      ],
+      "averageVisitDuration": 480,
+      "budget": {
+        "min": 15000,
+        "max": 40000
+      },
+      "bestSeason": [
+        "spring",
+        "autumn"
+      ],
+      "difficultyLevel": "medium"
+    },
+    {
+      "id": 11,
+      "name": "Шеркала",
+      "nameEn": "Sherkala",
+      "description": "Гора-юрта в Мангистау, напоминающая огромную белую юрту или спящего льва.",
+      "descriptionEn": "Yurt Mountain in Mangystau, resembling a huge white yurt or sleeping lion.",
+      "longDescription": "Шеркала — уникальная гора высотой около 300 метров, с разных сторон напоминающая либо гигантскую юрту, либо спящего льва. Вокруг горы находятся древние некрополи и святые места. Это одна из самых узнаваемых достопримечательностей Мангистау.",
+      "image": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
+      "latitude": 43.6833,
+      "longitude": 52.1167,
+      "city": "Актау",
+      "region": "west",
+      "category": "Природа",
+      "tourType": "nature",
+      "rating": 4.7,
+      "ageGroups": [
+        "family",
+        "young",
+        "adults"
+      ],
+      "activityLevel": "easy",
+      "interests": [
+        "nature",
+        "photography",
+        "culture"
+      ],
+      "averageVisitDuration": 120,
+      "budget": {
+        "min": 8000,
+        "max": 20000
+      },
+      "bestSeason": [
+        "spring",
+        "autumn"
+      ],
+      "difficultyLevel": "easy"
+    },
+    {
+      "id": 12,
+      "name": "Казахстанский Алтай",
+      "nameEn": "Kazakh Altai",
+      "description": "Горный регион на стыке России, Китая и Монголии. Край озёр, рек и снежных вершин.",
+      "descriptionEn": "Mountain region at the junction of Russia, China and Mongolia. Land of lakes, rivers and snow peaks.",
+      "longDescription": "Казахстанский Алтай — это часть великой горной системы Алтая. Здесь находятся высочайшие вершины Сибири, чистейшие реки и озёра, древние курганы и петроглифы. Регион идеален для рафтинга, альпинизма, рыбалки и экологического туризма.",
+      "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800",
+      "latitude": 49.1500,
+      "longitude": 86.8500,
+      "city": "Усть-Каменогорск",
+      "region": "east",
+      "category": "Природа",
+      "tourType": "adventure",
+      "rating": 4.8,
+      "ageGroups": [
+        "young",
+        "adults"
+      ],
+      "activityLevel": "intense",
+      "interests": [
+        "nature",
+        "adventure",
+        "sports"
+      ],
+      "averageVisitDuration": 720,
+      "budget": {
+        "min": 30000,
+        "max": 80000
+      },
+      "bestSeason": [
+        "summer"
+      ],
+      "difficultyLevel": "hard"
+    },
+    {
+      "id": 13,
+      "name": "Баянаул",
+      "nameEn": "Bayanaul",
+      "description": "Живописный национальный парк с озёрами и скалами в Павлодарской области.",
+      "descriptionEn": "Scenic national park with lakes and rocks in Pavlodar region.",
+      "longDescription": "Баянаульский национальный парк — первый национальный парк Казахстана. Гранитные скалы причудливых форм, чистые озёра Жасыбай, Сабындыколь и Торайгыр, сосновые леса создают уникальный микроклимат. Парк популярен для семейного отдыха и активного туризма.",
+      "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800",
+      "latitude": 50.8167,
+      "longitude": 75.7000,
+      "city": "Павлодар",
+      "region": "north",
+      "category": "Природа",
+      "tourType": "nature",
+      "rating": 4.6,
+      "ageGroups": [
+        "family",
+        "young",
+        "adults"
+      ],
+      "activityLevel": "easy",
+      "interests": [
+        "nature",
+        "relaxation",
+        "hiking"
+      ],
+      "averageVisitDuration": 480,
+      "budget": {
+        "min": 5000,
+        "max": 15000
+      },
+      "bestSeason": [
+        "summer",
+        "autumn"
+      ],
+      "difficultyLevel": "easy"
+    },
+    {
+      "id": 14,
+      "name": "Озеро Алаколь",
+      "nameEn": "Alakol Lake",
+      "description": "Солёное озеро с целебной водой на востоке Казахстана. Популярный пляжный курорт.",
+      "descriptionEn": "Salt lake with healing water in eastern Kazakhstan. Popular beach resort.",
+      "longDescription": "Алаколь — второе по величине солёное озеро Казахстана после Балхаша. Вода озера богата минералами и считается целебной. Чёрный песок пляжей также обладает лечебными свойствами. Озеро популярно для пляжного отдыха с июня по сентябрь.",
+      "image": "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800",
+      "latitude": 46.1667,
+      "longitude": 81.7167,
+      "city": "Алматинская область",
+      "region": "east",
+      "category": "Озёра",
+      "tourType": "nature",
+      "rating": 4.5,
+      "ageGroups": [
+        "family",
+        "young",
+        "adults"
+      ],
+      "activityLevel": "easy",
+      "interests": [
+        "relaxation",
+        "nature",
+        "health"
+      ],
+      "averageVisitDuration": 720,
+      "budget": {
+        "min": 10000,
+        "max": 30000
+      },
+      "bestSeason": [
+        "summer"
+      ],
+      "difficultyLevel": "easy"
+    },
+    {
+      "id": 15,
+      "name": "Озеро Балхаш",
+      "nameEn": "Balkhash Lake",
+      "description": "Уникальное озеро, наполовину пресное, наполовину солёное. Рай для рыбаков.",
+      "descriptionEn": "Unique lake, half fresh, half salt water. A paradise for fishermen.",
+      "longDescription": "Балхаш — крупнейшее озеро Казахстана и 15-е в мире. Уникальность в том, что западная часть пресная, восточная — солёная. Озеро славится рыбалкой: здесь ловят сазана, судака, сома. Окрестности озера богаты птицами и дикой природой.",
+      "image": "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800",
+      "latitude": 46.5500,
+      "longitude": 75.0000,
+      "city": "Балхаш",
+      "region": "central",
+      "category": "Озёра",
+      "tourType": "nature",
+      "rating": 4.4,
+      "ageGroups": [
+        "adults"
+      ],
+      "activityLevel": "easy",
+      "interests": [
+        "nature",
+        "fishing",
+        "relaxation"
+      ],
+      "averageVisitDuration": 480,
+      "budget": {
+        "min": 8000,
+        "max": 25000
+      },
+      "bestSeason": [
+        "summer",
+        "autumn"
+      ],
+      "difficultyLevel": "easy"
+    },
+    {
+      "id": 16,
+      "name": "Зеренда",
+      "nameEn": "Zerenda",
+      "description": "Курортный посёлок в Акмолинской области с озёрами и горами.",
+      "descriptionEn": "Resort village in Akmola region with lakes and mountains.",
+      "longDescription": "Зеренда — живописный курортный посёлок недалеко от Кокшетау. Известен озером Зеренда, скалой Смольная Сопка и природным памятником 'Гигантский гриб'. По легенде, если загадать желание у Гриба, оно сбудется. Место популярно для однодневных экскурсий из Астаны.",
+      "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800",
+      "latitude": 52.9333,
+      "longitude": 69.1333,
+      "city": "Кокшетау",
+      "region": "north",
+      "category": "Природа",
+      "tourType": "nature",
+      "rating": 4.5,
+      "ageGroups": [
+        "family",
+        "young",
+        "adults"
+      ],
+      "activityLevel": "easy",
+      "interests": [
+        "nature",
+        "relaxation",
+        "culture"
+      ],
+      "averageVisitDuration": 360,
+      "budget": {
+        "min": 3000,
+        "max": 8000
+      },
+      "bestSeason": [
+        "summer",
+        "autumn"
+      ],
+      "difficultyLevel": "easy"
+    },
+    {
+      "id": 17,
+      "name": "Астана",
+      "nameEn": "Astana",
+      "description": "Столица Казахстана с футуристической архитектурой и современными достопримечательностями.",
+      "descriptionEn": "Capital of Kazakhstan with futuristic architecture and modern attractions.",
+      "longDescription": "Астана — молодая столица Казахстана с уникальной современной архитектурой. Здесь находятся знаменитый Байтерек, мечеть Хазрет Султан, развлекательный центр Хан Шатыр, Национальный музей и океанариум 'Думан'. Город впечатляет масштабом и амбициями.",
+      "image": "https://images.unsplash.com/photo-1514565131-fce0801e5785?w=800",
+      "latitude": 51.1694,
+      "longitude": 71.4491,
+      "city": "Астана",
+      "region": "central",
+      "category": "Город",
+      "tourType": "cultural",
+      "rating": 4.7,
+      "ageGroups": [
+        "family",
+        "young",
+        "adults"
+      ],
+      "activityLevel": "easy",
+      "interests": [
+        "culture",
+        "museums",
+        "shopping",
+        "architecture"
+      ],
+      "averageVisitDuration": 720,
+      "budget": {
+        "min": 10000,
+        "max": 30000
+      },
+      "bestSeason": [
+        "spring",
+        "summer",
+        "autumn",
+        "winter"
+      ],
+      "difficultyLevel": "easy"
+    },
+    {
+      "id": 18,
+      "name": "Ерейментау",
+      "nameEn": "Ereymentau",
+      "description": "Город с розовым озером Кобейтуз и древними археологическими памятниками.",
+      "descriptionEn": "City with the pink Kobeytuz Lake and ancient archaeological sites.",
+      "longDescription": "Ерейментау — город в Акмолинской области, известный розовым озером Кобейтуз, цвет которого меняется в зависимости от сезона. Рядом находятся 'Каменные ворота', живописные скалы и археологический комплекс Кумай с тюркскими изваяниями VI-VIII веков.",
+      "image": "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800",
+      "latitude": 51.6333,
+      "longitude": 73.1000,
+      "city": "Ерейментау",
+      "region": "central",
+      "category": "Природа",
+      "tourType": "nature",
+      "rating": 4.4,
+      "ageGroups": [
+        "family",
+        "young",
+        "adults"
+      ],
+      "activityLevel": "easy",
+      "interests": [
+        "nature",
+        "history",
+        "photography"
+      ],
+      "averageVisitDuration": 360,
+      "budget": {
+        "min": 3000,
+        "max": 8000
+      },
+      "bestSeason": [
+        "spring",
+        "summer",
+        "autumn"
+      ],
+      "difficultyLevel": "easy"
+    },
+    {
+      "id": 19,
+      "name": "Костанай",
+      "nameEn": "Kostanay",
+      "description": "Город на севере Казахстана с богатой историей и музеями.",
+      "descriptionEn": "City in northern Kazakhstan with rich history and museums.",
+      "longDescription": "Костанай — административный центр Костанайской области. Город известен музеем И. Алтынсарина — просветителя казахского народа, музеем игрушек, часовой башней и живописной набережной реки Тобол. Идеальное место для изучения истории региона.",
+      "image": "https://images.unsplash.com/photo-1514565131-fce0801e5785?w=800",
+      "latitude": 53.2144,
+      "longitude": 63.6246,
+      "city": "Костанай",
+      "region": "north",
+      "category": "Город",
+      "tourType": "cultural",
+      "rating": 4.2,
+      "ageGroups": [
+        "family",
+        "young",
+        "adults"
+      ],
+      "activityLevel": "easy",
+      "interests": [
+        "culture",
+        "museums",
+        "history"
+      ],
+      "averageVisitDuration": 480,
+      "budget": {
+        "min": 5000,
+        "max": 12000
+      },
+      "bestSeason": [
+        "spring",
+        "summer",
+        "autumn"
+      ],
+      "difficultyLevel": "easy"
+    },
+    {
+      "id": 20,
+      "name": "Петропавловск",
+      "nameEn": "Petropavlovsk",
+      "description": "Северный город с аквапарком 'Нептун' и богатым культурным наследием.",
+      "descriptionEn": "Northern city with 'Neptune' water park and rich cultural heritage.",
+      "longDescription": "Петропавловск — город на севере Казахстана у границы с Россией. Известен Собором Петра и Павла, краеведческим музеем, картинной галереей и современным аквапарком 'Нептун'. Набережная реки Ишим — популярное место для прогулок.",
+      "image": "https://images.unsplash.com/photo-1514565131-fce0801e5785?w=800",
+      "latitude": 54.8667,
+      "longitude": 69.1500,
+      "city": "Петропавловск",
+      "region": "north",
+      "category": "Город",
+      "tourType": "cultural",
+      "rating": 4.3,
+      "ageGroups": [
+        "family",
+        "young",
+        "adults"
+      ],
+      "activityLevel": "easy",
+      "interests": [
+        "culture",
+        "fun",
+        "history"
+      ],
+      "averageVisitDuration": 360,
+      "budget": {
+        "min": 5000,
+        "max": 12000
+      },
+      "bestSeason": [
+        "summer"
+      ],
+      "difficultyLevel": "easy"
+    },
+    {
+      "id": 21,
+      "name": "Улгулинский водопад",
+      "nameEn": "Ulguli Waterfall",
+      "description": "Живописный водопад в Акмолинской области с пещерой Айдахар.",
+      "descriptionEn": "Picturesque waterfall in Akmola region with Aidakhar cave.",
+      "longDescription": "Улгулинский водопад (Ермаковский водопад) — красивый каскадный водопад в Улгулинском каньоне. Рядом находится загадочная пещера Айдахар и древние курганы бронзового века в сёлах Кенотекель и Карсак. Идеальное место для однодневного похода.",
+      "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800",
+      "latitude": 52.5000,
+      "longitude": 69.5000,
+      "city": "Акмолинская область",
+      "region": "north",
+      "category": "Природа",
+      "tourType": "adventure",
+      "rating": 4.5,
+      "ageGroups": [
+        "young",
+        "adults"
+      ],
+      "activityLevel": "moderate",
+      "interests": [
+        "nature",
+        "adventure",
+        "history"
+      ],
+      "averageVisitDuration": 360,
+      "budget": {
+        "min": 3000,
+        "max": 7000
+      },
+      "bestSeason": [
+        "spring",
+        "summer"
+      ],
+      "difficultyLevel": "medium"
+    },
+    {
+      "id": 22,
+      "name": "Сырымбет",
+      "nameEn": "Syrymbet",
+      "description": "Родовое имение бабушки Шокана Уалиханова — Айганым.",
+      "descriptionEn": "Ancestral estate of Shokan Ualikhanov's grandmother - Aiganym.",
+      "longDescription": "Сырымбет — историческое место в Северо-Казахстанской области, связанное с именем великого учёного Шокана Уалиханова. Здесь находится усадьба его бабушки Айганым, историко-этнографический музей. Посетителей угощают чаем из настоящего самовара.",
+      "image": "https://images.unsplash.com/photo-1539650116574-75c0c6d73a6e?w=800",
+      "latitude": 53.5000,
+      "longitude": 66.5000,
+      "city": "Северо-Казахстанская область",
+      "region": "north",
+      "category": "История",
+      "tourType": "cultural",
+      "rating": 4.3,
+      "ageGroups": [
+        "family",
+        "young",
+        "adults"
+      ],
+      "activityLevel": "easy",
+      "interests": [
+        "history",
+        "culture",
+        "education"
+      ],
+      "averageVisitDuration": 240,
+      "budget": {
+        "min": 2000,
+        "max": 5000
+      },
+      "bestSeason": [
+        "spring",
+        "summer",
+        "autumn"
+      ],
+      "difficultyLevel": "easy"
+    },
+    {
+      "id": 23,
+      "name": "Балкашино",
+      "nameEn": "Balkashino",
+      "description": "Живописная местность с водопадами, мостами и загадочными скальными образованиями.",
+      "descriptionEn": "Scenic area with waterfalls, bridges and mysterious rock formations.",
+      "longDescription": "Балкашино — посёлок в Акмолинской области, известный Милицейским водопадом, подвесным мостом, 'Могильной сопкой' и загадочным 'Лицом на камне' — скальным образованием, напоминающим человеческое лицо. Место окутано легендами и мистикой.",
+      "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800",
+      "latitude": 52.6167,
+      "longitude": 68.7667,
+      "city": "Акмолинская область",
+      "region": "north",
+      "category": "Природа",
+      "tourType": "adventure",
+      "rating": 4.4,
+      "ageGroups": [
+        "young",
+        "adults"
+      ],
+      "activityLevel": "moderate",
+      "interests": [
+        "nature",
+        "adventure",
+        "mystery"
+      ],
+      "averageVisitDuration": 300,
+      "budget": {
+        "min": 2000,
+        "max": 5000
+      },
+      "bestSeason": [
+        "spring",
+        "summer"
+      ],
+      "difficultyLevel": "medium"
     }
   ]
 }
-

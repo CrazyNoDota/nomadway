@@ -1,0 +1,594 @@
+// NomadWay Database Schema
+// PostgreSQL database with Prisma ORM
+// This schema supports the full migration from JSON-file storage to production-ready PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ================== USER & AUTHENTICATION ==================
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String    @map("password_hash")
+  role          UserRole  @default(USER)
+  fullName      String?   @map("full_name")
+  displayName   String?   @map("display_name")
+  avatarUrl     String?   @map("avatar_url")
+  bio           String?
+  points        Int       @default(0)
+  
+  // Location
+  locationCity        String?  @map("location_city")
+  locationCountryCode String?  @map("location_country_code")
+  privacyLocationPrecision String? @default("city") @map("privacy_location_precision")
+  
+  // Status
+  isActive      Boolean   @default(true) @map("is_active")
+  isDeleted     Boolean   @default(false) @map("is_deleted")
+  deletedAt     DateTime? @map("deleted_at")
+  
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  
+  // Email verification
+  emailVerified Boolean   @default(false) @map("email_verified")
+  verifyToken   String?   @map("verify_token")
+  
+  // Password reset
+  resetToken    String?   @map("reset_token")
+  resetTokenExpiresAt DateTime? @map("reset_token_expires_at")
+  
+  // Relations
+  achievements   UserAchievement[]
+  cartItems      CartItem[]
+  favorites      UserFavorite[]
+  searchHistory  SearchHistory[]
+  posts          CommunityPost[]
+  comments       Comment[]
+  likes          Like[]
+  bookmarks      Bookmark[]
+  following      Follow[]         @relation("UserFollowing")
+  followers      Follow[]         @relation("UserFollowers")
+  blocking       Block[]          @relation("UserBlocking")
+  blockedBy      Block[]          @relation("UserBlockedBy")
+  sentReports    Report[]         @relation("Reporter")
+  receivedReports Report[]        @relation("Reported")
+  notifications  Notification[]
+  checkIns       CheckIn[]
+  placesVisited  PlaceVisit[]
+  refreshTokens  RefreshToken[]
+  routes         SavedRoute[]
+  
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  @@map("refresh_tokens")
+}
+
+// ================== GAMIFICATION ==================
+
+model Achievement {
+  id             String   @id @default(cuid())
+  achievementKey String   @unique @map("achievement_key") // e.g., 'explorer_beginner'
+  title          String
+  titleEn        String?  @map("title_en")
+  description    String
+  descriptionEn  String?  @map("description_en")
+  category       String   // 'places_visited', 'cities_visited', 'distance_walked', 'routes_completed'
+  threshold      Int      // Value needed to earn
+  pointsReward   Int      @map("points_reward")
+  badgeIconUrl   String?  @map("badge_icon_url")
+  icon           String?  // Emoji icon
+  ageGroups      String[] @map("age_groups") // ['family', 'young', 'adults']
+  isActive       Boolean  @default(true) @map("is_active")
+  
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  users UserAchievement[]
+  
+  @@map("achievements")
+}
+
+model UserAchievement {
+  id            String   @id @default(cuid())
+  userId        String   @map("user_id")
+  achievementId String   @map("achievement_id")
+  earnedAt      DateTime @default(now()) @map("earned_at")
+  
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, achievementId])
+  @@map("user_achievements")
+}
+
+model PlaceVisit {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  placeId   Int      @map("place_id") // References Attraction.id
+  placeName String?  @map("place_name")
+  city      String?
+  visitedAt DateTime @default(now()) @map("visited_at")
+  
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  attraction Attraction @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, placeId])
+  @@map("place_visits")
+}
+
+model CheckIn {
+  id         String   @id @default(cuid())
+  userId     String   @map("user_id")
+  placeId    Int      @map("place_id")
+  latitude   Float?
+  longitude  Float?
+  distance   Float?   // Distance walked in meters
+  pointsEarned Int    @default(0) @map("points_earned")
+  checkedInAt DateTime @default(now()) @map("checked_in_at")
+  
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  attraction Attraction @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  
+  @@map("check_ins")
+}
+
+// ================== ATTRACTIONS ==================
+
+model Attraction {
+  id               Int       @id @default(autoincrement())
+  name             String
+  nameEn           String?   @map("name_en")
+  description      String
+  descriptionEn    String?   @map("description_en")
+  longDescription  String?   @map("long_description")
+  longDescriptionEn String?  @map("long_description_en")
+  image            String?
+  
+  // Location
+  latitude         Float?
+  longitude        Float?
+  city             String?
+  region           String?   // 'south', 'north', 'east', 'west', 'central'
+  
+  // Categorization
+  category         String?   // 'Природа', 'Культура', etc.
+  tourType         String?   @map("tour_type") // 'nature', 'cultural', 'adventure'
+  
+  // Rating & Metrics
+  rating           Float?
+  reviewCount      Int       @default(0) @map("review_count")
+  
+  // Visitor Info
+  ageGroups        String[]  @map("age_groups")
+  activityLevel    String?   @map("activity_level") // 'easy', 'moderate', 'intense'
+  interests        String[]
+  averageVisitDuration Int?  @map("average_visit_duration") // in minutes
+  
+  // Pricing
+  budgetMin        Int?      @map("budget_min")
+  budgetMax        Int?      @map("budget_max")
+  
+  // Seasons & Difficulty
+  bestSeasons      String[]  @map("best_seasons")
+  difficultyLevel  String?   @map("difficulty_level")
+  
+  // AI Summary (stored as JSON)
+  aiSummary        Json?     @map("ai_summary")
+  
+  // Status
+  isActive         Boolean   @default(true) @map("is_active")
+  isDeleted        Boolean   @default(false) @map("is_deleted")
+  deletedAt        DateTime? @map("deleted_at")
+  
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  
+  // Relations
+  reviews          AttractionReview[]
+  cartItems        CartItem[]
+  favorites        UserFavorite[]
+  checkIns         CheckIn[]
+  placeVisits      PlaceVisit[]
+  routeStops       RouteStop[]
+  
+  @@map("attractions")
+}
+
+model AttractionReview {
+  id           String   @id @default(cuid())
+  attractionId Int      @map("attraction_id")
+  author       String
+  rating       Int      // 1-5
+  text         String
+  date         DateTime @default(now())
+  
+  isDeleted    Boolean  @default(false) @map("is_deleted")
+  deletedAt    DateTime? @map("deleted_at")
+  
+  attraction Attraction @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+  
+  @@map("attraction_reviews")
+}
+
+// ================== CART ==================
+
+model CartItem {
+  id           String   @id @default(cuid())
+  userId       String   @map("user_id")
+  attractionId Int      @map("attraction_id")
+  itemType     String   @default("attraction") @map("item_type") // 'attraction', 'tour', 'transfer'
+  paxCount     Int      @default(1) @map("pax_count")
+  selectedDate DateTime? @map("selected_date")
+  notes        String?
+  
+  addedAt      DateTime @default(now()) @map("added_at")
+  
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  attraction Attraction @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, attractionId, itemType])
+  @@map("cart_items")
+}
+
+// ================== FAVORITES / WISHLIST ==================
+
+model UserFavorite {
+  id           String   @id @default(cuid())
+  userId       String   @map("user_id")
+  attractionId Int      @map("attraction_id")
+  itemType     String   @default("attraction") @map("item_type")
+  
+  addedAt      DateTime @default(now()) @map("added_at")
+  
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  attraction Attraction @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, attractionId, itemType])
+  @@map("user_favorites")
+}
+
+// ================== SEARCH HISTORY ==================
+
+model SearchHistory {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  query       String
+  searchType  String   @default("general") @map("search_type") // 'attraction', 'route', 'general'
+  resultsCount Int?    @map("results_count")
+  
+  searchedAt  DateTime @default(now()) @map("searched_at")
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId, searchedAt(sort: Desc)])
+  @@map("search_history")
+}
+
+// ================== SAVED ROUTES ==================
+
+model SavedRoute {
+  id            String   @id @default(cuid())
+  userId        String   @map("user_id")
+  name          String?
+  duration      String?  // '3_hours', '1_day', '3_days'
+  totalDuration Int?     @map("total_duration") // in minutes
+  totalCost     Int?     @map("total_cost")
+  ageGroup      String?  @map("age_group")
+  activityLevel String?  @map("activity_level")
+  interests     String[]
+  
+  isDeleted     Boolean  @default(false) @map("is_deleted")
+  deletedAt     DateTime? @map("deleted_at")
+  
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  
+  user   User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stops  RouteStop[]
+  
+  @@map("saved_routes")
+}
+
+model RouteStop {
+  id            String   @id @default(cuid())
+  routeId       String   @map("route_id")
+  attractionId  Int      @map("attraction_id")
+  orderIndex    Int      @map("order_index")
+  visitDuration Int?     @map("visit_duration")
+  travelTime    Int?     @map("travel_time")
+  estimatedCost Int?     @map("estimated_cost")
+  
+  route      SavedRoute @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  attraction Attraction @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+  
+  @@map("route_stops")
+}
+
+// ================== COMMUNITY ==================
+
+enum PostCategory {
+  question
+  experience
+  guide
+  seek_travel_mates
+  recommendations
+}
+
+model CommunityPost {
+  id          String       @id @default(cuid())
+  authorId    String       @map("author_id")
+  title       String       @db.VarChar(120)
+  body        String
+  category    PostCategory
+  tags        String[]
+  
+  // Location
+  locationCity        String?  @map("location_city")
+  locationCountryCode String?  @map("location_country_code")
+  
+  // Counters (denormalized for performance)
+  likesCount    Int @default(0) @map("likes_count")
+  commentsCount Int @default(0) @map("comments_count")
+  bookmarksCount Int @default(0) @map("bookmarks_count")
+  
+  // Visibility
+  isHidden      Boolean   @default(false) @map("is_hidden")
+  hiddenReason  String?   @map("hidden_reason")
+  
+  // Soft delete
+  isDeleted     Boolean   @default(false) @map("is_deleted")
+  deletedAt     DateTime? @map("deleted_at")
+  
+  // Scoring
+  scorePopular  Float     @default(0) @map("score_popular")
+  
+  publishedAt   DateTime  @default(now()) @map("published_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  
+  author    User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  media     PostMedia[]
+  comments  Comment[]
+  likes     Like[]
+  bookmarks Bookmark[]
+  reports   Report[]
+  
+  @@index([authorId])
+  @@index([publishedAt(sort: Desc)])
+  @@index([scorePopular(sort: Desc)])
+  @@map("community_posts")
+}
+
+model PostMedia {
+  id          String @id @default(cuid())
+  postId      String @map("post_id")
+  originalUrl String @map("original_url")
+  thumbUrl    String? @map("thumb_url")
+  width       Int?
+  height      Int?
+  orderIndex  Int    @default(0) @map("order_index")
+  
+  createdAt   DateTime @default(now()) @map("created_at")
+  
+  post CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  @@map("post_media")
+}
+
+model Comment {
+  id              String   @id @default(cuid())
+  postId          String   @map("post_id")
+  authorId        String   @map("author_id")
+  parentCommentId String?  @map("parent_comment_id")
+  body            String
+  
+  likesCount      Int      @default(0) @map("likes_count")
+  
+  isHidden        Boolean  @default(false) @map("is_hidden")
+  isDeleted       Boolean  @default(false) @map("is_deleted")
+  deletedAt       DateTime? @map("deleted_at")
+  
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  
+  post          CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author        User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parentComment Comment?      @relation("CommentReplies", fields: [parentCommentId], references: [id])
+  replies       Comment[]     @relation("CommentReplies")
+  likes         Like[]
+  
+  @@index([postId])
+  @@map("comments")
+}
+
+model Like {
+  id         String   @id @default(cuid())
+  userId     String   @map("user_id")
+  entityType String   @map("entity_type") // 'post', 'comment'
+  postId     String?  @map("post_id")
+  commentId  String?  @map("comment_id")
+  
+  createdAt  DateTime @default(now()) @map("created_at")
+  
+  user    User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post    CommunityPost? @relation(fields: [postId], references: [id], onDelete: Cascade)
+  comment Comment?       @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, entityType, postId])
+  @@unique([userId, entityType, commentId])
+  @@map("likes")
+}
+
+model Bookmark {
+  id     String @id @default(cuid())
+  userId String @map("user_id")
+  postId String @map("post_id")
+  
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  user User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, postId])
+  @@map("bookmarks")
+}
+
+model Follow {
+  id         String   @id @default(cuid())
+  followerId String   @map("follower_id")
+  followeeId String   @map("followee_id")
+  
+  createdAt  DateTime @default(now()) @map("created_at")
+  
+  follower User @relation("UserFollowing", fields: [followerId], references: [id], onDelete: Cascade)
+  followee User @relation("UserFollowers", fields: [followeeId], references: [id], onDelete: Cascade)
+  
+  @@unique([followerId, followeeId])
+  @@map("follows")
+}
+
+model Block {
+  id        String   @id @default(cuid())
+  blockerId String   @map("blocker_id")
+  blockedId String   @map("blocked_id")
+  
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  blocker User @relation("UserBlocking", fields: [blockerId], references: [id], onDelete: Cascade)
+  blocked User @relation("UserBlockedBy", fields: [blockedId], references: [id], onDelete: Cascade)
+  
+  @@unique([blockerId, blockedId])
+  @@map("blocks")
+}
+
+model Report {
+  id         String   @id @default(cuid())
+  reporterId String   @map("reporter_id")
+  reportedId String?  @map("reported_id") // User being reported (if applicable)
+  postId     String?  @map("post_id")
+  reason     String
+  details    String?
+  status     String   @default("pending") // 'pending', 'reviewed', 'dismissed', 'action_taken'
+  
+  createdAt  DateTime @default(now()) @map("created_at")
+  reviewedAt DateTime? @map("reviewed_at")
+  
+  reporter User           @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  reported User?          @relation("Reported", fields: [reportedId], references: [id], onDelete: SetNull)
+  post     CommunityPost? @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  @@map("reports")
+}
+
+model Notification {
+  id       String   @id @default(cuid())
+  userId   String   @map("user_id")
+  type     String   // 'like', 'comment', 'follow', 'achievement', 'system'
+  title    String
+  message  String
+  data     Json?    // Additional data (postId, commentId, etc.)
+  isRead   Boolean  @default(false) @map("is_read")
+  
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId, isRead])
+  @@map("notifications")
+}
+
+// ================== CONTENT MODERATION ==================
+
+model BlacklistWord {
+  id       String   @id @default(cuid())
+  word     String   @unique
+  severity String   @default("medium") // 'low', 'medium', 'high'
+  
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  @@map("blacklist_words")
+}
+
+// ================== WEB ANALYTICS ==================
+
+model WebVisit {
+  id        String   @id @default(cuid())
+  ipHash    String   @map("ip_hash") // Hashed IP for privacy
+  userAgent String?  @map("user_agent")
+  country   String?
+  city      String?
+  page      String   @default("/")
+  referrer  String?
+  
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  @@index([createdAt])
+  @@index([country])
+  @@map("web_visits")
+}
+
+model AppDownload {
+  id        String   @id @default(cuid())
+  version   String   @default("1.0.0")
+  platform  String   @default("android") // 'android', 'ios'
+  ipHash    String?  @map("ip_hash")
+  country   String?
+  userAgent String?  @map("user_agent")
+  
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  @@index([createdAt])
+  @@index([version])
+  @@map("app_downloads")
+}
+
+// ================== IN-APP ANALYTICS ==================
+
+enum AppEventType {
+  VIEW
+  ACTION
+  ERROR
+}
+
+model AppEvent {
+  id        String       @id @default(cuid())
+  userId    String?      @map("user_id")
+  eventType AppEventType @map("event_type")
+  eventName String       @map("event_name") // e.g., "HomeScreen", "AddToCart", "Checkout"
+  metadata  Json?        // Extra details like { productId: "123", price: 500 }
+  
+  // Device info
+  deviceId  String?      @map("device_id")
+  platform  String?      // 'android', 'ios'
+  appVersion String?     @map("app_version")
+  
+  timestamp DateTime     @default(now())
+  
+  @@index([timestamp])
+  @@index([eventType])
+  @@index([eventName])
+  @@index([userId])
+  @@map("app_events")
+}

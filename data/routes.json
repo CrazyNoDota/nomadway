@@ -3,47 +3,743 @@
     {
       "id": 1,
       "name": "Великий Шелковый Путь",
+      "nameEn": "Great Silk Road",
       "description": "Исторический маршрут через древние города Казахстана",
+      "descriptionEn": "Historical route through ancient cities of Kazakhstan",
       "longDescription": "Пройдите по следам Великого Шёлкового пути — древней торговой артерии, связывавшей Восток и Запад. Этот маршрут проведёт вас через ключевые исторические места Казахстана, где когда-то останавливались караваны купцов.",
-      "image": "https://images.unsplash.com/photo-1514565131-fce0801e5785?w=800",
+      "image": "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800",
       "duration": "7 дней",
+      "durationDays": 7,
       "difficulty": "Средняя",
-      "stops": [3, 5, 1],
-      "color": "#d4af37"
+      "difficultyLevel": "medium",
+      "stops": [
+        3,
+        5,
+        1
+      ],
+      "color": "#d4af37",
+      "region": "south",
+      "tourType": "historical",
+      "price": {
+        "min": 50000,
+        "max": 120000
+      },
+      "bestSeason": [
+        "spring",
+        "autumn"
+      ]
     },
     {
       "id": 2,
       "name": "Охота на тюльпаны",
+      "nameEn": "Tulip Hunt",
       "description": "Весеннее путешествие по степям в поисках цветущих тюльпанов",
+      "descriptionEn": "Spring journey through steppes in search of blooming tulips",
       "longDescription": "Весной казахстанские степи превращаются в цветущий ковёр. Этот маршрут проведёт вас по местам, где можно увидеть дикие тюльпаны во всей их красе. Узнайте о разнообразии видов и насладитесь уникальным природным зрелищем.",
-      "image": "https://images.unsplash.com/photo-1520763185298-1b434c919102?w=800",
+      "image": "https://images.unsplash.com/photo-1462275646964-a0e3571f4f22?w=800",
       "duration": "3 дня",
+      "durationDays": 3,
       "difficulty": "Лёгкая",
-      "stops": [6, 2],
-      "color": "#e74c3c"
+      "difficultyLevel": "easy",
+      "stops": [
+        6,
+        2
+      ],
+      "color": "#e74c3c",
+      "region": "south",
+      "tourType": "nature",
+      "price": {
+        "min": 15000,
+        "max": 35000
+      },
+      "bestSeason": [
+        "spring"
+      ]
     },
     {
       "id": 3,
       "name": "Тропы Тянь-Шаня",
+      "nameEn": "Tian Shan Trails",
       "description": "Альпинистское приключение в горах Тянь-Шаня",
+      "descriptionEn": "Mountaineering adventure in the Tian Shan mountains",
       "longDescription": "Погрузитесь в мир высокогорных приключений. Этот маршрут для опытных путешественников, готовых покорить легендарные вершины Тянь-Шаня. От живописных озёр до заснеженных пиков — вас ждёт незабываемое путешествие.",
-      "image": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
+      "image": "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=800",
       "duration": "10 дней",
+      "durationDays": 10,
       "difficulty": "Сложная",
-      "stops": [4, 7, 8, 1],
-      "color": "#3498db"
+      "difficultyLevel": "hard",
+      "stops": [
+        4,
+        7,
+        8,
+        1
+      ],
+      "color": "#3498db",
+      "region": "south",
+      "tourType": "mountain",
+      "price": {
+        "min": 80000,
+        "max": 200000
+      },
+      "bestSeason": [
+        "summer"
+      ]
     },
     {
       "id": 4,
       "name": "Жемчужины природы",
+      "nameEn": "Nature Pearls",
       "description": "Путешествие по самым красивым природным достопримечательностям",
+      "descriptionEn": "Journey through the most beautiful natural attractions",
       "longDescription": "Откройте для себя природные сокровища Казахстана. Этот маршрут включает посещение самых живописных мест: загадочных озёр, величественных каньонов и горных пейзажей.",
-      "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800",
+      "image": "https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=800",
       "duration": "5 дней",
+      "durationDays": 5,
       "difficulty": "Средняя",
-      "stops": [1, 2, 4],
-      "color": "#27ae60"
+      "difficultyLevel": "medium",
+      "stops": [
+        1,
+        2,
+        4
+      ],
+      "color": "#27ae60",
+      "region": "south",
+      "tourType": "nature",
+      "price": {
+        "min": 30000,
+        "max": 70000
+      },
+      "bestSeason": [
+        "summer",
+        "autumn"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Зеренда - Край легенд",
+      "nameEn": "Zerenda - Land of Legends",
+      "description": "Однодневная экскурсия к Смольной Сопке и Гигантскому грибу",
+      "descriptionEn": "Day trip to Smolnaya Hill and Giant Mushroom",
+      "longDescription": "Посетите живописную Зеренду с подъёмом на Смольную Сопку, осмотром легендарного Гигантского гриба (загадайте желание!), прогулкой к озеру, экскурсией к монументу Балкадыша и посещением спортивно-оздоровительного лагеря 'Тулпар'.",
+      "image": "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=800",
+      "duration": "1 день",
+      "durationDays": 1,
+      "difficulty": "Лёгкая",
+      "difficultyLevel": "easy",
+      "stops": [
+        16
+      ],
+      "color": "#9b59b6",
+      "region": "north",
+      "tourType": "nature",
+      "price": {
+        "min": 8000,
+        "max": 15000
+      },
+      "bestSeason": [
+        "summer",
+        "autumn"
+      ],
+      "itinerary": [
+        {
+          "time": "morning",
+          "activity": "Подъём на Смольную Сопку",
+          "activityEn": "Climb Smolnaya Hill"
+        },
+        {
+          "time": "morning",
+          "activity": "Посещение 'Гигантского гриба' (загадайте желание)",
+          "activityEn": "Visit 'Giant Mushroom' (make a wish)"
+        },
+        {
+          "time": "afternoon",
+          "activity": "Прогулка к живописному озеру",
+          "activityEn": "Walk to scenic lake"
+        },
+        {
+          "time": "afternoon",
+          "activity": "Обед",
+          "activityEn": "Lunch"
+        },
+        {
+          "time": "evening",
+          "activity": "Экскурсия к монументу Балкадыша",
+          "activityEn": "Excursion to Balkadysha Monument"
+        },
+        {
+          "time": "evening",
+          "activity": "Посещение лагеря 'Тулпар', трансфер домой",
+          "activityEn": "Visit Tulpar camp, transfer home"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Боровое - Жемчужина Казахстана",
+      "nameEn": "Burabay - Pearl of Kazakhstan",
+      "description": "Полный тур по Боровому: скалы, озёра, обзорные площадки",
+      "descriptionEn": "Complete Burabay tour: rocks, lakes, viewpoints",
+      "longDescription": "Откройте для себя все красоты Борового: скалу 'Ракушка' на перевале хана, загадочные скалы Окжетпес и Жумбактас (Сфинкс), обзорная площадка на горе Болектау, целебный источник Иманаева и современный визит-центр.",
+      "image": "https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?w=800",
+      "duration": "1 день",
+      "durationDays": 1,
+      "difficulty": "Лёгкая",
+      "difficultyLevel": "easy",
+      "stops": [
+        2
+      ],
+      "color": "#1abc9c",
+      "region": "north",
+      "tourType": "nature",
+      "price": {
+        "min": 10000,
+        "max": 18000
+      },
+      "bestSeason": [
+        "summer",
+        "autumn"
+      ],
+      "itinerary": [
+        {
+          "time": "morning",
+          "activity": "Скала 'Ракушка' (Ханский перевал)",
+          "activityEn": "Shell Rock (Khan's Pass)"
+        },
+        {
+          "time": "morning",
+          "activity": "Осмотр скал Окжетпес и Жумбактас (Сфинкс)",
+          "activityEn": "View Okzhetpes and Zhumbaktas (Sphinx) rocks"
+        },
+        {
+          "time": "afternoon",
+          "activity": "Обед в кафе 'Достар'",
+          "activityEn": "Lunch at Dostar Cafe"
+        },
+        {
+          "time": "afternoon",
+          "activity": "Подъём на гору Болектау (смотровая площадка)",
+          "activityEn": "Climb Bolektau Mountain (observation deck)"
+        },
+        {
+          "time": "evening",
+          "activity": "Прогулка к источнику Иманаева",
+          "activityEn": "Walk to Imanayev Spring"
+        },
+        {
+          "time": "evening",
+          "activity": "Мультимедийный визит-центр, панорамная площадка",
+          "activityEn": "Multimedia Visit Center, panoramic deck"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Астана - Сердце Казахстана",
+      "nameEn": "Astana - Heart of Kazakhstan",
+      "description": "Двухдневный тур по футуристической столице",
+      "descriptionEn": "Two-day tour of the futuristic capital",
+      "longDescription": "Погрузитесь в современную архитектуру Астаны: Байтерек, мечеть Хазрет Султан, Хан Шатыр, Национальный музей, Ботанический сад, океанариум 'Айланд' и вечерняя прогулка по набережной.",
+      "image": "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800",
+      "duration": "2 дня",
+      "durationDays": 2,
+      "difficulty": "Лёгкая",
+      "difficultyLevel": "easy",
+      "stops": [
+        17
+      ],
+      "color": "#f39c12",
+      "region": "central",
+      "tourType": "cultural",
+      "price": {
+        "min": 25000,
+        "max": 50000
+      },
+      "bestSeason": [
+        "spring",
+        "summer",
+        "autumn",
+        "winter"
+      ],
+      "itinerary": [
+        {
+          "day": 1,
+          "time": "morning",
+          "activity": "Прибытие в посёлок Аккол, обед в кафе",
+          "activityEn": "Arrival in Akkol village, lunch at cafe"
+        },
+        {
+          "day": 1,
+          "time": "afternoon",
+          "activity": "Монумент Байтерек - символ столицы",
+          "activityEn": "Baiterek Monument - symbol of the capital"
+        },
+        {
+          "day": 1,
+          "time": "afternoon",
+          "activity": "Мечеть Хазрет Султан",
+          "activityEn": "Hazrat Sultan Mosque"
+        },
+        {
+          "day": 1,
+          "time": "evening",
+          "activity": "ТРЦ Хан Шатыр",
+          "activityEn": "Khan Shatyr Entertainment Center"
+        },
+        {
+          "day": 2,
+          "time": "morning",
+          "activity": "Национальный музей Республики Казахстан",
+          "activityEn": "National Museum of the Republic of Kazakhstan"
+        },
+        {
+          "day": 2,
+          "time": "afternoon",
+          "activity": "Ботанический сад",
+          "activityEn": "Botanical Garden"
+        },
+        {
+          "day": 2,
+          "time": "afternoon",
+          "activity": "Океанариум 'Айланд'",
+          "activityEn": "Ailand Oceanarium"
+        },
+        {
+          "day": 2,
+          "time": "evening",
+          "activity": "Прогулка по набережной и мосту Атырау",
+          "activityEn": "Walk along Embankment and Atyrau Bridge"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Ерейментау - Розовое озеро",
+      "nameEn": "Ereymentau - Pink Lake",
+      "description": "Путешествие к розовому озеру Кобейтуз и древним курганам",
+      "descriptionEn": "Journey to pink Kobeytuz Lake and ancient burial mounds",
+      "longDescription": "Уникальный маршрут включает историко-краеведческий музей Ерейментау, знаменитое розовое озеро Кобейтуз, скалу 'Каменные ворота', живописные обрывы и археологический комплекс Кумай с тюркскими изваяниями VI-VIII веков.",
+      "image": "https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=800",
+      "duration": "1 день",
+      "durationDays": 1,
+      "difficulty": "Лёгкая",
+      "difficultyLevel": "easy",
+      "stops": [
+        18
+      ],
+      "color": "#e91e63",
+      "region": "central",
+      "tourType": "nature",
+      "price": {
+        "min": 8000,
+        "max": 15000
+      },
+      "bestSeason": [
+        "spring",
+        "summer",
+        "autumn"
+      ],
+      "itinerary": [
+        {
+          "time": "morning",
+          "activity": "Историко-краеведческий музей Ерейментау",
+          "activityEn": "Ereymentau Historical and Local History Museum"
+        },
+        {
+          "time": "morning",
+          "activity": "Розовое озеро Кобейтуз",
+          "activityEn": "Pink Lake Kobeytuz"
+        },
+        {
+          "time": "afternoon",
+          "activity": "Скала 'Каменные ворота'",
+          "activityEn": "Stone Gates Rock"
+        },
+        {
+          "time": "afternoon",
+          "activity": "Живописные обрывы и смотровые площадки",
+          "activityEn": "Scenic cliffs and observation points"
+        },
+        {
+          "time": "evening",
+          "activity": "Археологический комплекс Кумай (курганы, тюркские изваяния VI-VIII вв.)",
+          "activityEn": "Kumay Archaeological Complex (burial mounds, Turkic statues VI-VIII centuries)"
+        },
+        {
+          "time": "evening",
+          "activity": "Мечеть Токан-Хазрет, трансфер домой",
+          "activityEn": "Tokan-Hazret Mosque, transfer home"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "name": "Костанай - Культурное наследие",
+      "nameEn": "Kostanay - Cultural Heritage",
+      "description": "Двухдневный тур по музеям и историческим местам Костаная",
+      "descriptionEn": "Two-day tour of Kostanay museums and historical sites",
+      "longDescription": "Познакомьтесь с богатой историей Костаная: музей И. Алтынсарина, уникальный музей игрушек, историко-краеведческий музей, часовая башня, живописная набережная и областной драматический театр.",
+      "image": "https://images.unsplash.com/photo-1514565131-fce0801e5785?w=800",
+      "duration": "2 дня",
+      "durationDays": 2,
+      "difficulty": "Лёгкая",
+      "difficultyLevel": "easy",
+      "stops": [
+        19
+      ],
+      "color": "#673ab7",
+      "region": "north",
+      "tourType": "cultural",
+      "price": {
+        "min": 15000,
+        "max": 30000
+      },
+      "bestSeason": [
+        "spring",
+        "summer",
+        "autumn"
+      ],
+      "itinerary": [
+        {
+          "day": 1,
+          "time": "morning",
+          "activity": "Заселение в отель 'Остров', завтрак",
+          "activityEn": "Check-in at Hotel Ostrov, breakfast"
+        },
+        {
+          "day": 1,
+          "time": "morning",
+          "activity": "Музей И. Алтынсарина",
+          "activityEn": "I. Altynsarin Museum"
+        },
+        {
+          "day": 1,
+          "time": "afternoon",
+          "activity": "Музей игрушек",
+          "activityEn": "Toy Museum"
+        },
+        {
+          "day": 1,
+          "time": "afternoon",
+          "activity": "Историко-краеведческий музей, обед в кафе 'Бархат'",
+          "activityEn": "Historical and Local History Museum, lunch at Barkhat Cafe"
+        },
+        {
+          "day": 1,
+          "time": "evening",
+          "activity": "Прогулка по площади, осмотр Часовой башни",
+          "activityEn": "Walk through square, view Clock Tower"
+        },
+        {
+          "day": 1,
+          "time": "evening",
+          "activity": "Набережная, Областной драматический театр, ужин",
+          "activityEn": "Embankment, Regional Drama Theatre, dinner"
+        },
+        {
+          "day": 2,
+          "time": "morning",
+          "activity": "Завтрак, свободное время",
+          "activityEn": "Breakfast, free time"
+        },
+        {
+          "day": 2,
+          "time": "morning",
+          "activity": "Выезд домой",
+          "activityEn": "Departure home"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "name": "Петропавловск + Аквапарк 'Нептун'",
+      "nameEn": "Petropavlovsk + Neptune Water Park",
+      "description": "Культурный тур с активным отдыхом в аквапарке",
+      "descriptionEn": "Cultural tour with water park fun",
+      "longDescription": "Совместите знакомство с историей Петропавловска и веселый отдых в аквапарке 'Нептун'. Посетите музеи, картинную галерею, Собор Петра и Павла, а затем насладитесь водными аттракционами.",
+      "image": "https://images.unsplash.com/photo-1514565131-fce0801e5785?w=800",
+      "duration": "1 день",
+      "durationDays": 1,
+      "difficulty": "Лёгкая",
+      "difficultyLevel": "easy",
+      "stops": [
+        20
+      ],
+      "color": "#00bcd4",
+      "region": "north",
+      "tourType": "cultural",
+      "price": {
+        "min": 12000,
+        "max": 22000
+      },
+      "bestSeason": [
+        "summer"
+      ],
+      "itinerary": [
+        {
+          "time": "morning",
+          "activity": "Обзорная экскурсия по Петропавловску",
+          "activityEn": "City tour of Petropavlovsk"
+        },
+        {
+          "time": "morning",
+          "activity": "Музеи и картинная галерея",
+          "activityEn": "Museums and Art Gallery"
+        },
+        {
+          "time": "afternoon",
+          "activity": "Собор Святых Петра и Павла",
+          "activityEn": "Cathedral of Saints Peter and Paul"
+        },
+        {
+          "time": "afternoon",
+          "activity": "Аквапарк 'Нептун' - активный отдых",
+          "activityEn": "Neptune Water Park - active rest"
+        },
+        {
+          "time": "evening",
+          "activity": "Обед, прогулка по набережной",
+          "activityEn": "Lunch, walk along embankment"
+        },
+        {
+          "time": "evening",
+          "activity": "Посещение ТРЦ, трансфер домой",
+          "activityEn": "Shopping mall visit, transfer home"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "name": "Улгулинский водопад",
+      "nameEn": "Ulguli Waterfall Adventure",
+      "description": "Приключенческий тур к водопаду и пещере Айдахар",
+      "descriptionEn": "Adventure tour to waterfall and Aidakhar cave",
+      "longDescription": "Захватывающий однодневный поход: осмотр курганов бронзового века в сёлах Кенотекель и Карсак, Ермаковский водопад, прогулка по Улгулинскому каньону, пикник на природе, развлекательная программа и загадочная пещера Айдахар.",
+      "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800",
+      "duration": "1 день",
+      "durationDays": 1,
+      "difficulty": "Средняя",
+      "difficultyLevel": "medium",
+      "stops": [
+        21
+      ],
+      "color": "#4caf50",
+      "region": "north",
+      "tourType": "adventure",
+      "price": {
+        "min": 8000,
+        "max": 15000
+      },
+      "bestSeason": [
+        "spring",
+        "summer"
+      ],
+      "itinerary": [
+        {
+          "time": "morning",
+          "activity": "Село Кенотекель: осмотр курганов бронзового века",
+          "activityEn": "Kenotkel Village: Bronze Age burial mounds"
+        },
+        {
+          "time": "morning",
+          "activity": "Село Карсак: древнее захоронение",
+          "activityEn": "Karsak Village: ancient burial site"
+        },
+        {
+          "time": "afternoon",
+          "activity": "Выезд к Ермаковскому водопаду",
+          "activityEn": "Departure to Ermakovsky Waterfall"
+        },
+        {
+          "time": "afternoon",
+          "activity": "Прогулка по Улгулинскому каньону",
+          "activityEn": "Walk through Ulguli Canyon"
+        },
+        {
+          "time": "afternoon",
+          "activity": "Пикник на природе",
+          "activityEn": "Picnic in nature"
+        },
+        {
+          "time": "evening",
+          "activity": "Отдых у водопада + развлекательная программа (игры, призы)",
+          "activityEn": "Rest at waterfall + entertainment (games, prizes)"
+        },
+        {
+          "time": "evening",
+          "activity": "Пещера Айдахар в селе Улгили, трансфер домой",
+          "activityEn": "Aidakhar Cave in Ulgili village, transfer home"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "name": "Сырымбет - По следам Шокана",
+      "nameEn": "Syrymbet - In Shokan's Footsteps",
+      "description": "Историко-культурный тур к родовому имению Шокана Уалиханова",
+      "descriptionEn": "Historical-cultural tour to Shokan Ualikhanov's ancestral estate",
+      "longDescription": "Погрузитесь в историю казахского народа: посетите историко-этнографический музей Ш. Уалиханова в Саумалколе, усадьбу его бабушки Айганым, насладитесь чаем из настоящего самовара в традиционной обстановке.",
+      "image": "https://images.unsplash.com/photo-1539650116574-75c0c6d73a6e?w=800",
+      "duration": "1 день",
+      "durationDays": 1,
+      "difficulty": "Лёгкая",
+      "difficultyLevel": "easy",
+      "stops": [
+        22
+      ],
+      "color": "#795548",
+      "region": "north",
+      "tourType": "cultural",
+      "price": {
+        "min": 6000,
+        "max": 12000
+      },
+      "bestSeason": [
+        "spring",
+        "summer",
+        "autumn"
+      ],
+      "itinerary": [
+        {
+          "time": "morning",
+          "activity": "Выезд от главного корпуса университета",
+          "activityEn": "Departure from university main building"
+        },
+        {
+          "time": "afternoon",
+          "activity": "Обед в Саумалколе",
+          "activityEn": "Lunch in Saumalkol"
+        },
+        {
+          "time": "afternoon",
+          "activity": "Историко-этнографический музей Ш. Уалиханова",
+          "activityEn": "Sh. Ualikhanov Historical and Ethnographic Museum"
+        },
+        {
+          "time": "evening",
+          "activity": "Посещение усадьбы Айганым (бабушки Шокана Уалиханова)",
+          "activityEn": "Visit Aiganym Manor (Shokan Ualikhanov's grandmother)"
+        },
+        {
+          "time": "evening",
+          "activity": "Чаепитие с самоваром, трансфер домой",
+          "activityEn": "Tea party with Samovar, transfer home"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "name": "Балкашино - Тайны скал",
+      "nameEn": "Balkashino - Rock Mysteries",
+      "description": "Загадочные водопады, мосты и каменные лица",
+      "descriptionEn": "Mysterious waterfalls, bridges and stone faces",
+      "longDescription": "Мистический маршрут: Милицейский водопад, 'Могильная сопка', подвесной мост, загадочный лесной дом и знаменитое 'Лицо на камне' — природное скальное образование, напоминающее человеческое лицо.",
+      "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800",
+      "duration": "1 день",
+      "durationDays": 1,
+      "difficulty": "Средняя",
+      "difficultyLevel": "medium",
+      "stops": [
+        23
+      ],
+      "color": "#607d8b",
+      "region": "north",
+      "tourType": "adventure",
+      "price": {
+        "min": 5000,
+        "max": 10000
+      },
+      "bestSeason": [
+        "spring",
+        "summer"
+      ],
+      "itinerary": [
+        {
+          "time": "morning",
+          "activity": "Локация 1: Милицейский водопад",
+          "activityEn": "Location 1: Militseisky Waterfall"
+        },
+        {
+          "time": "morning",
+          "activity": "'Могильная' сопка",
+          "activityEn": "Mogilnaya Hill"
+        },
+        {
+          "time": "afternoon",
+          "activity": "Обед",
+          "activityEn": "Lunch"
+        },
+        {
+          "time": "afternoon",
+          "activity": "Подвесной мост",
+          "activityEn": "Suspension Bridge"
+        },
+        {
+          "time": "evening",
+          "activity": "Загадочный лесной дом",
+          "activityEn": "Mysterious Forestry House"
+        },
+        {
+          "time": "evening",
+          "activity": "Каменная скульптура 'Лицо на камне' 🗿, трансфер домой",
+          "activityEn": "Stone Sculpture 'Face on Stone' 🗿, transfer home"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "name": "Мангистау - Марсианские пейзажи",
+      "nameEn": "Mangystau - Martian Landscapes",
+      "description": "Экспедиция к Бозжире и Шеркале",
+      "descriptionEn": "Expedition to Bozzhira and Sherkala",
+      "longDescription": "Откройте для себя невероятные пейзажи Мангистау: белоснежные меловые скалы Бозжиры, гору-юрту Шеркалу, подземные мечети и древние некрополи на дне древнего океана Тетис.",
+      "image": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
+      "duration": "4 дня",
+      "durationDays": 4,
+      "difficulty": "Средняя",
+      "difficultyLevel": "medium",
+      "stops": [
+        10,
+        11
+      ],
+      "color": "#ff5722",
+      "region": "west",
+      "tourType": "adventure",
+      "price": {
+        "min": 60000,
+        "max": 120000
+      },
+      "bestSeason": [
+        "spring",
+        "autumn"
+      ]
+    },
+    {
+      "id": 15,
+      "name": "Озёра Алматы",
+      "nameEn": "Almaty Lakes",
+      "description": "Кольсай и Каинды - жемчужины гор",
+      "descriptionEn": "Kolsai and Kaindy - mountain pearls",
+      "longDescription": "Двухдневное путешествие к самым красивым горным озёрам: каскад Кольсайских озёр и загадочное озеро Каинды с затонувшим лесом.",
+      "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800",
+      "duration": "2 дня",
+      "durationDays": 2,
+      "difficulty": "Средняя",
+      "difficultyLevel": "medium",
+      "stops": [
+        9,
+        4
+      ],
+      "color": "#2196f3",
+      "region": "south",
+      "tourType": "nature",
+      "price": {
+        "min": 25000,
+        "max": 50000
+      },
+      "bestSeason": [
+        "summer",
+        "autumn"
+      ]
     }
   ]
 }
-

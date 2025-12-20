@@ -9,13 +9,29 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import routesData from '../data/routes.json';
+import { useFavorites } from '../contexts/FavoritesContext';
 
 export default function RoutesScreen({ navigation }) {
   const [routes, setRoutes] = useState([]);
+  const { toggleFavorite, isFavorite } = useFavorites();
 
   useEffect(() => {
     setRoutes(routesData.routes);
   }, []);
+
+  const handleToggleFavorite = (item) => {
+    toggleFavorite({
+      id: item.id,
+      type: 'route',
+      name: item.name,
+      description: item.description,
+      duration: item.duration,
+      difficulty: item.difficulty,
+      image: item.image,
+      color: item.color,
+      stopsCount: item.stops?.length || 0,
+    });
+  };
 
   const getDifficultyColor = (difficulty) => {
     switch (difficulty) {
@@ -35,7 +51,19 @@ export default function RoutesScreen({ navigation }) {
       style={[styles.card, { borderLeftColor: item.color, borderLeftWidth: 4 }]}
       onPress={() => navigation.navigate('RouteDetails', { route: item })}
     >
-      <Image source={{ uri: item.image }} style={styles.cardImage} />
+      <View style={styles.imageContainer}>
+        <Image source={{ uri: item.image }} style={styles.cardImage} />
+        <TouchableOpacity
+          style={styles.favoriteButton}
+          onPress={() => handleToggleFavorite(item)}
+        >
+          <Ionicons
+            name={isFavorite(item.id, 'route') ? 'heart' : 'heart-outline'}
+            size={22}
+            color={isFavorite(item.id, 'route') ? '#e74c3c' : '#fff'}
+          />
+        </TouchableOpacity>
+      </View>
       <View style={styles.cardContent}>
         <Text style={styles.cardTitle}>{item.name}</Text>
         <Text style={styles.cardDescription} numberOfLines={2}>
@@ -92,10 +120,24 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 3,
   },
+  imageContainer: {
+    position: 'relative',
+  },
   cardImage: {
     width: '100%',
     height: 180,
     resizeMode: 'cover',
+  },
+  favoriteButton: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   cardContent: {
     padding: 16,

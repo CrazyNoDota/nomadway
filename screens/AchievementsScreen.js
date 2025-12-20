@@ -6,36 +6,44 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ACHIEVEMENTS } from '../constants/gamification';
+import { useLocalization } from '../contexts/LocalizationContext';
+import { useAuth } from '../contexts/AuthContext';
+
+const LOGO_URL = 'https://raw.githubusercontent.com/CrazyNoDota/danik/21bad4af7ac400b27c470851e9968c5860b06407/photo_2025-11-15_23-14-57-removebg-preview.png';
 
 export default function AchievementsScreen({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [userProgress, setUserProgress] = useState(null);
-  const [userId, setUserId] = useState(null);
+  const { t } = useLocalization();
+  const { user, isAuthenticated, authFetch } = useAuth();
 
   useEffect(() => {
     loadUserData();
-  }, []);
+  }, [isAuthenticated]);
 
   const loadUserData = async () => {
     try {
-      // Get or create user ID
-      let storedUserId = await AsyncStorage.getItem('userId');
-      if (!storedUserId) {
-        storedUserId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        await AsyncStorage.setItem('userId', storedUserId);
+      if (!isAuthenticated) {
+        // Use default empty progress for guests
+        setUserProgress({ achievements: [], placesVisited: [], citiesVisited: [], routesCompleted: 0, distanceWalked: 0 });
+        return;
       }
-      setUserId(storedUserId);
 
-      // Fetch user progress
-      const response = await fetch(`http://localhost:3001/api/gamification/progress/${storedUserId}`);
-      const data = await response.json();
-      setUserProgress(data);
+      // Fetch user progress from server
+      const response = await authFetch('/gamification/progress');
+      if (response.ok) {
+        const data = await response.json();
+        setUserProgress(data);
+      } else {
+        setUserProgress({ achievements: [], placesVisited: [], citiesVisited: [], routesCompleted: 0, distanceWalked: 0 });
+      }
     } catch (error) {
       console.error('Error loading user data:', error);
+      setUserProgress({ achievements: [], placesVisited: [], citiesVisited: [], routesCompleted: 0, distanceWalked: 0 });
     } finally {
       setLoading(false);
     }
@@ -96,7 +104,7 @@ export default function AchievementsScreen({ navigation }) {
               />
             </View>
             <Text style={styles.progressText}>
-              {progress}/{achievement.threshold}
+              {t('progress')}: {progress}/{achievement.threshold}
             </Text>
           </View>
 
@@ -126,28 +134,37 @@ export default function AchievementsScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
+      {/* Header with Logo */}
+      <View style={styles.logoHeader}>
+        <Image 
+          source={{ uri: LOGO_URL }}
+          style={styles.headerLogo}
+          resizeMode="contain"
+        />
+      </View>
+
       {/* Header Stats */}
       <View style={styles.header}>
         <View style={styles.statCard}>
           <Ionicons name="trophy" size={32} color="#d4af37" />
           <Text style={styles.statValue}>{userProgress?.points || 0}</Text>
-          <Text style={styles.statLabel}>Очков</Text>
+          <Text style={styles.statLabel}>{t('points')}</Text>
         </View>
         <View style={styles.statCard}>
           <Ionicons name="medal" size={32} color="#d4af37" />
           <Text style={styles.statValue}>{userProgress?.achievements?.length || 0}</Text>
-          <Text style={styles.statLabel}>Достижений</Text>
+          <Text style={styles.statLabel}>{t('achievements_count')}</Text>
         </View>
         <View style={styles.statCard}>
           <Ionicons name="location" size={32} color="#d4af37" />
           <Text style={styles.statValue}>{userProgress?.placesVisited?.length || 0}</Text>
-          <Text style={styles.statLabel}>Мест</Text>
+          <Text style={styles.statLabel}>{t('places')}</Text>
         </View>
       </View>
 
       {/* Achievements List */}
       <ScrollView style={styles.scrollView}>
-        <Text style={styles.sectionTitle}>Достижения</Text>
+        <Text style={styles.sectionTitle}>{t('achievementsTitle')}</Text>
         
         {Object.values(ACHIEVEMENTS).map(achievement => renderAchievementCard(achievement))}
       </ScrollView>
@@ -164,6 +181,17 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  logoHeader: {
+    backgroundColor: '#1a4d3a',
+    paddingVertical: 15,
+    alignItems: 'center',
+    borderBottomWidth: 2,
+    borderBottomColor: '#d4af37',
+  },
+  headerLogo: {
+    width: 60,
+    height: 60,
   },
   header: {
     flexDirection: 'row',

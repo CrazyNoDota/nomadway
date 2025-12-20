@@ -1,0 +1,84 @@
+# NomadWay Docker Compose Configuration
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: nomadway-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-nomadway}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-nomadway_password}
+      POSTGRES_DB: ${POSTGRES_DB:-nomadway}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-nomadway}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - nomadway-network
+
+  # Backend API Server
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: nomadway-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: postgresql://${POSTGRES_USER:-nomadway}:${POSTGRES_PASSWORD:-nomadway_password}@postgres:5432/${POSTGRES_DB:-nomadway}?schema=public
+      JWT_SECRET: ${JWT_SECRET:-your-jwt-secret-change-in-production}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-your-refresh-secret-change-in-production}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-15m}
+      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-7d}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:19000}
+      SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+    ports:
+      - "3001:3001"
+    networks:
+      - nomadway-network
+
+  # Prisma Studio (optional, for database management)
+  prisma-studio:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: nomadway-prisma-studio
+    profiles:
+      - tools
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-nomadway}:${POSTGRES_PASSWORD:-nomadway_password}@postgres:5432/${POSTGRES_DB:-nomadway}?schema=public
+    ports:
+      - "5555:5555"
+    command: ["npx", "prisma", "studio", "--port", "5555"]
+    networks:
+      - nomadway-network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  nomadway-network:
+    driver: bridge

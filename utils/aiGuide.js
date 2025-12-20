@@ -4,15 +4,14 @@
 import { Platform } from 'react-native';
 
 // Backend API URL - environment aware
-// - For Android emulator: http://10.0.2.2:3001
-// - For iOS simulator: http://localhost:3001
-// - For physical device: http://YOUR_COMPUTER_IP:3001 (e.g. http://192.168.0.134:3001)
-// - For production: Update to your production server URL
+// - For Android emulator: http://10.0.2.2:3000
+// - For iOS simulator: http://localhost:3000
+// - For physical device: Use EXPO_PUBLIC_API_URL env variable
 const API_BASE_URL =
   process.env.EXPO_PUBLIC_API_URL ||
   (Platform.OS === 'android'
-    ? 'http://10.0.2.2:3001'
-    : 'http://192.168.0.134:3001');
+    ? 'http://10.0.2.2:3000'
+    : 'http://localhost:3000');
 
 // Fallback mock responses for when backend is unavailable
 const AI_RESPONSES = {

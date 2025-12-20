@@ -11,16 +11,20 @@ import { Ionicons } from '@expo/vector-icons';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import routesData from '../data/routes.json';
 import attractionsData from '../data/attractions.json';
+import { useLocalization } from '../contexts/LocalizationContext';
+import { getTranslatedAttraction } from '../utils/attractionTranslations';
 
 export default function RouteDetailsScreen({ route, navigation }) {
   const { route: routeData } = route.params;
+  const { language } = useLocalization();
   const [stops, setStops] = useState([]);
   const [region, setRegion] = useState(null);
 
   useEffect(() => {
-    const routeStops = routeData.stops.map((id) =>
-      attractionsData.attractions.find((attr) => attr.id === id)
-    ).filter(Boolean);
+    const routeStops = routeData.stops.map((id) => {
+      const attraction = attractionsData.attractions.find((attr) => attr.id === id);
+      return attraction ? getTranslatedAttraction(attraction, language) : null;
+    }).filter(Boolean);
     setStops(routeStops);
 
     if (routeStops.length > 0) {
@@ -38,7 +42,7 @@ export default function RouteDetailsScreen({ route, navigation }) {
         longitudeDelta: (maxLng - minLng) * 1.5 + 0.1,
       });
     }
-  }, [routeData]);
+  }, [routeData, language]);
 
   const getDifficultyColor = (difficulty) => {
     switch (difficulty) {
