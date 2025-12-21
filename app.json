@@ -27,13 +27,15 @@
         "backgroundColor": "#1a4d3a"
       },
       "package": "com.nomadway.app",
+      "usesCleartextTraffic": true,
       "permissions": [
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO",
         "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.WRITE_EXTERNAL_STORAGE"
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.INTERNET"
       ]
     },
     "web": {
@@ -52,11 +54,21 @@
           "cameraPermission": "Allow NomadWay to access your camera to recognize landmarks."
         }
       ],
-      "expo-font"
+      "expo-font",
+      "expo-secure-store",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ]
     ],
     "extra": {
+      "apiUrl": "http://91.228.154.82",
       "eas": {
-        "projectId": "ef6c29c3-678f-4c59-8ed8-176915328952"
+        "projectId": "219fb1fc-234c-4fd0-b171-53ce32d7555a"
       }
     }
   }

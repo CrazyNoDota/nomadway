@@ -7,15 +7,26 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 import Constants from 'expo-constants';
 
-// API base URL - uses EXPO_PUBLIC_API_URL from .env or fallback
+// API base URL - uses embedded config or EXPO_PUBLIC_API_URL from .env
 function getAnalyticsApiBase() {
+  // Check embedded config in app.json first (for EAS builds)
+  const embeddedApiUrl = Constants.expoConfig?.extra?.apiUrl;
+  if (embeddedApiUrl) {
+    return `${embeddedApiUrl}/api/analytics`;
+  }
+
   if (process.env.EXPO_PUBLIC_API_URL) {
     return `${process.env.EXPO_PUBLIC_API_URL}/api/analytics`;
   }
   // Fallback for development
-  return Platform.OS === 'android'
-    ? 'http://10.0.2.2:3001/api/analytics'
-    : 'http://localhost:3001/api/analytics';
+  if (__DEV__) {
+    return Platform.OS === 'android'
+      ? 'http://10.0.2.2:3001/api/analytics'
+      : 'http://localhost:3001/api/analytics';
+  }
+
+  // Production fallback
+  return 'http://91.228.154.82/api/analytics';
 }
 
 const API_BASE = getAnalyticsApiBase();

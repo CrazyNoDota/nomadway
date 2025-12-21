@@ -5,7 +5,13 @@ import * as SecureStore from 'expo-secure-store';
 
 // Helper: Get API base URL (platform-aware)
 function getApiBaseUrl() {
-  // Check for environment variable first
+  // Check embedded config in app.json first (for EAS builds)
+  const embeddedApiUrl = Constants.expoConfig?.extra?.apiUrl;
+  if (embeddedApiUrl) {
+    return `${embeddedApiUrl}/api/v1`;
+  }
+
+  // Check for environment variable (local dev)
   if (process.env.EXPO_PUBLIC_API_URL) {
     return `${process.env.EXPO_PUBLIC_API_URL}/api/v1`;
   }
@@ -21,14 +27,18 @@ function getApiBaseUrl() {
     return `http://${hostname}:3001/api/v1`;
   }
 
-  // Platform-specific fallbacks
-  if (Platform.OS === 'android') {
-    // Android emulator uses 10.0.2.2 to access host machine's localhost
-    return 'http://10.0.2.2:3001/api/v1';
+  // Development fallbacks
+  if (__DEV__) {
+    if (Platform.OS === 'android') {
+      // Android emulator uses 10.0.2.2 to access host machine's localhost
+      return 'http://10.0.2.2:3001/api/v1';
+    }
+    // iOS simulator and web can use localhost
+    return 'http://localhost:3001/api/v1';
   }
 
-  // iOS simulator and web can use localhost
-  return 'http://localhost:3001/api/v1';
+  // Production fallback
+  return 'http://91.228.154.82/api/v1';
 }
 
 const API_BASE_URL = getApiBaseUrl();

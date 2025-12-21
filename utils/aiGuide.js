@@ -2,19 +2,31 @@
 // Connects to backend OpenAI API for real AI chat responses
 
 import { Platform } from 'react-native';
+import Constants from 'expo-constants';
 
 // Backend API URL - environment aware
-// Production: Uses EXPO_PUBLIC_API_URL from .env
+// Production: Uses embedded config or EXPO_PUBLIC_API_URL from .env
 // Development fallbacks:
 // - Android emulator: http://10.0.2.2:3001
 // - iOS simulator: http://localhost:3001
 function getApiBaseUrl() {
+  // Check embedded config in app.json first (for EAS builds)
+  const embeddedApiUrl = Constants.expoConfig?.extra?.apiUrl;
+  if (embeddedApiUrl) {
+    return embeddedApiUrl;
+  }
+
   if (process.env.EXPO_PUBLIC_API_URL) {
     return process.env.EXPO_PUBLIC_API_URL;
   }
-  return Platform.OS === 'android'
-    ? 'http://10.0.2.2:3001'
-    : 'http://localhost:3001';
+  if (__DEV__) {
+    return Platform.OS === 'android'
+      ? 'http://10.0.2.2:3001'
+      : 'http://localhost:3001';
+  }
+
+  // Production fallback
+  return 'http://91.228.154.82';
 }
 
 const API_BASE_URL = getApiBaseUrl();

@@ -50,7 +50,7 @@ app.use(helmet({
 
 // CORS
 app.use(cors({
-  origin: [config.frontendUrl, 'http://localhost:19000', 'http://localhost:19006'],
+  origin: true, // Allow all origins
   credentials: true,
 }));
 

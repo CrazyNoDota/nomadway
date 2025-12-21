@@ -6,7 +6,13 @@ import { navigationRef } from '../utils/navigationRef';
 
 // Derive API base URL similar to communityApi so physical devices resolve the host correctly
 function getApiBaseUrl() {
-  // Environment variable wins
+  // Check embedded config in app.json first (for EAS builds)
+  const embeddedApiUrl = Constants.expoConfig?.extra?.apiUrl;
+  if (embeddedApiUrl) {
+    return `${embeddedApiUrl}/api`;
+  }
+
+  // Environment variable (for local development)
   if (process.env.EXPO_PUBLIC_API_URL) {
     return `${process.env.EXPO_PUBLIC_API_URL}/api`;
   }
