@@ -4,14 +4,21 @@
 import { Platform } from 'react-native';
 
 // Backend API URL - environment aware
-// - For Android emulator: http://10.0.2.2:3000
-// - For iOS simulator: http://localhost:3000
-// - For physical device: Use EXPO_PUBLIC_API_URL env variable
-const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_URL ||
-  (Platform.OS === 'android'
-    ? 'http://10.0.2.2:3000'
-    : 'http://localhost:3000');
+// Production: Uses EXPO_PUBLIC_API_URL from .env
+// Development fallbacks:
+// - Android emulator: http://10.0.2.2:3001
+// - iOS simulator: http://localhost:3001
+function getApiBaseUrl() {
+  if (process.env.EXPO_PUBLIC_API_URL) {
+    return process.env.EXPO_PUBLIC_API_URL;
+  }
+  return Platform.OS === 'android'
+    ? 'http://10.0.2.2:3001'
+    : 'http://localhost:3001';
+}
+
+const API_BASE_URL = getApiBaseUrl();
+console.log('AI Guide API URL:', API_BASE_URL);
 
 // Fallback mock responses for when backend is unavailable
 const AI_RESPONSES = {

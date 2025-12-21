@@ -7,10 +7,19 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 import Constants from 'expo-constants';
 
-// API base URL - adjust for your environment
-const API_BASE = __DEV__ 
-  ? 'http://10.0.2.2:3000/api/analytics' // Android emulator
-  : 'https://nomadway.kz/api/analytics';
+// API base URL - uses EXPO_PUBLIC_API_URL from .env or fallback
+function getAnalyticsApiBase() {
+  if (process.env.EXPO_PUBLIC_API_URL) {
+    return `${process.env.EXPO_PUBLIC_API_URL}/api/analytics`;
+  }
+  // Fallback for development
+  return Platform.OS === 'android'
+    ? 'http://10.0.2.2:3001/api/analytics'
+    : 'http://localhost:3001/api/analytics';
+}
+
+const API_BASE = getAnalyticsApiBase();
+console.log('Analytics API URL:', API_BASE);
 
 // Queue for offline event storage
 const EVENTS_QUEUE_KEY = '@analytics_events_queue';

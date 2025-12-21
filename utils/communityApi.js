@@ -18,17 +18,17 @@ function getApiBaseUrl() {
 
   if (hostUri) {
     const hostname = hostUri.split(':')[0];
-    return `http://${hostname}:3000/api/v1`;
+    return `http://${hostname}:3001/api/v1`;
   }
 
   // Platform-specific fallbacks
   if (Platform.OS === 'android') {
     // Android emulator uses 10.0.2.2 to access host machine's localhost
-    return 'http://10.0.2.2:3000/api/v1';
+    return 'http://10.0.2.2:3001/api/v1';
   }
 
   // iOS simulator and web can use localhost
-  return 'http://localhost:3000/api/v1';
+  return 'http://localhost:3001/api/v1';
 }
 
 const API_BASE_URL = getApiBaseUrl();
