@@ -40,6 +40,9 @@ const openai = new OpenAI({
 
 // ================== MIDDLEWARE ==================
 
+// Trust proxy (required when behind Nginx/reverse proxy)
+app.set('trust proxy', 1);
+
 // Security headers
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
