@@ -47,14 +47,14 @@ const getApiBaseUrl = () => {
 
   if (hostUri) {
     const hostname = hostUri.split(':')[0];
-    return `http://${hostname}:3000`;
+    return `http://${hostname}:3001`;
   }
 
   if (Platform.OS === 'android') {
-    return 'http://10.0.2.2:3000';
+    return 'http://10.0.2.2:3001';
   }
 
-  return 'http://localhost:3000';
+  return 'http://localhost:3001';
 };
 
 export default function AIRouteBuilderScreen({ navigation }) {

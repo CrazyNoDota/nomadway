@@ -19,18 +19,18 @@ function getApiBaseUrl() {
 
   if (hostUri) {
     const hostname = hostUri.split(':')[0];
-    return `http://${hostname}:3000/api`;
+    return `http://${hostname}:3001/api`;
   }
 
   // Emulator/simulator fallbacks
   if (__DEV__) {
     return Platform.OS === 'android'
-      ? 'http://10.0.2.2:3000/api'
-      : 'http://localhost:3000/api';
+      ? 'http://10.0.2.2:3001/api'
+      : 'http://localhost:3001/api';
   }
 
   // Production API
-  return 'https://api.nomadway.kz/api';
+  return 'http://91.228.154.82/api';
 }
 
 const API_URL = getApiBaseUrl();

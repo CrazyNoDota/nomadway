@@ -37,7 +37,7 @@ export default function LeaderboardScreen({ navigation }) {
 
   const loadLeaderboard = async () => {
     try {
-      const apiUrl = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
+      const apiUrl = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3001';
       const response = await fetch(
         `${apiUrl}/api/gamification/leaderboard?ageGroup=${selectedAgeGroup}&period=${selectedPeriod}`
       );

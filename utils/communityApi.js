@@ -93,9 +93,9 @@ async function apiRequest(endpoint, options = {}) {
       console.error(
         `Network Error (${endpoint}):`,
         `\n- URL: ${API_BASE_URL}${endpoint}`,
-        `\n- Make sure the backend server is running on port 3000`,
-        `\n- For Android emulator, use: http://10.0.2.2:3000`,
-        `\n- For iOS simulator, use: http://localhost:3000`,
+        `\n- Make sure the backend server is running on port 3001`,
+        `\n- For Android emulator, use: http://10.0.2.2:3001`,
+        `\n- For iOS simulator, use: http://localhost:3001`,
         `\n- For physical device, use your computer's IP address`,
         `\n- Error: ${error.message}`
       );
