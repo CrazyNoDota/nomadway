@@ -43,7 +43,7 @@ services:
       JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-7d}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
-      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:19000}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost}
       SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
       SMTP_PORT: ${SMTP_PORT:-587}
       SMTP_USER: ${SMTP_USER}
@@ -53,6 +53,19 @@ services:
       CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
     ports:
       - "3001:3001"
+    command: sh -c "npx prisma migrate deploy && node src/index.js"
+    networks:
+      - nomadway-network
+
+  # Website Frontend
+  website:
+    build:
+      context: ./website
+      dockerfile: Dockerfile
+    container_name: nomadway-website
+    restart: unless-stopped
+    ports:
+      - "80:80"
     networks:
       - nomadway-network
 
