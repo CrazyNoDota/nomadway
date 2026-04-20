@@ -36,11 +36,23 @@ The easiest way to deploy the entire stack (Database, Backend, and Website) is u
    docker-compose up -d --build
    ```
 
-The system will automatically:
-- Spin up a **PostgreSQL 16** database.
-- Run **Prisma migrations** to set up the database schema.
-- Build and start the **Node.js API Server**.
-- Build and serve the **Vite + React Website** via Nginx.
+---
+
+## 🌐 Plesk Docker Deployment
+
+If you are deploying to a server with **Plesk** (like `plesk.conco.kz`):
+
+1. **Enable Docker Extension**: Ensure the Docker extension is installed in your Plesk panel.
+2. **Git Pull**: Use the Plesk Git extension to pull the code to your server.
+3. **Setup Environment**:
+   - Create a `.env` file in the root directory based on `.env.docker.example`.
+   - Update `FRONTEND_URL` to your actual domain (e.g., `https://nomadway.kz`).
+4. **Deploy**:
+   - Open a terminal in Plesk or via SSH.
+   - Run `docker-compose up -d --build`.
+5. **APK Downloads**:
+   - The system uses a Docker volume named `nomadway_apks`.
+   - To make your mobile app downloadable, copy your built APK to the volume's location on the host or use `docker cp nomadway-latest.apk nomadway-backend:/app/public/apk/`.
 
 ---
 

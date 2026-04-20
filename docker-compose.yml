@@ -53,6 +53,8 @@ services:
       CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
     ports:
       - "3001:3001"
+    volumes:
+      - nomadway_apks:/app/public/apk
     command: sh -c "npx prisma migrate deploy && node src/index.js"
     networks:
       - nomadway-network
@@ -64,6 +66,8 @@ services:
       dockerfile: Dockerfile
     container_name: nomadway-website
     restart: unless-stopped
+    depends_on:
+      - backend
     ports:
       - "80:80"
     networks:
@@ -90,6 +94,8 @@ services:
 
 volumes:
   postgres_data:
+    driver: local
+  nomadway_apks:
     driver: local
 
 networks:
