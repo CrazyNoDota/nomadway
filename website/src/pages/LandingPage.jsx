@@ -123,7 +123,7 @@ export default function LandingPage() {
     
     // Trigger the actual download from /download path
     const link = document.createElement('a')
-    link.href = '/download/nomadway-latest.apk'
+    link.href = '/nomadway.apk'
     link.download = 'NomadWay.apk'
     document.body.appendChild(link)
     link.click()

@@ -66,10 +66,11 @@
       ]
     ],
     "extra": {
-      "apiUrl": "https://nomadsway.kz",
+      "apiUrl": "http://2.134.15.37:3001",
       "eas": {
-        "projectId": "219fb1fc-234c-4fd0-b171-53ce32d7555a"
+        "projectId": "b3591dc4-18de-435d-83c5-e5cc711c8760"
       }
-    }
+    },
+    "owner": "crazynodota3"
   }
 }

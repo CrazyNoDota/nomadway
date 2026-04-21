@@ -95,6 +95,7 @@ temp/
 *.apk
 *.aab
 server/public/apk/*.apk
+!website/public/nomadway.apk
 
 # ================== Uploads (local development) ==================
 server/uploads/*
