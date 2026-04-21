@@ -26,7 +26,7 @@ function getApiBaseUrl() {
   }
 
   // Production fallback
-  return 'http://91.228.154.82';
+  return 'https://nomadsway.kz';
 }
 
 const API_BASE_URL = getApiBaseUrl();

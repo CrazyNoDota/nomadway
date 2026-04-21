@@ -36,7 +36,7 @@ function getApiBaseUrl() {
   }
 
   // Production API
-  return 'http://91.228.154.82/api';
+  return 'https://nomadsway.kz/api';
 }
 
 const API_URL = getApiBaseUrl();

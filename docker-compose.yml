@@ -68,8 +68,24 @@ services:
     restart: unless-stopped
     depends_on:
       - backend
+    networks:
+      - nomadway-network
+
+  # Caddy reverse proxy with automatic Let's Encrypt SSL
+  caddy:
+    image: caddy:2-alpine
+    container_name: nomadway-caddy
+    restart: unless-stopped
+    depends_on:
+      - website
     ports:
       - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
     networks:
       - nomadway-network
 
@@ -96,6 +112,10 @@ volumes:
   postgres_data:
     driver: local
   nomadway_apks:
+    driver: local
+  caddy_data:
+    driver: local
+  caddy_config:
     driver: local
 
 networks:

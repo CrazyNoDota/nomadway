@@ -26,7 +26,7 @@ function getAnalyticsApiBase() {
   }
 
   // Production fallback
-  return 'http://91.228.154.82/api/analytics';
+  return 'https://nomadsway.kz/api/analytics';
 }
 
 const API_BASE = getAnalyticsApiBase();
