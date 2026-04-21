@@ -2,6 +2,11 @@
 
 Date: 2026-04-21
 
+> **Status: resolved.** A new APK was built and is shipped at
+> `website/public/nomadway.apk` with `apiUrl=http://2.134.15.37:3001`.
+> For the build/distribution mechanics see
+> [05-apk-build-and-distribution.md](05-apk-build-and-distribution.md).
+
 ## Symptom
 
 After deployment, the installed APK showed:
