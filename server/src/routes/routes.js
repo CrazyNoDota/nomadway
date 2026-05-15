@@ -539,7 +539,7 @@ function travelBetween(from, to) {
 
 function maxLegMinutes(duration) {
   if (duration === '3_hours') return 150;
-  if (duration === '1_day') return 150;
+  if (duration === '1_day') return 240;
   return 300;
 }
 
@@ -552,7 +552,7 @@ function desiredStopCount(duration) {
 function timeFlexLimit(totalMinutes, duration) {
   const flex = {
     '3_hours': 1.6,
-    '1_day': 1.35,
+    '1_day': 1.7,
     '3_days': 1.2,
   };
   return totalMinutes * (flex[duration] || 1.3);
