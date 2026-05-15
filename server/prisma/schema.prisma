@@ -21,13 +21,17 @@ enum UserRole {
 model User {
   id            String    @id @default(cuid())
   email         String    @unique
-  passwordHash  String    @map("password_hash")
+  passwordHash  String?   @map("password_hash")
   role          UserRole  @default(USER)
   fullName      String?   @map("full_name")
   displayName   String?   @map("display_name")
   avatarUrl     String?   @map("avatar_url")
   bio           String?
   points        Int       @default(0)
+
+  // OAuth / social login
+  authProvider  String    @default("email") @map("auth_provider")
+  googleId      String?   @unique @map("google_id")
   
   // Location
   locationCity        String?  @map("location_city")

@@ -1,725 +1,569 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React, { useMemo } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  Alert,
+  RefreshControl,
+} from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import Animated, { FadeInDown, FadeIn, FadeInRight } from 'react-native-reanimated';
+
 import { useLocalization } from '../contexts/LocalizationContext';
-import { useTheme } from '../contexts/ThemeContext';
-import HotToursSection from '../components/HotToursSection';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
+import HotToursSection from '../components/HotToursSection';
+import Card from '../components/ui/Card';
+import Pill from '../components/ui/Pill';
+import AttractionCard from '../components/ui/AttractionCard';
+import attractionsData from '../data/attractions.json';
+import { tokens } from '../theme/tokens';
+
+const QUICK_ACTIONS = [
+  { id: 'ai', icon: 'sparkles', screen: 'AIGuide', accent: tokens.palette.gold, isAI: true },
+  { id: 'route', icon: 'map', screen: 'PersonalizedRoute', accent: tokens.palette.emerald },
+  { id: 'cart', icon: 'cart', screen: 'Cart', accent: '#EF4444' },
+  { id: 'tools', icon: 'compass', screen: 'TravelerTools', accent: tokens.palette.info },
+  { id: 'region', icon: 'globe', screen: 'RegionalGuide', accent: '#A855F7' },
+];
+
+const QUICK_LABELS = {
+  ru: {
+    ai: 'AI-Агент',
+    route: 'Маршрут',
+    cart: 'Корзина',
+    tools: 'Инструменты',
+    region: 'Регионы',
+  },
+  en: {
+    ai: 'AI Agent',
+    route: 'Route',
+    cart: 'Cart',
+    tools: 'Tools',
+    region: 'Regions',
+  },
+};
 
 export default function HomeScreen({ navigation }) {
   const { t, language } = useLocalization();
-  const { colors, isDark } = useTheme();
-  const { addToCart, getItemCount } = useCart();
-  const { requireAuth } = useAuth();
-  const [activeTab, setActiveTab] = useState('tours');
+  const { getItemCount } = useCart();
+  const { user } = useAuth();
+  const insets = useSafeAreaInsets();
+  const [refreshing, setRefreshing] = React.useState(false);
 
-  // Category tabs similar to the design
-  const categoryTabs = [
-    { key: 'tours', label: language === 'en' ? 'Tours' : 'Туры', icon: 'airplane' },
-    { key: 'attractions', label: language === 'en' ? 'Places' : 'Места', icon: 'compass' },
-    { key: 'routes', label: language === 'en' ? 'Routes' : 'Маршруты', icon: 'map' },
-    { key: 'hot', label: language === 'en' ? 'Hot' : 'Горящие', icon: 'flame', isHot: true },
-  ];
+  const featured = useMemo(
+    () =>
+      [...(attractionsData.attractions || [])]
+        .filter((a) => a.image && (a.rating || 0) >= 4.5)
+        .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+        .slice(0, 8),
+    []
+  );
 
-  const quickActions = [
-    {
-      id: 0,
-      titleKey: 'cartTitle',
-      subtitleKey: 'cartSubtitle',
-      icon: 'cart',
-      color: '#e74c3c',
-      screen: 'Cart',
-    },
-    {
-      id: 1,
-      titleKey: 'aiGuideTitle',
-      subtitleKey: 'aiGuideSubtitle',
-      icon: 'sparkles',
-      color: '#d4af37',
-      screen: 'AIGuide',
-    },
-    {
-      id: 2,
-      titleKey: 'toolsTitle',
-      subtitleKey: 'toolsSubtitle',
-      icon: 'briefcase',
-      color: '#3498db',
-      screen: 'TravelerTools',
-    },
-    {
-      id: 3,
-      titleKey: 'personalizedRouteTitle',
-      subtitleKey: 'personalizedRouteSubtitle',
-      icon: 'map',
-      color: '#27ae60',
-      screen: 'PersonalizedRoute',
-    },
-    {
-      id: 4,
-      titleKey: 'regionalGuideTitle',
-      subtitleKey: 'regionalGuideSubtitle',
-      icon: 'location',
-      color: '#e74c3c',
-      screen: 'RegionalGuide',
-    },
-  ];
+  const recentlyAdded = useMemo(
+    () => (attractionsData.attractions || []).slice(-5).reverse(),
+    []
+  );
 
-  const handleTabPress = (tabKey) => {
-    setActiveTab(tabKey);
-    if (tabKey === 'attractions') {
-      navigation.navigate('Home', { screen: 'Tours' });
-    } else if (tabKey === 'routes') {
-      navigation.navigate('Home', { screen: 'Tours' });
+  const handleQuickAction = (action) => {
+    if (action.screen === 'Cart' || action.screen === 'PersonalizedRoute') {
+      navigation.navigate(action.screen);
+    } else {
+      navigation.navigate(action.screen);
     }
   };
 
-  const handleTourPress = (tour) => {
-    // Navigate to details
-    navigation.navigate('AttractionDetails', { attraction: tour });
-  };
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => setRefreshing(false), 800);
+  }, []);
 
-  const handleAddToCart = (tour) => {
-    if (!requireAuth()) {
-      // requireAuth handles navigation to Auth
-      return;
-    }
-    
-    // Add to cart
-    addToCart({
-      id: tour.id,
-      type: 'tour',
-      name: language === 'en' ? tour.nameEn : tour.name,
-      price: tour.price || { min: tour.discountPrice * 0.9, max: tour.discountPrice },
-      durationDays: tour.durationDays,
-      image: tour.image,
-      region: tour.region,
-    });
-    
-    Alert.alert(
-      t('success'), 
-      t('addedToCart'),
-      [
-        { text: 'OK' },
-        { text: t('goToCart') || 'Перейти в корзину', onPress: () => navigation.navigate('Cart') }
-      ]
-    );
-  };
+  const quickLabels = QUICK_LABELS[language === 'en' ? 'en' : 'ru'];
+  const isRu = language !== 'en';
+  const greeting = user?.displayName || user?.fullName?.split(' ')[0];
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.headerBackground }]}>
-      <ScrollView 
-        style={[styles.container, { backgroundColor: colors.background }]}
-        contentContainerStyle={styles.scrollContent}
+    <View style={styles.root}>
+      <ScrollView
+        contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 12 }]}
         showsVerticalScrollIndicator={false}
-        bounces={true}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={tokens.palette.gold}
+          />
+        }
       >
-        {/* Header */}
-        <View style={[styles.header, { backgroundColor: colors.headerBackground }]}>
-          <View style={styles.headerTop}>
-            <Image 
-              source={{ uri: 'https://raw.githubusercontent.com/CrazyNoDota/danik/21bad4af7ac400b27c470851e9968c5860b06407/photo_2025-11-15_23-14-57-removebg-preview.png' }}
-              style={styles.headerLogo}
-              resizeMode="contain"
-            />
-            <View style={styles.headerActions}>
-              {/* Cart Button */}
-              <TouchableOpacity 
-                style={[styles.headerButton, { backgroundColor: colors.surface }]}
-                onPress={() => navigation.navigate('Cart')}
-              >
-                <Ionicons name="cart-outline" size={20} color={colors.primary} />
-                {getItemCount() > 0 && (
-                  <View style={styles.cartBadge}>
-                    <Text style={styles.cartBadgeText}>{getItemCount()}</Text>
-                  </View>
-                )}
-              </TouchableOpacity>
-              {/* Chat Button */}
-              <TouchableOpacity style={[styles.chatButton, { backgroundColor: colors.surface }]}>
-                <Ionicons name="chatbubble-ellipses-outline" size={18} color={colors.primary} />
-                <Text style={[styles.chatButtonText, { color: colors.primary }]}>
-                  {language === 'en' ? 'Chat' : 'Чат'}
-                </Text>
-              </TouchableOpacity>
+        {/* ===== Top bar ===== */}
+        <Animated.View entering={FadeIn.duration(500)} style={styles.topBar}>
+          <View style={styles.brandRow}>
+            <View style={styles.logoMark}>
+              <Ionicons name="compass" size={20} color={tokens.palette.ink0} />
+            </View>
+            <View>
+              <Text style={styles.brand}>NomadWay</Text>
+              <Text style={styles.tagline}>{isRu ? 'Открой Казахстан' : 'Discover Kazakhstan'}</Text>
             </View>
           </View>
-          <Text style={styles.greeting}>{t('homeGreeting')}</Text>
-          <Text style={[styles.subtitle, { color: colors.secondary }]}>{t('homeSubtitle')}</Text>
-
-          {/* Category Tabs */}
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.tabsContainer}
+          <TouchableOpacity
+            style={styles.cartIcon}
+            onPress={() => navigation.navigate('Cart')}
+            hitSlop={8}
           >
-            {categoryTabs.map((tab) => (
-              <TouchableOpacity
-                key={tab.key}
-                style={[
-                  styles.tabButton,
-                  activeTab === tab.key && styles.tabButtonActive,
-                ]}
-                onPress={() => handleTabPress(tab.key)}
-              >
-                <Ionicons
-                  name={tab.icon}
-                  size={16}
-                  color={activeTab === tab.key ? '#1a4d3a' : '#fff'}
-                />
-                <Text
-                  style={[
-                    styles.tabText,
-                    activeTab === tab.key && styles.tabTextActive,
-                  ]}
+            <Ionicons name="cart-outline" size={22} color={tokens.palette.textHi} />
+            {getItemCount() > 0 && (
+              <View style={styles.cartBadge}>
+                <Text style={styles.cartBadgeText}>{getItemCount()}</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+        </Animated.View>
+
+        {/* ===== Hero greeting ===== */}
+        <Animated.View entering={FadeInDown.delay(80).duration(550)} style={styles.heroBlock}>
+          <Text style={styles.heroLabel}>
+            {greeting
+              ? `${isRu ? 'Привет' : 'Hi'}, ${greeting} 👋`
+              : (isRu ? 'Добро пожаловать' : 'Welcome')}
+          </Text>
+          <Text style={styles.heroTitle}>
+            {isRu ? 'Куда отправимся\nсегодня?' : 'Where to\nnext?'}
+          </Text>
+        </Animated.View>
+
+        {/* ===== AI Agent CTA ===== */}
+        <Animated.View entering={FadeInDown.delay(150).duration(550)} style={styles.aiCardWrap}>
+          <TouchableOpacity activeOpacity={0.92} onPress={() => navigation.navigate('AIGuide')}>
+            <LinearGradient
+              colors={['rgba(212, 175, 55, 0.18)', 'rgba(82, 183, 136, 0.12)']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.aiCard}
+            >
+              <View style={styles.aiIconWrap}>
+                <LinearGradient
+                  colors={tokens.gradients.gold}
+                  style={styles.aiIcon}
                 >
-                  {tab.label}
+                  <Ionicons name="sparkles" size={22} color={tokens.palette.ink0} />
+                </LinearGradient>
+              </View>
+              <View style={{ flex: 1 }}>
+                <View style={styles.aiTitleRow}>
+                  <Text style={styles.aiTitle}>
+                    {isRu ? 'AI-Агент NomadWay' : 'NomadWay AI Agent'}
+                  </Text>
+                  <View style={styles.liveBadge}>
+                    <View style={styles.liveDot} />
+                    <Text style={styles.liveText}>LIVE</Text>
+                  </View>
+                </View>
+                <Text style={styles.aiSubtitle}>
+                  {isRu
+                    ? 'Умный помощник · проверенная база знаний'
+                    : 'Smart concierge · curated knowledge base'}
                 </Text>
-                {tab.isHot && (
-                  <Text style={styles.hotEmoji}>🔥</Text>
-                )}
-              </TouchableOpacity>
+                <View style={styles.aiPillRow}>
+                  <Pill label={isRu ? 'Маршруты' : 'Routes'} icon="map-outline" />
+                  <Pill label={isRu ? 'Сезоны' : 'Seasons'} icon="snow-outline" />
+                  <Pill label={isRu ? 'Бюджет' : 'Budget'} icon="cash-outline" />
+                </View>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color={tokens.palette.gold} />
+            </LinearGradient>
+          </TouchableOpacity>
+        </Animated.View>
+
+        {/* ===== Quick actions ===== */}
+        <View style={styles.section}>
+          <Animated.View entering={FadeInDown.delay(220)} style={styles.quickRow}>
+            {QUICK_ACTIONS.map((action, idx) => (
+              <Animated.View
+                key={action.id}
+                entering={FadeInRight.delay(240 + idx * 60).duration(450)}
+                style={{ flex: 1 }}
+              >
+                <TouchableOpacity
+                  onPress={() => handleQuickAction(action)}
+                  activeOpacity={0.85}
+                  style={styles.quickAction}
+                >
+                  <View
+                    style={[
+                      styles.quickIcon,
+                      action.isAI && styles.quickIconAI,
+                      { borderColor: action.accent + '55' },
+                    ]}
+                  >
+                    <Ionicons
+                      name={action.icon}
+                      size={20}
+                      color={action.accent}
+                    />
+                    {action.id === 'cart' && getItemCount() > 0 && (
+                      <View style={styles.quickBadge}>
+                        <Text style={styles.quickBadgeText}>{getItemCount()}</Text>
+                      </View>
+                    )}
+                  </View>
+                  <Text style={styles.quickLabel} numberOfLines={1}>
+                    {quickLabels[action.id]}
+                  </Text>
+                </TouchableOpacity>
+              </Animated.View>
+            ))}
+          </Animated.View>
+        </View>
+
+        {/* ===== Featured destinations carousel ===== */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <View>
+              <Text style={styles.sectionTitle}>
+                {isRu ? 'Топ направления' : 'Top destinations'}
+              </Text>
+              <Text style={styles.sectionSubtitle}>
+                {isRu ? 'Лучшие места Казахстана' : 'The best of Kazakhstan'}
+              </Text>
+            </View>
+            <TouchableOpacity onPress={() => navigation.navigate('Tours')}>
+              <Text style={styles.seeAll}>{isRu ? 'Все' : 'See all'}</Text>
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            decelerationRate="fast"
+            snapToInterval={236}
+            snapToAlignment="start"
+            contentContainerStyle={styles.carousel}
+          >
+            {featured.map((attraction, idx) => (
+              <View key={attraction.id} style={{ marginRight: 12 }}>
+                <AttractionCard
+                  attraction={attraction}
+                  index={idx}
+                  onPress={() =>
+                    navigation.navigate('AttractionDetails', { attraction })
+                  }
+                />
+              </View>
             ))}
           </ScrollView>
         </View>
 
-        {/* Main Search Card */}
-        <View style={styles.searchCardWrapper}>
-          <View style={[styles.searchCard, { backgroundColor: colors.card }]}>
-            {/* Departure City */}
-            <TouchableOpacity style={styles.searchField}>
-              <Text style={[styles.searchFieldLabel, { color: colors.textMuted }]}>
-                {language === 'en' ? 'Departure city' : 'Город вылета'}
-              </Text>
-              <Text style={[styles.searchFieldValue, { color: colors.text }]}>
-                {language === 'en' ? 'Almaty' : 'Алматы'}
-              </Text>
-            </TouchableOpacity>
-
-            <View style={[styles.divider, { backgroundColor: colors.border }]} />
-
-            {/* Destination */}
-            <TouchableOpacity style={styles.searchField}>
-              <Text style={[styles.searchFieldLabel, { color: colors.textMuted }]}>
-                {language === 'en' ? 'Country, resort, hotel' : 'Страна, курорт, отель'}
-              </Text>
-              <Text style={[styles.searchFieldValue, { color: colors.text }]}>
-                {language === 'en' ? 'Kazakhstan' : 'Казахстан'}
-              </Text>
-            </TouchableOpacity>
-
-            <View style={[styles.divider, { backgroundColor: colors.border }]} />
-
-            {/* Dates and Duration Row */}
-            <View style={styles.searchRow}>
-              <TouchableOpacity style={[styles.searchField, styles.searchFieldHalf]}>
-                <Text style={[styles.searchFieldLabel, { color: colors.textMuted }]}>
-                  {language === 'en' ? 'Departure date' : 'Дата вылета'}
-                </Text>
-                <Text style={[styles.searchFieldValue, { color: colors.text }]}>16.12 — 20.12</Text>
-              </TouchableOpacity>
-              <View style={[styles.verticalDivider, { backgroundColor: colors.border }]} />
-              <TouchableOpacity style={[styles.searchField, styles.searchFieldHalf]}>
-                <Text style={[styles.searchFieldLabel, { color: colors.textMuted }]}>
-                  {language === 'en' ? 'Duration' : 'На сколько'}
-                </Text>
-                <Text style={[styles.searchFieldValue, { color: colors.text }]}>
-                  {language === 'en' ? '3 — 7 days' : '3 — 7 дней'}
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            <View style={[styles.divider, { backgroundColor: colors.border }]} />
-
-            {/* Travelers */}
-            <TouchableOpacity style={styles.searchField}>
-              <Text style={[styles.searchFieldLabel, { color: colors.textMuted }]}>
-                {language === 'en' ? 'Travelers' : 'Кто едет'}
-              </Text>
-              <Text style={[styles.searchFieldValue, { color: colors.text }]}>
-                {language === 'en' ? '2 adults' : '2 взрослых'}
-              </Text>
-            </TouchableOpacity>
-
-            {/* More options link */}
-            <TouchableOpacity style={styles.moreOptionsLink}>
-              <Text style={[styles.moreOptionsText, { color: colors.primary }]}>
-                {language === 'en' ? 'Tour type and budget' : 'Тип тура и бюджет'}
-              </Text>
-              <Ionicons name="chevron-down" size={16} color={colors.primary} />
-            </TouchableOpacity>
-
-            {/* Search Button */}
-            <TouchableOpacity 
-              style={styles.searchButton}
+        {/* ===== Hot tours (legacy section preserved) ===== */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>{isRu ? 'Горячие туры' : 'Hot tours'}</Text>
+            <TouchableOpacity
               onPress={() => navigation.navigate('Home', { screen: 'Tours' })}
             >
-              <Ionicons name="search" size={20} color="#1a4d3a" />
-              <Text style={styles.searchButtonText}>
-                {language === 'en' ? 'Find tours' : 'Найти туры'}
-              </Text>
+              <Text style={styles.seeAll}>{isRu ? 'Все' : 'See all'}</Text>
             </TouchableOpacity>
           </View>
-        </View>
-
-        {/* Hot Tours Section */}
-        <HotToursSection 
-          onTourPress={handleTourPress}
-          onAddToCart={handleAddToCart}
-          onSeeAllPress={() => navigation.navigate('Home', { screen: 'Tours', params: { tab: 'tours' } })}
-          language={language}
-        />
-
-        {/* Quick Access Section */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.primary }]}>{t('quickAccess')}</Text>
-          <View style={styles.quickActionsGrid}>
-            {quickActions.map((action) => (
-              <TouchableOpacity
-                key={action.id}
-                style={[styles.quickActionCard, { backgroundColor: colors.card }]}
-                onPress={() => navigation.navigate(action.screen)}
-              >
-                <View style={[styles.iconContainer, { backgroundColor: action.color + '20' }]}>
-                  <Ionicons name={action.icon} size={32} color={action.color} />
-                </View>
-                <Text style={[styles.quickActionTitle, { color: colors.text }]}>{t(action.titleKey)}</Text>
-                <Text style={[styles.quickActionSubtitle, { color: colors.textMuted }]}>{t(action.subtitleKey)}</Text>
-              </TouchableOpacity>
-            ))}
+          <View style={styles.hotWrap}>
+            <HotToursSection
+              onTourPress={(tour) =>
+                navigation.navigate('AttractionDetails', { attraction: tour })
+              }
+              onAddToCart={() => {}}
+              onSeeAllPress={() => navigation.navigate('Home', { screen: 'Tours' })}
+              language={language}
+            />
           </View>
         </View>
 
-        {/* Popular Places Section */}
+        {/* ===== Recently added ===== */}
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.primary }]}>{t('popularPlaces')}</Text>
-          
-          {/* Cart Feature Card - Highlighted when has items */}
-          <TouchableOpacity
-            style={[
-              styles.featureCard, 
-              { backgroundColor: getItemCount() > 0 ? '#e74c3c' : colors.card }
-            ]}
-            onPress={() => navigation.navigate('Cart')}
-          >
-            <Ionicons name="cart" size={24} color={getItemCount() > 0 ? '#fff' : '#e74c3c'} />
-            <View style={styles.featureContent}>
-              <Text style={[styles.featureTitle, { color: getItemCount() > 0 ? '#fff' : colors.text }]}>
-                {language === 'en' ? 'Shopping Cart' : 'Корзина покупок'}
-              </Text>
-              <Text style={[styles.featureSubtitle, { color: getItemCount() > 0 ? 'rgba(255,255,255,0.8)' : colors.textMuted }]}>
-                {getItemCount() > 0 
-                  ? `${getItemCount()} ${language === 'en' ? 'items ready' : 'позиций готово'}`
-                  : (language === 'en' ? 'Add tours to your cart' : 'Добавьте туры в корзину')}
-              </Text>
-            </View>
-            <View style={getItemCount() > 0 ? styles.cartArrowBadge : null}>
-              <Ionicons name="chevron-forward" size={20} color={getItemCount() > 0 ? '#fff' : colors.textMuted} />
-            </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.featureCard, { backgroundColor: colors.card }]}
-            onPress={() => navigation.navigate('Tours')}
-          >
-            <Ionicons name="compass" size={24} color={colors.secondary} />
-            <View style={styles.featureContent}>
-              <Text style={[styles.featureTitle, { color: colors.text }]}>{t('exploreAttractions')}</Text>
-              <Text style={[styles.featureSubtitle, { color: colors.textMuted }]}>{t('exploreAttractionsSubtitle')}</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.featureCard, { backgroundColor: colors.card }]}
-            onPress={() => navigation.navigate('Tours')}
-          >
-            <Ionicons name="map" size={24} color={colors.secondary} />
-            <View style={styles.featureContent}>
-              <Text style={[styles.featureTitle, { color: colors.text }]}>{t('readyRoutes')}</Text>
-              <Text style={[styles.featureSubtitle, { color: colors.textMuted }]}>{t('readyRoutesSubtitle')}</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.featureCard, { backgroundColor: colors.card }]}
-            onPress={() => navigation.navigate('MapScreen', { title: t('mapOfKazakhstan') })}
-          >
-            <Ionicons name="map-outline" size={24} color="#3498db" />
-            <View style={styles.featureContent}>
-              <Text style={[styles.featureTitle, { color: colors.text }]}>{t('interactiveMap')}</Text>
-              <Text style={[styles.featureSubtitle, { color: colors.textMuted }]}>{t('interactiveMapSubtitle')}</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
-          </TouchableOpacity>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>{isRu ? 'Новое' : 'Just added'}</Text>
+          </View>
+          {recentlyAdded.slice(0, 3).map((attraction, idx) => (
+            <Animated.View
+              key={attraction.id}
+              entering={FadeInDown.delay(idx * 80).duration(500)}
+              style={{ marginBottom: 12 }}
+            >
+              <TouchableOpacity
+                activeOpacity={0.9}
+                onPress={() =>
+                  navigation.navigate('AttractionDetails', { attraction })
+                }
+              >
+                <Card padding={0} style={styles.recentCard}>
+                  <Image
+                    source={{ uri: attraction.imageThumb || attraction.image }}
+                    style={styles.recentImage}
+                  />
+                  <View style={styles.recentBody}>
+                    <Text style={styles.recentTitle} numberOfLines={1}>
+                      {attraction.name}
+                    </Text>
+                    <Text style={styles.recentMeta} numberOfLines={2}>
+                      {attraction.description}
+                    </Text>
+                    <View style={styles.recentFooter}>
+                      <View style={styles.recentRating}>
+                        <Ionicons name="star" size={11} color={tokens.palette.gold} />
+                        <Text style={styles.recentRatingText}>
+                          {attraction.rating?.toFixed(1) || '—'}
+                        </Text>
+                      </View>
+                      <Text style={styles.recentCity} numberOfLines={1}>
+                        {attraction.city || ''}
+                      </Text>
+                    </View>
+                  </View>
+                </Card>
+              </TouchableOpacity>
+            </Animated.View>
+          ))}
         </View>
 
-        {/* Cart Summary Section */}
-        {getItemCount() > 0 && (
-          <TouchableOpacity 
-            style={[styles.cartSummaryCard, { backgroundColor: colors.primary }]}
-            onPress={() => navigation.navigate('Cart')}
-          >
-            <View style={styles.cartSummaryLeft}>
-              <View style={styles.cartSummaryIcon}>
-                <Ionicons name="cart" size={24} color="#fff" />
-                <View style={styles.cartSummaryBadge}>
-                  <Text style={styles.cartSummaryBadgeText}>{getItemCount()}</Text>
-                </View>
-              </View>
-              <View>
-                <Text style={styles.cartSummaryTitle}>
-                  {language === 'en' ? 'Your Cart' : 'Ваша корзина'}
-                </Text>
-                <Text style={styles.cartSummarySubtitle}>
-                  {getItemCount()} {language === 'en' ? 'items ready for checkout' : 'позиций к оформлению'}
-                </Text>
-              </View>
-            </View>
-            <View style={styles.cartSummaryRight}>
-              <Text style={styles.cartSummaryAction}>
-                {language === 'en' ? 'View' : 'Открыть'}
-              </Text>
-              <Ionicons name="chevron-forward" size={20} color="#fff" />
-            </View>
-          </TouchableOpacity>
-        )}
-
-        {/* Bottom spacing */}
-        <View style={styles.bottomSpacer} />
+        <View style={{ height: 80 }} />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#1a4d3a',
-  },
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  scrollContent: {
-    flexGrow: 1,
-  },
-  header: {
-    backgroundColor: '#1a4d3a',
-    paddingTop: 16,
-    paddingBottom: 24,
-    paddingHorizontal: 16,
-  },
-  headerTop: {
+  root: { flex: 1, backgroundColor: tokens.palette.ink0 },
+  scroll: { paddingHorizontal: tokens.spacing.lg, paddingBottom: tokens.spacing.xxl },
+  topBar: {
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
+    marginBottom: tokens.spacing.xl,
+  },
+  brandRow: { flexDirection: 'row', alignItems: 'center' },
+  logoMark: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: tokens.palette.gold,
     alignItems: 'center',
-    marginBottom: 12,
-  },
-  headerLogo: {
-    width: 60,
-    height: 60,
-  },
-  headerActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  headerButton: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
     justifyContent: 'center',
+    marginRight: 10,
+  },
+  brand: {
+    color: tokens.palette.textHi,
+    fontSize: 17,
+    fontWeight: '800',
+    letterSpacing: 0.4,
+  },
+  tagline: {
+    color: tokens.palette.textMid,
+    fontSize: 11,
+    marginTop: 1,
+  },
+  cartIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: tokens.palette.glass,
+    borderWidth: 1,
+    borderColor: tokens.palette.hairline,
     alignItems: 'center',
-    backgroundColor: '#fff',
+    justifyContent: 'center',
   },
   cartBadge: {
     position: 'absolute',
     top: -4,
     right: -4,
-    backgroundColor: '#e74c3c',
+    backgroundColor: '#EF4444',
     borderRadius: 10,
     minWidth: 18,
     height: 18,
-    justifyContent: 'center',
-    alignItems: 'center',
     paddingHorizontal: 4,
-  },
-  cartBadgeText: {
-    color: '#fff',
-    fontSize: 11,
-    fontWeight: 'bold',
-  },
-  chatButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 20,
-    gap: 6,
-  },
-  chatButtonText: {
-    color: '#1a4d3a',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  greeting: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#d4af37',
-    marginBottom: 16,
-  },
-  tabsContainer: {
-    paddingTop: 8,
-    gap: 8,
-  },
-  tabButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    marginRight: 8,
-    gap: 6,
-  },
-  tabButtonActive: {
-    backgroundColor: '#fff',
-  },
-  tabText: {
-    fontSize: 14,
-    color: '#fff',
-    fontWeight: '500',
-  },
-  tabTextActive: {
-    color: '#1a4d3a',
-    fontWeight: '600',
-  },
-  hotEmoji: {
-    fontSize: 14,
-  },
-  searchCardWrapper: {
-    paddingHorizontal: 16,
-    marginTop: -8,
-  },
-  searchCard: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  searchField: {
-    paddingVertical: 12,
-  },
-  searchFieldHalf: {
-    flex: 1,
-  },
-  searchFieldLabel: {
-    fontSize: 12,
-    color: '#8e8e93',
-    marginBottom: 4,
-  },
-  searchFieldValue: {
-    fontSize: 16,
-    color: '#333',
-    fontWeight: '600',
-  },
-  searchRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#e0e0e0',
-  },
-  verticalDivider: {
-    width: 1,
-    height: 40,
-    backgroundColor: '#e0e0e0',
-    marginHorizontal: 12,
-  },
-  moreOptionsLink: {
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
-    marginTop: 8,
   },
-  moreOptionsText: {
-    fontSize: 14,
-    color: '#1a4d3a',
-    fontWeight: '500',
-    marginRight: 4,
+  cartBadgeText: { color: '#fff', fontSize: 10, fontWeight: '700' },
+
+  heroBlock: { marginBottom: tokens.spacing.xl },
+  heroLabel: {
+    color: tokens.palette.gold,
+    fontSize: 13,
+    fontWeight: '600',
+    marginBottom: 6,
   },
-  searchButton: {
+  heroTitle: {
+    color: tokens.palette.textHi,
+    fontSize: 32,
+    fontWeight: '800',
+    letterSpacing: -0.5,
+    lineHeight: 38,
+  },
+
+  // AI card
+  aiCardWrap: { marginBottom: tokens.spacing.xl },
+  aiCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#d4af37',
-    borderRadius: 12,
-    paddingVertical: 16,
-    marginTop: 8,
-    gap: 8,
+    padding: tokens.spacing.lg,
+    borderRadius: tokens.radii.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.3)',
   },
-  searchButtonText: {
-    color: '#1a4d3a',
-    fontSize: 16,
+  aiIconWrap: { marginRight: tokens.spacing.md },
+  aiIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: tokens.radii.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  aiTitleRow: { flexDirection: 'row', alignItems: 'center' },
+  aiTitle: {
+    color: tokens.palette.textHi,
+    fontSize: 15,
     fontWeight: '700',
   },
-  section: {
-    padding: 16,
+  liveBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(34, 197, 94, 0.18)',
+    borderRadius: 8,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    marginLeft: 8,
+  },
+  liveDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: '#22C55E', marginRight: 4 },
+  liveText: {
+    color: '#22C55E',
+    fontSize: 8,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+  },
+  aiSubtitle: {
+    color: tokens.palette.textMid,
+    fontSize: 12,
+    marginTop: 3,
+    marginBottom: 8,
+  },
+  aiPillRow: {
+    flexDirection: 'row',
+    gap: 6,
+    flexWrap: 'wrap',
+  },
+
+  // Quick actions
+  quickRow: { flexDirection: 'row', gap: tokens.spacing.sm },
+  quickAction: { alignItems: 'center' },
+  quickIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 18,
+    backgroundColor: tokens.palette.ink1,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 6,
+  },
+  quickIconAI: {
+    backgroundColor: 'rgba(212, 175, 55, 0.12)',
+  },
+  quickLabel: {
+    color: tokens.palette.textMid,
+    fontSize: 11,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  quickBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    backgroundColor: '#EF4444',
+    minWidth: 16,
+    height: 16,
+    borderRadius: 8,
+    paddingHorizontal: 3,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  quickBadgeText: { color: '#fff', fontSize: 9, fontWeight: '700' },
+
+  // Sections
+  section: { marginBottom: tokens.spacing.xl },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    marginBottom: tokens.spacing.md,
   },
   sectionTitle: {
+    color: tokens.palette.textHi,
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1a4d3a',
-    marginBottom: 16,
+    fontWeight: '700',
+    letterSpacing: -0.2,
   },
-  quickActionsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  quickActionCard: {
-    width: '48%',
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  iconContainer: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  quickActionTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1a4d3a',
-    textAlign: 'center',
-    marginBottom: 4,
-  },
-  quickActionSubtitle: {
+  sectionSubtitle: {
+    color: tokens.palette.textMid,
     fontSize: 12,
-    color: '#8e8e93',
-    textAlign: 'center',
-  },
-  featureCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  featureContent: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  featureTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1a4d3a',
-    marginBottom: 4,
-  },
-  featureSubtitle: {
-    fontSize: 14,
-    color: '#8e8e93',
-  },
-  // Cart Summary Card
-  cartSummaryCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginHorizontal: 16,
-    marginTop: 16,
-    marginBottom: 8,
-    padding: 16,
-    borderRadius: 16,
-    shadowColor: '#1a4d3a',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  cartSummaryLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  cartSummaryIcon: {
-    position: 'relative',
-  },
-  cartSummaryBadge: {
-    position: 'absolute',
-    top: -6,
-    right: -8,
-    backgroundColor: '#e74c3c',
-    borderRadius: 10,
-    minWidth: 18,
-    height: 18,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 4,
-  },
-  cartSummaryBadgeText: {
-    color: '#fff',
-    fontSize: 11,
-    fontWeight: 'bold',
-  },
-  cartSummaryTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  cartSummarySubtitle: {
-    fontSize: 13,
-    color: 'rgba(255, 255, 255, 0.8)',
     marginTop: 2,
   },
-  cartSummaryRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  cartSummaryAction: {
-    fontSize: 14,
+  seeAll: {
+    color: tokens.palette.gold,
+    fontSize: 13,
     fontWeight: '600',
-    color: '#fff',
   },
-  cartArrowBadge: {
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    borderRadius: 12,
-    padding: 4,
+  carousel: { paddingRight: tokens.spacing.lg },
+
+  // HotTours wrapper (legacy white card collides with dark BG)
+  hotWrap: {
+    marginHorizontal: -tokens.spacing.lg,
   },
-  bottomSpacer: {
-    height: 20,
+
+  // Recent
+  recentCard: {
+    flexDirection: 'row',
+    padding: 0,
+    overflow: 'hidden',
+  },
+  recentImage: {
+    width: 110,
+    height: 110,
+  },
+  recentBody: {
+    flex: 1,
+    padding: 12,
+    justifyContent: 'space-between',
+  },
+  recentTitle: {
+    color: tokens.palette.textHi,
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  recentMeta: {
+    color: tokens.palette.textMid,
+    fontSize: 11,
+    lineHeight: 15,
+    marginTop: 4,
+  },
+  recentFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 6,
+  },
+  recentRating: { flexDirection: 'row', alignItems: 'center' },
+  recentRatingText: {
+    color: tokens.palette.gold,
+    fontSize: 11,
+    fontWeight: '700',
+    marginLeft: 3,
+  },
+  recentCity: {
+    color: tokens.palette.textLo,
+    fontSize: 10,
+    maxWidth: 100,
   },
 });
-

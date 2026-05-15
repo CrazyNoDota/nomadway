@@ -3,78 +3,66 @@ import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   Image,
   TouchableOpacity,
   Dimensions,
-  TextInput,
-  Modal,
-  FlatList,
+  Linking,
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import MapView, { Marker } from 'react-native-maps';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Sharing from 'expo-sharing';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Animated, {
+  useAnimatedScrollHandler,
+  useSharedValue,
+  useAnimatedStyle,
+  interpolate,
+  Extrapolate,
+  FadeInDown,
+} from 'react-native-reanimated';
+
 import { useLocalization } from '../contexts/LocalizationContext';
 import { getTranslatedAttraction } from '../utils/attractionTranslations';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
+import Card from '../components/ui/Card';
+import Pill from '../components/ui/Pill';
+import Button from '../components/ui/Button';
+import { tokens } from '../theme/tokens';
 
 const { width } = Dimensions.get('window');
+const HERO_HEIGHT = 360;
 
 export default function AttractionDetailsScreen({ route, navigation }) {
   const { attraction: originalAttraction } = route.params;
   const { language, t } = useLocalization();
   const attraction = getTranslatedAttraction(originalAttraction, language);
-  const [isSaved, setIsSaved] = useState(false);
+  const insets = useSafeAreaInsets();
   const { addToCart } = useCart();
   const { requireAuth } = useAuth();
+
+  const isRu = language !== 'en';
+  const [isSaved, setIsSaved] = useState(false);
+
   const hasLocation =
     typeof attraction?.latitude === 'number' && typeof attraction?.longitude === 'number';
-
-  // Determine item type and price
-  const isTour = attraction?.id?.toString().startsWith('tour_') || attraction?.id?.toString().startsWith('hot_');
-  const price = attraction?.budget || attraction?.price || (attraction?.discountPrice ? { min: attraction.discountPrice, max: attraction.originalPrice || attraction.discountPrice } : null);
-
-  const handleAddToCart = () => {
-    if (!requireAuth()) {
-      return;
-    }
-    addToCart({
-      id: attraction.id,
-      type: isTour ? 'tour' : 'attraction',
-      name: attraction.name,
-      city: attraction.city,
-      region: attraction.region,
-      price: price,
-      durationDays: attraction.durationDays || 1,
-      bestSeason: attraction.bestSeason,
-      image: attraction.image,
-    });
-
-    Alert.alert(
-      '✅ ' + (t('addedToCart') || 'Добавлено в корзину'),
-      `"${attraction.name}" добавлено в вашу корзину`,
-      [
-        { text: t('continue') || 'Продолжить', style: 'cancel' },
-        { text: t('goToCart') || 'Открыть корзину', onPress: () => navigation.navigate('Cart') },
-      ]
-    );
-  };
+  const isTour =
+    attraction?.id?.toString().startsWith('tour_') || attraction?.id?.toString().startsWith('hot_');
+  const price =
+    attraction?.budget ||
+    attraction?.price ||
+    (attraction?.discountPrice
+      ? { min: attraction.discountPrice, max: attraction.originalPrice || attraction.discountPrice }
+      : null);
 
   useEffect(() => {
-    checkIfSaved();
-  }, []);
-
-  const checkIfSaved = async () => {
-    try {
-      const saved = await AsyncStorage.getItem(`saved_${attraction.id}`);
-      setIsSaved(saved !== null);
-    } catch (error) {
-      console.error('Error checking saved status:', error);
-    }
-  };
+    AsyncStorage.getItem(`saved_${attraction.id}`)
+      .then((saved) => setIsSaved(saved !== null))
+      .catch(() => {});
+  }, [attraction.id]);
 
   const toggleSave = async () => {
     try {
@@ -85,496 +73,608 @@ export default function AttractionDetailsScreen({ route, navigation }) {
         await AsyncStorage.setItem(`saved_${attraction.id}`, JSON.stringify(attraction));
         setIsSaved(true);
       }
-    } catch (error) {
-      console.error('Error saving attraction:', error);
+    } catch (e) {
+      console.error('save error', e);
     }
-  };
-
-  const openMap = () => {
-    if (!hasLocation) {
-      alert('Для этого тура координаты не указаны');
-      return;
-    }
-    navigation.navigate('MapScreen', {
-      attractions: [attraction],
-      title: attraction.name,
-      zoomToPlace: {
-        latitude: attraction.latitude,
-        longitude: attraction.longitude,
-      },
-    });
   };
 
   const shareAttraction = async () => {
     try {
-      const isAvailable = await Sharing.isAvailableAsync();
-      if (isAvailable) {
+      const ok = await Sharing.isAvailableAsync();
+      if (ok) {
         await Sharing.shareAsync({
-          message: `Посмотрите на это место: ${attraction.name}\n${attraction.description}\n\nНайдено в NomadWay`,
+          message: `${attraction.name}\n${attraction.description}\n\nNomadWay`,
         });
-      } else {
-        alert('Функция "Поделиться" недоступна на этом устройстве');
       }
-    } catch (error) {
-      console.error('Error sharing:', error);
+    } catch (e) {
+      console.error('share error', e);
     }
   };
 
-  return (
-    <ScrollView style={styles.container}>
-      <Image source={{ uri: attraction.image }} style={styles.headerImage} />
+  const handleAddToCart = () => {
+    if (!requireAuth()) return;
+    addToCart({
+      id: attraction.id,
+      type: isTour ? 'tour' : 'attraction',
+      name: attraction.name,
+      city: attraction.city,
+      region: attraction.region,
+      price,
+      durationDays: attraction.durationDays || 1,
+      bestSeason: attraction.bestSeason,
+      image: attraction.image,
+    });
+    Alert.alert(
+      isRu ? 'Добавлено в корзину' : 'Added to cart',
+      `${attraction.name}`,
+      [
+        { text: isRu ? 'Продолжить' : 'Continue', style: 'cancel' },
+        { text: isRu ? 'Открыть корзину' : 'View cart', onPress: () => navigation.navigate('Cart') },
+      ]
+    );
+  };
 
-      <View style={styles.content}>
-        <View style={styles.header}>
-          <View style={styles.titleContainer}>
-            <Text style={styles.title}>{attraction.name}</Text>
-            <View style={styles.ratingContainer}>
-              <Ionicons name="star" size={20} color="#d4af37" />
-              <Text style={styles.rating}>{attraction.rating}</Text>
-            </View>
-          </View>
-          <View style={styles.headerActions}>
-            <TouchableOpacity onPress={shareAttraction} style={styles.shareButton}>
-              <Ionicons name="share-outline" size={24} color="#1a4d3a" />
+  const askAIAboutThisPlace = () => {
+    navigation.navigate('AIGuide', {
+      seedQuestion: isRu
+        ? `Расскажи подробнее про "${attraction.name}". Что посмотреть, когда лучше ехать и сколько стоит?`
+        : `Tell me more about "${attraction.nameEn || attraction.name}". What to see, when to go, and costs?`,
+    });
+  };
+
+  const openAttribution = () => {
+    if (attraction.imageAttribution?.sourceUrl) {
+      Linking.openURL(attraction.imageAttribution.sourceUrl).catch(() => {});
+    }
+  };
+
+  // Parallax scroll
+  const scrollY = useSharedValue(0);
+  const onScroll = useAnimatedScrollHandler({
+    onScroll: (e) => {
+      scrollY.value = e.contentOffset.y;
+    },
+  });
+  const heroStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        translateY: interpolate(
+          scrollY.value,
+          [-HERO_HEIGHT, 0, HERO_HEIGHT],
+          [-HERO_HEIGHT / 2, 0, HERO_HEIGHT * 0.4],
+          Extrapolate.CLAMP
+        ),
+      },
+      {
+        scale: interpolate(
+          scrollY.value,
+          [-HERO_HEIGHT, 0],
+          [1.4, 1],
+          Extrapolate.CLAMP
+        ),
+      },
+    ],
+  }));
+  const headerBgStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(scrollY.value, [120, 220], [0, 1], Extrapolate.CLAMP),
+  }));
+
+  return (
+    <View style={styles.root}>
+      {/* Sticky top bar */}
+      <Animated.View
+        style={[styles.topBarBg, { paddingTop: insets.top }, headerBgStyle]}
+        pointerEvents="none"
+      />
+      <View style={[styles.topBar, { paddingTop: insets.top + 6 }]}>
+        <TouchableOpacity style={styles.iconBtn} onPress={() => navigation.goBack()} hitSlop={8}>
+          <Ionicons name="chevron-back" size={22} color="#fff" />
+        </TouchableOpacity>
+        <View style={{ flexDirection: 'row' }}>
+          <TouchableOpacity style={styles.iconBtn} onPress={shareAttraction} hitSlop={8}>
+            <Ionicons name="share-outline" size={20} color="#fff" />
+          </TouchableOpacity>
+          <View style={{ width: 8 }} />
+          <TouchableOpacity style={styles.iconBtn} onPress={toggleSave} hitSlop={8}>
+            <Ionicons
+              name={isSaved ? 'bookmark' : 'bookmark-outline'}
+              size={20}
+              color={isSaved ? tokens.palette.gold : '#fff'}
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <Animated.ScrollView
+        onScroll={onScroll}
+        scrollEventThrottle={16}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 160 }}
+      >
+        {/* Parallax hero */}
+        <View style={styles.heroWrap}>
+          <Animated.Image
+            source={{ uri: attraction.image }}
+            style={[styles.heroImage, heroStyle]}
+            resizeMode="cover"
+          />
+          <LinearGradient
+            colors={['transparent', 'rgba(8, 17, 13, 0.6)', tokens.palette.ink0]}
+            style={styles.heroOverlay}
+          />
+          {attraction.imageAttribution?.source && (
+            <TouchableOpacity style={styles.attribution} onPress={openAttribution}>
+              <Ionicons name="information-circle-outline" size={11} color={tokens.palette.textMid} />
+              <Text style={styles.attributionText} numberOfLines={1}>
+                {attraction.imageAttribution.source}
+              </Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={toggleSave} style={styles.saveButton}>
-              <Ionicons
-                name={isSaved ? 'bookmark' : 'bookmark-outline'}
-                size={24}
-                color={isSaved ? '#d4af37' : '#8e8e93'}
-              />
-            </TouchableOpacity>
-          </View>
+          )}
         </View>
 
-        {attraction.category && (
-          <View style={styles.categoryBadge}>
-            <Text style={styles.categoryText}>{attraction.category}</Text>
-          </View>
-        )}
+        {/* Body */}
+        <View style={styles.body}>
+          <Animated.View entering={FadeInDown.duration(500)}>
+            <View style={styles.titleRow}>
+              <Text style={styles.title}>{attraction.name}</Text>
+              {attraction.rating != null && (
+                <View style={styles.ratingBig}>
+                  <Ionicons name="star" size={14} color={tokens.palette.gold} />
+                  <Text style={styles.ratingBigText}>{attraction.rating.toFixed(1)}</Text>
+                </View>
+              )}
+            </View>
 
-        {/* Tour-specific info: duration, discount */}
-        {isTour && (
-          <View style={styles.tourInfoSection}>
-            {attraction.duration && (
-              <View style={styles.tourInfoItem}>
-                <Ionicons name="time-outline" size={18} color="#1a4d3a" />
-                <Text style={styles.tourInfoText}>{attraction.duration}</Text>
-              </View>
-            )}
-            {attraction.discount && (
-              <View style={styles.discountBadge}>
-                <Text style={styles.discountText}>🔥 -{attraction.discount}%</Text>
-              </View>
-            )}
-            {attraction.reason && (
-              <Text style={styles.tourReason}>{attraction.reason}</Text>
-            )}
-          </View>
-        )}
+            <View style={styles.metaRow}>
+              {attraction.city && (
+                <View style={styles.metaItem}>
+                  <Ionicons name="location-outline" size={13} color={tokens.palette.gold} />
+                  <Text style={styles.metaText}>{attraction.city}</Text>
+                </View>
+              )}
+              {attraction.averageVisitDuration && (
+                <View style={styles.metaItem}>
+                  <Ionicons name="time-outline" size={13} color={tokens.palette.gold} />
+                  <Text style={styles.metaText}>
+                    ~{Math.round(attraction.averageVisitDuration / 60)} {isRu ? 'ч' : 'h'}
+                  </Text>
+                </View>
+              )}
+              {attraction.difficultyLevel && (
+                <View style={styles.metaItem}>
+                  <Ionicons name="trending-up-outline" size={13} color={tokens.palette.gold} />
+                  <Text style={styles.metaText}>{attraction.difficultyLevel}</Text>
+                </View>
+              )}
+            </View>
 
-        {/* Price Section */}
-        {price && (
-          <View style={styles.priceSection}>
-            <Ionicons name="cash-outline" size={20} color="#1a4d3a" />
-            {attraction.discountPrice ? (
-              <View style={styles.priceContainer}>
-                <Text style={styles.originalPrice}>
-                  {new Intl.NumberFormat('ru-RU').format(attraction.originalPrice)} ₸
-                </Text>
-                <Text style={styles.discountPrice}>
-                  {new Intl.NumberFormat('ru-RU').format(attraction.discountPrice)} ₸
-                </Text>
-              </View>
-            ) : (
-              <Text style={styles.priceText}>
-                {price.min && price.max
-                  ? `${new Intl.NumberFormat('ru-RU').format(price.min)} - ${new Intl.NumberFormat('ru-RU').format(price.max)} ₸`
-                  : `${new Intl.NumberFormat('ru-RU').format(price.min || price.max || price)} ₸`}
+            {/* Tags */}
+            <View style={styles.tagRow}>
+              {attraction.category && <Pill label={attraction.category} icon="pricetag-outline" />}
+              {(attraction.interests || []).slice(0, 3).map((tag) => (
+                <Pill key={tag} label={tag} />
+              ))}
+            </View>
+          </Animated.View>
+
+          {/* AI ask card */}
+          <Animated.View entering={FadeInDown.delay(80).duration(500)}>
+            <TouchableOpacity activeOpacity={0.92} onPress={askAIAboutThisPlace}>
+              <LinearGradient
+                colors={['rgba(212, 175, 55, 0.16)', 'rgba(82, 183, 136, 0.08)']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.askAI}
+              >
+                <View style={styles.askAIIcon}>
+                  <Ionicons name="sparkles" size={18} color={tokens.palette.ink0} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.askAITitle}>
+                    {isRu ? 'Спросить AI-агента' : 'Ask the AI agent'}
+                  </Text>
+                  <Text style={styles.askAISubtitle}>
+                    {isRu
+                      ? `Что посмотреть, маршруты, советы по ${attraction.name}`
+                      : `Routes, tips, what to see at ${attraction.nameEn || attraction.name}`}
+                  </Text>
+                </View>
+                <Ionicons name="chevron-forward" size={18} color={tokens.palette.gold} />
+              </LinearGradient>
+            </TouchableOpacity>
+          </Animated.View>
+
+          {/* Description */}
+          <Animated.View entering={FadeInDown.delay(160).duration(500)}>
+            <Text style={styles.sectionLabel}>{isRu ? 'О месте' : 'About'}</Text>
+            <Text style={styles.description}>
+              {attraction.longDescription ||
+                attraction.description ||
+                (isRu ? 'Описание скоро появится.' : 'Description coming soon.')}
+            </Text>
+          </Animated.View>
+
+          {/* Price card */}
+          {price && (
+            <Animated.View entering={FadeInDown.delay(220).duration(500)}>
+              <Card style={styles.priceCard}>
+                <View style={styles.priceHead}>
+                  <Ionicons name="cash-outline" size={18} color={tokens.palette.gold} />
+                  <Text style={styles.priceHeadText}>{isRu ? 'Бюджет' : 'Budget'}</Text>
+                </View>
+                {attraction.discountPrice ? (
+                  <View style={styles.priceRow}>
+                    <Text style={styles.priceOld}>
+                      {new Intl.NumberFormat('ru-RU').format(attraction.originalPrice)} ₸
+                    </Text>
+                    <Text style={styles.priceNew}>
+                      {new Intl.NumberFormat('ru-RU').format(attraction.discountPrice)} ₸
+                    </Text>
+                  </View>
+                ) : (
+                  <Text style={styles.priceNew}>
+                    {price.min != null && price.max != null
+                      ? `${new Intl.NumberFormat('ru-RU').format(price.min)} – ${new Intl.NumberFormat('ru-RU').format(price.max)} ₸`
+                      : `${new Intl.NumberFormat('ru-RU').format(price.min || price.max)} ₸`}
+                  </Text>
+                )}
+              </Card>
+            </Animated.View>
+          )}
+
+          {/* Map */}
+          {hasLocation && (
+            <Animated.View entering={FadeInDown.delay(280).duration(500)}>
+              <Text style={styles.sectionLabel}>{isRu ? 'На карте' : 'On the map'}</Text>
+              <TouchableOpacity
+                activeOpacity={0.9}
+                onPress={() =>
+                  navigation.navigate('MapScreen', {
+                    attractions: [attraction],
+                    title: attraction.name,
+                    zoomToPlace: {
+                      latitude: attraction.latitude,
+                      longitude: attraction.longitude,
+                    },
+                  })
+                }
+                style={styles.mapWrap}
+              >
+                <MapView
+                  style={StyleSheet.absoluteFillObject}
+                  initialRegion={{
+                    latitude: attraction.latitude,
+                    longitude: attraction.longitude,
+                    latitudeDelta: 0.1,
+                    longitudeDelta: 0.1,
+                  }}
+                  scrollEnabled={false}
+                  zoomEnabled={false}
+                  pitchEnabled={false}
+                  rotateEnabled={false}
+                >
+                  <Marker
+                    coordinate={{
+                      latitude: attraction.latitude,
+                      longitude: attraction.longitude,
+                    }}
+                  />
+                </MapView>
+                <View style={styles.mapHint}>
+                  <Ionicons name="expand-outline" size={14} color="#fff" />
+                  <Text style={styles.mapHintText}>{isRu ? 'Открыть карту' : 'Open map'}</Text>
+                </View>
+              </TouchableOpacity>
+            </Animated.View>
+          )}
+
+          {/* AI summary (existing data) */}
+          {attraction.aiSummary && (
+            <Animated.View entering={FadeInDown.delay(340).duration(500)}>
+              <Text style={styles.sectionLabel}>
+                {isRu ? 'AI разбор отзывов' : 'AI review analysis'}
               </Text>
-            )}
-          </View>
-        )}
-
-        <Text style={styles.description}>{attraction.longDescription || attraction.description || (language === 'en' ? 'No description available' : 'Описание недоступно')}</Text>
-
-        <TouchableOpacity style={styles.mapButton} onPress={openMap}>
-          <Ionicons name="map" size={24} color="#1a4d3a" />
-          <Text style={styles.mapButtonText}>Показать на карте</Text>
-        </TouchableOpacity>
-
-        {hasLocation && (
-          <View style={styles.mapContainer}>
-            <MapView
-              style={styles.map}
-              initialRegion={{
-                latitude: attraction.latitude,
-                longitude: attraction.longitude,
-                latitudeDelta: 0.1,
-                longitudeDelta: 0.1,
-              }}
-              scrollEnabled={false}
-              zoomEnabled={false}
-            >
-              <Marker
-                coordinate={{
-                  latitude: attraction.latitude,
-                  longitude: attraction.longitude,
-                }}
-                title={attraction.name}
-              />
-            </MapView>
-          </View>
-        )}
-
-        {/* AI Summary Section */}
-        {attraction.aiSummary && (
-          <View style={styles.aiSummarySection}>
-            <View style={styles.aiSummaryHeader}>
-              <Ionicons name="sparkles" size={20} color="#d4af37" />
-              <Text style={styles.aiSummaryTitle}>AI Анализ отзывов</Text>
-            </View>
-            <Text style={styles.aiSummarySummary}>{attraction.aiSummary.summary}</Text>
-            <View style={styles.prosConsContainer}>
-              <View style={styles.prosColumn}>
-                <Text style={styles.prosTitle}>✅ Плюсы</Text>
-                {attraction.aiSummary.pros.map((pro, index) => (
-                  <Text key={index} style={styles.proConItem}>• {pro}</Text>
-                ))}
-              </View>
-              <View style={styles.consColumn}>
-                <Text style={styles.consTitle}>⚠️ Минусы</Text>
-                {attraction.aiSummary.cons.map((con, index) => (
-                  <Text key={index} style={styles.proConItem}>• {con}</Text>
-                ))}
-              </View>
-            </View>
-          </View>
-        )}
-
-        {/* Reviews Section */}
-        {attraction.reviews && attraction.reviews.length > 0 && (
-          <View style={styles.reviewsSection}>
-            <Text style={styles.reviewsTitle}>📝 Отзывы ({attraction.reviews.length})</Text>
-            {attraction.reviews.map((review) => (
-              <View key={review.id} style={styles.reviewCard}>
-                <View style={styles.reviewHeader}>
-                  <Text style={styles.reviewAuthor}>{review.author}</Text>
-                  <View style={styles.reviewRating}>
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Ionicons
-                        key={star}
-                        name={star <= review.rating ? "star" : "star-outline"}
-                        size={14}
-                        color="#d4af37"
-                      />
+              <Card tint="gold">
+                <Text style={styles.aiSummaryText}>{attraction.aiSummary.summary}</Text>
+                <View style={styles.prosCons}>
+                  <View style={styles.prosCol}>
+                    <Text style={styles.prosTitle}>+ {isRu ? 'Плюсы' : 'Pros'}</Text>
+                    {attraction.aiSummary.pros.map((p, i) => (
+                      <Text key={i} style={styles.proConItem}>
+                        · {p}
+                      </Text>
+                    ))}
+                  </View>
+                  <View style={styles.consCol}>
+                    <Text style={styles.consTitle}>− {isRu ? 'Минусы' : 'Cons'}</Text>
+                    {attraction.aiSummary.cons.map((c, i) => (
+                      <Text key={i} style={styles.proConItem}>
+                        · {c}
+                      </Text>
                     ))}
                   </View>
                 </View>
-                <Text style={styles.reviewDate}>{review.date}</Text>
-                <Text style={styles.reviewText}>{review.text}</Text>
-              </View>
-            ))}
-          </View>
-        )}
+              </Card>
+            </Animated.View>
+          )}
 
-        {/* Add to Cart Button */}
-        <TouchableOpacity style={styles.addToCartButton} onPress={handleAddToCart}>
-          <Ionicons name="cart" size={24} color="#fff" />
-          <Text style={styles.addToCartButtonText}>
-            {t('addToCart') || 'Добавить в корзину'}
-          </Text>
-        </TouchableOpacity>
+          {/* Reviews */}
+          {attraction.reviews?.length > 0 && (
+            <Animated.View entering={FadeInDown.delay(400).duration(500)}>
+              <Text style={styles.sectionLabel}>
+                {isRu ? 'Отзывы' : 'Reviews'} · {attraction.reviews.length}
+              </Text>
+              {attraction.reviews.map((r) => (
+                <Card key={r.id} style={{ marginBottom: 10 }}>
+                  <View style={styles.reviewHead}>
+                    <Text style={styles.reviewAuthor}>{r.author}</Text>
+                    <View style={{ flexDirection: 'row' }}>
+                      {[1, 2, 3, 4, 5].map((s) => (
+                        <Ionicons
+                          key={s}
+                          name={s <= r.rating ? 'star' : 'star-outline'}
+                          size={11}
+                          color={tokens.palette.gold}
+                        />
+                      ))}
+                    </View>
+                  </View>
+                  <Text style={styles.reviewDate}>{r.date}</Text>
+                  <Text style={styles.reviewText}>{r.text}</Text>
+                </Card>
+              ))}
+            </Animated.View>
+          )}
+        </View>
+      </Animated.ScrollView>
 
-        <View style={{ height: 40 }} />
+      {/* Sticky CTA */}
+      <View style={[styles.cta, { paddingBottom: insets.bottom + 12 }]}>
+        <LinearGradient
+          colors={['transparent', tokens.palette.ink0]}
+          style={styles.ctaFade}
+          pointerEvents="none"
+        />
+        <Button
+          label={isRu ? 'Добавить в корзину' : 'Add to cart'}
+          icon="cart"
+          onPress={handleAddToCart}
+          fullWidth
+        />
       </View>
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
+  root: { flex: 1, backgroundColor: tokens.palette.ink0 },
+
+  // Top bar
+  topBarBg: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 0,
+    paddingBottom: 12,
+    backgroundColor: tokens.palette.ink0,
+    borderBottomWidth: 1,
+    borderBottomColor: tokens.palette.hairline,
+    zIndex: 9,
   },
-  headerImage: {
-    width: '100%',
-    height: 300,
-    resizeMode: 'cover',
-  },
-  content: {
-    padding: 16,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-  },
-  titleContainer: {
-    flex: 1,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#1a4d3a',
-    marginBottom: 8,
-  },
-  ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff9e6',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 12,
-    alignSelf: 'flex-start',
-  },
-  rating: {
-    marginLeft: 6,
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#d4af37',
-  },
-  headerActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  shareButton: {
-    padding: 8,
-    marginRight: 8,
-  },
-  saveButton: {
-    padding: 8,
-  },
-  categoryBadge: {
-    backgroundColor: '#e8f5e9',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 16,
-    alignSelf: 'flex-start',
-    marginBottom: 16,
-  },
-  categoryText: {
-    fontSize: 14,
-    color: '#27ae60',
-    fontWeight: '600',
-  },
-  description: {
-    fontSize: 16,
-    color: '#333',
-    lineHeight: 24,
-    marginBottom: 20,
-  },
-  mapButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-  },
-  mapButtonText: {
-    marginLeft: 12,
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1a4d3a',
-  },
-  mapContainer: {
-    height: 250,
-    borderRadius: 12,
-    overflow: 'hidden',
-    marginBottom: 20,
-  },
-  map: {
-    width: '100%',
-    height: '100%',
-  },
-  // AI Summary Styles
-  aiSummarySection: {
-    backgroundColor: '#fffef0',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: '#d4af37',
-  },
-  aiSummaryHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  aiSummaryTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#1a4d3a',
-    marginLeft: 8,
-  },
-  aiSummarySummary: {
-    fontSize: 14,
-    color: '#333',
-    lineHeight: 20,
-    marginBottom: 12,
-  },
-  prosConsContainer: {
-    flexDirection: 'row',
-  },
-  prosColumn: {
-    flex: 1,
-    marginRight: 8,
-  },
-  consColumn: {
-    flex: 1,
-    marginLeft: 8,
-  },
-  prosTitle: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#27ae60',
-    marginBottom: 6,
-  },
-  consTitle: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#e67e22',
-    marginBottom: 6,
-  },
-  proConItem: {
-    fontSize: 12,
-    color: '#555',
-    marginBottom: 4,
-    lineHeight: 16,
-  },
-  // Reviews Styles
-  reviewsSection: {
-    marginBottom: 20,
-  },
-  reviewsTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1a4d3a',
-    marginBottom: 12,
-  },
-  reviewCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-  },
-  reviewHeader: {
+  topBar: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: tokens.spacing.md,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 4,
+    zIndex: 10,
   },
-  reviewAuthor: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-  },
-  reviewRating: {
-    flexDirection: 'row',
-  },
-  reviewDate: {
-    fontSize: 12,
-    color: '#8e8e93',
-    marginBottom: 8,
-  },
-  reviewText: {
-    fontSize: 14,
-    color: '#555',
-    lineHeight: 20,
-  },
-  // Tour-specific styles
-  tourInfoSection: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    marginBottom: 16,
-    gap: 12,
-  },
-  tourInfoItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#e8f5e9',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-  },
-  tourInfoText: {
-    marginLeft: 6,
-    fontSize: 14,
-    color: '#1a4d3a',
-    fontWeight: '500',
-  },
-  discountBadge: {
-    backgroundColor: '#ff6b6b',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-  },
-  discountText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 14,
-  },
-  tourReason: {
-    fontSize: 14,
-    color: '#e67e22',
-    fontWeight: '500',
-    width: '100%',
-    marginTop: 4,
-  },
-  // Price styles
-  priceSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f0f9f4',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 16,
-  },
-  priceContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginLeft: 10,
-  },
-  originalPrice: {
-    fontSize: 16,
-    color: '#999',
-    textDecorationLine: 'line-through',
-    marginRight: 10,
-  },
-  discountPrice: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#e74c3c',
-  },
-  priceText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#1a4d3a',
-    marginLeft: 10,
-  },
-  // Add to Cart button
-  addToCartButton: {
-    flexDirection: 'row',
+  iconBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: 'rgba(8, 17, 13, 0.55)',
+    borderWidth: 1,
+    borderColor: tokens.palette.hairline,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#1a4d3a',
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    borderRadius: 12,
-    marginTop: 20,
   },
-  addToCartButtonText: {
-    color: '#fff',
+
+  // Hero
+  heroWrap: { height: HERO_HEIGHT, overflow: 'hidden' },
+  heroImage: { width, height: HERO_HEIGHT + 100, position: 'absolute', top: -50 },
+  heroOverlay: { ...StyleSheet.absoluteFillObject },
+  attribution: {
+    position: 'absolute',
+    bottom: 12,
+    right: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 999,
+    backgroundColor: 'rgba(8, 17, 13, 0.7)',
+    borderWidth: 1,
+    borderColor: tokens.palette.hairline,
+    maxWidth: 160,
+  },
+  attributionText: {
+    color: tokens.palette.textMid,
+    fontSize: 10,
+    marginLeft: 4,
+  },
+
+  // Body
+  body: { paddingHorizontal: tokens.spacing.lg, marginTop: -40 },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+  },
+  title: {
+    flex: 1,
+    color: tokens.palette.textHi,
+    fontSize: 26,
+    fontWeight: '800',
+    letterSpacing: -0.4,
+    marginRight: 12,
+  },
+  ratingBig: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(212, 175, 55, 0.16)',
+    borderColor: 'rgba(212, 175, 55, 0.4)',
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  ratingBigText: {
+    color: tokens.palette.gold,
+    fontSize: 13,
+    fontWeight: '700',
+    marginLeft: 4,
+  },
+  metaRow: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 8, marginBottom: 14 },
+  metaItem: { flexDirection: 'row', alignItems: 'center', marginRight: 14 },
+  metaText: { color: tokens.palette.textMid, fontSize: 12, marginLeft: 4 },
+  tagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: tokens.spacing.lg },
+
+  // AI ask
+  askAI: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: tokens.spacing.md,
+    borderRadius: tokens.radii.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.3)',
+    marginBottom: tokens.spacing.lg,
+  },
+  askAIIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    backgroundColor: tokens.palette.gold,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  askAITitle: {
+    color: tokens.palette.textHi,
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  askAISubtitle: {
+    color: tokens.palette.textMid,
+    fontSize: 11,
+    marginTop: 2,
+  },
+
+  sectionLabel: {
+    color: tokens.palette.textHi,
+    fontSize: 16,
+    fontWeight: '700',
+    marginTop: tokens.spacing.lg,
+    marginBottom: tokens.spacing.sm,
+  },
+  description: {
+    color: tokens.palette.textMid,
+    fontSize: 14,
+    lineHeight: 22,
+  },
+
+  // Price
+  priceCard: { marginTop: tokens.spacing.lg },
+  priceHead: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
+  priceHeadText: {
+    color: tokens.palette.textMid,
+    fontSize: 12,
+    fontWeight: '600',
+    marginLeft: 6,
+    letterSpacing: 0.4,
+    textTransform: 'uppercase',
+  },
+  priceRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  priceOld: {
+    color: tokens.palette.textLo,
+    fontSize: 14,
+    textDecorationLine: 'line-through',
+  },
+  priceNew: {
+    color: tokens.palette.textHi,
     fontSize: 18,
-    fontWeight: 'bold',
-    marginLeft: 10,
+    fontWeight: '800',
+  },
+
+  // Map
+  mapWrap: {
+    height: 180,
+    borderRadius: tokens.radii.lg,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: tokens.palette.hairline,
+  },
+  mapHint: {
+    position: 'absolute',
+    bottom: 10,
+    right: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
+    backgroundColor: 'rgba(8, 17, 13, 0.7)',
+    borderWidth: 1,
+    borderColor: tokens.palette.hairline,
+  },
+  mapHintText: { color: '#fff', fontSize: 11, fontWeight: '600', marginLeft: 4 },
+
+  // AI summary
+  aiSummaryText: {
+    color: tokens.palette.textHi,
+    fontSize: 13,
+    lineHeight: 20,
+    marginBottom: 12,
+  },
+  prosCons: { flexDirection: 'row', gap: tokens.spacing.lg },
+  prosCol: { flex: 1 },
+  consCol: { flex: 1 },
+  prosTitle: { color: tokens.palette.success, fontSize: 12, fontWeight: '700', marginBottom: 6 },
+  consTitle: { color: '#F59E0B', fontSize: 12, fontWeight: '700', marginBottom: 6 },
+  proConItem: {
+    color: tokens.palette.textMid,
+    fontSize: 12,
+    lineHeight: 18,
+  },
+
+  // Reviews
+  reviewHead: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  reviewAuthor: { color: tokens.palette.textHi, fontSize: 13, fontWeight: '700' },
+  reviewDate: { color: tokens.palette.textLo, fontSize: 10, marginTop: 2 },
+  reviewText: { color: tokens.palette.textMid, fontSize: 13, lineHeight: 19, marginTop: 6 },
+
+  // CTA
+  cta: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: tokens.spacing.lg,
+    paddingTop: 20,
+  },
+  ctaFade: {
+    position: 'absolute',
+    top: -40,
+    left: 0,
+    right: 0,
+    height: 60,
   },
 });
-

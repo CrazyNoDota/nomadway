@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -7,12 +7,14 @@ import {
   TouchableOpacity,
   TextInput,
   ActivityIndicator,
-  Alert,
   Platform,
+  Animated,
+  Easing,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import Constants from 'expo-constants';
+import { notify } from '../utils/notify';
 import { useAuth } from '../contexts/AuthContext';
 import {
   USER_GROUPS,
@@ -33,6 +35,14 @@ const DURATION_ORDER = [
   DURATIONS.THREE_HOURS,
   DURATIONS.ONE_DAY,
   DURATIONS.THREE_DAYS,
+];
+
+const LOADING_PHRASES = [
+  'Ð¡Ð¿Ð¾Ñ€Ð¸Ð¼ Ñ ÐºÐ¾Ð¼Ð¿Ð°ÑÐ¾Ð¼ Ð¾ ÐºÑ€Ð°ÑÐ¸Ð²Ð¾Ð¼ Ð¿Ð¾Ð²Ð¾Ñ€Ð¾Ñ‚Ðµ...',
+  'Ð£ÐºÐ»Ð°Ð´Ñ‹Ð²Ð°ÐµÐ¼ Ð±ÑŽÐ´Ð¶ÐµÑ‚ Ð² Ñ‡ÐµÐ¼Ð¾Ð´Ð°Ð½ Ð±ÐµÐ· Ð»Ð¸ÑˆÐ½ÐµÐ³Ð¾ ÑˆÑƒÐ¼Ð°...',
+  'Ð˜Ñ‰ÐµÐ¼ Ñ‚Ð¾Ñ‡ÐºÐ¸, ÐºÐ¾Ñ‚Ð¾Ñ€Ñ‹Ðµ Ð´Ñ€ÑƒÐ¶Ð°Ñ‚ Ð¿Ð¾ Ð´Ð¾Ñ€Ð¾Ð³Ðµ...',
+  'ÐŸÑ€Ð¾ÑÐ¸Ð¼ ÐºÐ°Ñ€Ñ‚Ñƒ Ð½Ðµ ÑÑ‚Ñ€Ð¾Ð¸Ñ‚ÑŒ Ð·Ð¸Ð³Ð·Ð°Ð³Ð¸...',
+  'Ð¡Ð¾Ð±Ð¸Ñ€Ð°ÐµÐ¼ Ð¼Ð°Ñ€ÑˆÑ€ÑƒÑ‚, Ð³Ð´Ðµ ÐºÐ°Ð¶Ð´Ñ‹Ð¹ ÑÐ»ÐµÐ´ÑƒÑŽÑ‰Ð¸Ð¹ ÑˆÐ°Ð³ Ð¸Ð¼ÐµÐµÑ‚ ÑÐ¼Ñ‹ÑÐ»...',
 ];
 
 const getApiBaseUrl = () => {
@@ -75,6 +85,104 @@ export default function AIRouteBuilderScreen({ navigation }) {
   const [route, setRoute] = useState(null);
   const [summary, setSummary] = useState(null);
   const [viewMode, setViewMode] = useState('timeline'); // 'timeline' or 'daily'
+  const [formError, setFormError] = useState('');
+  const [loadingPhraseIndex, setLoadingPhraseIndex] = useState(0);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [cartAddedVisible, setCartAddedVisible] = useState(false);
+  const planningSpin = useRef(new Animated.Value(0)).current;
+  const addCartScale = useRef(new Animated.Value(1)).current;
+  const addCartToastOpacity = useRef(new Animated.Value(0)).current;
+  const addCartToastY = useRef(new Animated.Value(12)).current;
+
+  useEffect(() => {
+    if (!loading) {
+      planningSpin.stopAnimation();
+      planningSpin.setValue(0);
+      setLoadingPhraseIndex(0);
+      return undefined;
+    }
+
+    const animation = Animated.loop(
+      Animated.timing(planningSpin, {
+        toValue: 1,
+        duration: 1600,
+        easing: Easing.inOut(Easing.quad),
+        useNativeDriver: true,
+      })
+    );
+    animation.start();
+
+    const phraseTimer = setInterval(() => {
+      setLoadingPhraseIndex((index) => (index + 1) % LOADING_PHRASES.length);
+    }, 1300);
+
+    return () => {
+      animation.stop();
+      clearInterval(phraseTimer);
+    };
+  }, [loading, planningSpin]);
+
+  const planningRotation = planningSpin.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['-8deg', '352deg'],
+  });
+
+  const runAddToCartAnimation = () => {
+    setCartAddedVisible(true);
+    addCartToastOpacity.setValue(0);
+    addCartToastY.setValue(12);
+    Animated.parallel([
+      Animated.sequence([
+        Animated.spring(addCartScale, {
+          toValue: 0.96,
+          friction: 5,
+          tension: 170,
+          useNativeDriver: true,
+        }),
+        Animated.spring(addCartScale, {
+          toValue: 1.04,
+          friction: 4,
+          tension: 150,
+          useNativeDriver: true,
+        }),
+        Animated.spring(addCartScale, {
+          toValue: 1,
+          friction: 5,
+          tension: 120,
+          useNativeDriver: true,
+        }),
+      ]),
+      Animated.sequence([
+        Animated.parallel([
+          Animated.timing(addCartToastOpacity, {
+            toValue: 1,
+            duration: 180,
+            useNativeDriver: true,
+          }),
+          Animated.timing(addCartToastY, {
+            toValue: 0,
+            duration: 180,
+            useNativeDriver: true,
+          }),
+        ]),
+        Animated.delay(1400),
+        Animated.parallel([
+          Animated.timing(addCartToastOpacity, {
+            toValue: 0,
+            duration: 220,
+            useNativeDriver: true,
+          }),
+          Animated.timing(addCartToastY, {
+            toValue: -8,
+            duration: 220,
+            useNativeDriver: true,
+          }),
+        ]),
+      ]),
+    ]).start(() => {
+      setCartAddedVisible(false);
+    });
+  };
 
   const formatSummaryDuration = (minutesValue) => {
     const hours = Math.floor(minutesValue / 60);
@@ -91,8 +199,9 @@ export default function AIRouteBuilderScreen({ navigation }) {
   };
 
   const buildRoute = async () => {
+    setFormError('');
     if (selectedInterests.length === 0) {
-      Alert.alert(t('error'), t('errorSelectInterest'));
+      setFormError(t('errorSelectInterest'));
       return;
     }
 
@@ -107,8 +216,8 @@ export default function AIRouteBuilderScreen({ navigation }) {
         body: JSON.stringify({
           duration,
           budget: {
-            min: parseInt(budgetMin) || 0,
-            max: parseInt(budgetMax) || 100000,
+            min: Math.min(2147483647, Math.max(0, parseInt(budgetMin) || 0)),
+            max: Math.min(2147483647, Math.max(0, parseInt(budgetMax) || 100000)),
           },
           interests: selectedInterests,
           activityLevel,
@@ -121,12 +230,18 @@ export default function AIRouteBuilderScreen({ navigation }) {
       if (response.ok) {
         setRoute(data.route);
         setSummary(data.summary);
+        if (!data.route || data.route.length === 0) {
+          setFormError('ÐÐµ Ð½Ð°ÑˆÐ»Ð¾ÑÑŒ Ð¼ÐµÑÑ‚ Ð¿Ð¾Ð´ ÑÑ‚Ð¸ Ð¿Ð°Ñ€Ð°Ð¼ÐµÑ‚Ñ€Ñ‹. ÐŸÐ¾Ð¿Ñ€Ð¾Ð±ÑƒÐ¹Ñ‚Ðµ Ñ€Ð°ÑÑˆÐ¸Ñ€Ð¸Ñ‚ÑŒ Ð±ÑŽÐ´Ð¶ÐµÑ‚ Ð¸Ð»Ð¸ Ð´Ð¾Ð±Ð°Ð²Ð¸Ñ‚ÑŒ Ð¸Ð½Ñ‚ÐµÑ€ÐµÑÑ‹.');
+        }
       } else {
-        Alert.alert(t('error'), data.error || t('routeBuildFailed'));
+        const msg = data?.error?.message || data?.error || t('routeBuildFailed');
+        setFormError(msg);
+        notify(t('error'), msg);
       }
     } catch (error) {
       console.error('Error building route:', error);
-      Alert.alert(t('error'), t('serverConnectionError'));
+      setFormError(t('serverConnectionError'));
+      notify(t('error'), t('serverConnectionError'));
     } finally {
       setLoading(false);
     }
@@ -149,9 +264,9 @@ export default function AIRouteBuilderScreen({ navigation }) {
       const activities = [];
       const timeSlots = ['morning', 'afternoon', 'evening'];
       const timeLabels = {
-        morning: '🌅 Утро (9:00-12:00)',
-        afternoon: '☀️ День (12:00-18:00)',
-        evening: '🌙 Вечер (18:00-21:00)',
+        morning: 'ðŸŒ… Ð£Ñ‚Ñ€Ð¾ (9:00-12:00)',
+        afternoon: 'â˜€ï¸ Ð”ÐµÐ½ÑŒ (12:00-18:00)',
+        evening: 'ðŸŒ™ Ð’ÐµÑ‡ÐµÑ€ (18:00-21:00)',
       };
 
       dayStops.forEach((stop, index) => {
@@ -177,7 +292,7 @@ export default function AIRouteBuilderScreen({ navigation }) {
   };
 
   // Add entire route to cart
-  const handleAddRouteToCart = () => {
+  const handleAddRouteToCart = async () => {
     if (!route || route.length === 0) return;
 
     if (!requireAuth()) {
@@ -185,28 +300,29 @@ export default function AIRouteBuilderScreen({ navigation }) {
       return;
     }
 
+
     const durationDays = duration === DURATIONS.THREE_HOURS ? 1 :
       duration === DURATIONS.ONE_DAY ? 1 : 3;
 
-    addToCart({
+    setIsAddingToCart(true);
+    const result = await addToCart({
       id: `custom_route_${Date.now()}`,
       type: 'tour',
-      name: `Индивидуальный тур (${route.length} мест)`,
-      city: route[0]?.attraction?.city || 'Казахстан',
+      name: `Ð˜Ð½Ð´Ð¸Ð²Ð¸Ð´ÑƒÐ°Ð»ÑŒÐ½Ñ‹Ð¹ Ñ‚ÑƒÑ€ (${route.length} Ð¼ÐµÑÑ‚)`,
+      city: route[0]?.attraction?.city || 'ÐšÐ°Ð·Ð°Ñ…ÑÑ‚Ð°Ð½',
       region: route[0]?.attraction?.region || 'mixed',
       price: { min: summary?.totalCost * 0.8, max: summary?.totalCost * 1.2 },
       durationDays: durationDays,
       stops: route.map(s => s.attraction.name),
     });
+    setIsAddingToCart(false);
 
-    Alert.alert(
-      '✅ Маршрут добавлен',
-      'Ваш персональный маршрут добавлен в корзину',
-      [
-        { text: 'Продолжить', style: 'cancel' },
-        { text: 'Открыть корзину', onPress: () => navigation.navigate('Cart') },
-      ]
-    );
+    if (!result?.success) {
+      notify('ÐžÑˆÐ¸Ð±ÐºÐ°', result?.error || 'ÐÐµ ÑƒÐ´Ð°Ð»Ð¾ÑÑŒ Ð´Ð¾Ð±Ð°Ð²Ð¸Ñ‚ÑŒ Ð¼Ð°Ñ€ÑˆÑ€ÑƒÑ‚ Ð² ÐºÐ¾Ñ€Ð·Ð¸Ð½Ñƒ');
+      return;
+    }
+
+    runAddToCartAnimation();
   };
 
   const renderForm = () => (
@@ -276,7 +392,7 @@ export default function AIRouteBuilderScreen({ navigation }) {
             value={budgetMin}
             onChangeText={setBudgetMin}
           />
-          <Text style={styles.budgetSeparator}>—</Text>
+          <Text style={styles.budgetSeparator}>â€”</Text>
           <TextInput
             style={styles.budgetInput}
             placeholder={t('budgetMax')}
@@ -339,6 +455,14 @@ export default function AIRouteBuilderScreen({ navigation }) {
         </View>
       </View>
 
+      {/* Inline error */}
+      {formError ? (
+        <View style={styles.errorBanner}>
+          <Ionicons name="alert-circle-outline" size={18} color="#d32f2f" />
+          <Text style={styles.errorBannerText}>{formError}</Text>
+        </View>
+      ) : null}
+
       {/* Build Button */}
       <TouchableOpacity
         style={styles.buildButton}
@@ -346,7 +470,10 @@ export default function AIRouteBuilderScreen({ navigation }) {
         disabled={loading}
       >
         {loading ? (
-          <ActivityIndicator color="#fff" />
+          <>
+            <ActivityIndicator color="#fff" />
+            <Text style={styles.buildButtonText}>ÐœÐ°Ñ€ÑˆÑ€ÑƒÑ‚ Ð²Ð°Ñ€Ð¸Ñ‚ÑÑ...</Text>
+          </>
         ) : (
           <>
             <Ionicons name="construct-outline" size={20} color="#fff" />
@@ -354,6 +481,29 @@ export default function AIRouteBuilderScreen({ navigation }) {
           </>
         )}
       </TouchableOpacity>
+
+      {loading ? (
+        <View style={styles.planningCard}>
+          <Animated.View style={[styles.planningIcon, { transform: [{ rotate: planningRotation }] }]}>
+            <Ionicons name="compass-outline" size={26} color="#d4af37" />
+          </Animated.View>
+          <View style={styles.planningTextWrap}>
+            <Text style={styles.planningTitle}>AI-ÐºÑƒÑ€Ð°Ñ‚Ð¾Ñ€ Ð¿Ñ€Ð¾ÐºÐ»Ð°Ð´Ñ‹Ð²Ð°ÐµÑ‚ Ð¿ÑƒÑ‚ÑŒ</Text>
+            <Text style={styles.planningPhrase}>{LOADING_PHRASES[loadingPhraseIndex]}</Text>
+          </View>
+          <View style={styles.planningDots}>
+            {[0, 1, 2].map((dot) => (
+              <View
+                key={dot}
+                style={[
+                  styles.planningDot,
+                  loadingPhraseIndex % 3 === dot && styles.planningDotActive,
+                ]}
+              />
+            ))}
+          </View>
+        </View>
+      ) : null}
     </View>
   );
 
@@ -386,6 +536,15 @@ export default function AIRouteBuilderScreen({ navigation }) {
         {summary && (
           <View style={styles.summaryCard}>
             <Text style={styles.summaryTitle}>{t('summaryTitle')}</Text>
+            {summary.narrative ? (
+              <Text style={styles.narrativeText}>{summary.narrative}</Text>
+            ) : null}
+            {summary.curationSource === 'llm' ? (
+              <View style={styles.aiBadge}>
+                <Ionicons name="sparkles-outline" size={12} color="#1a4d3a" />
+                <Text style={styles.aiBadgeText}>ÐŸÐ¾Ð´Ð¾Ð±Ñ€Ð°Ð½Ð¾ AI-ÐºÑƒÑ€Ð°Ñ‚Ð¾Ñ€Ð¾Ð¼</Text>
+              </View>
+            ) : null}
             <View style={styles.summaryRow}>
               <Ionicons name="time-outline" size={20} color="#d4af37" />
               <Text style={styles.summaryText}>
@@ -395,7 +554,7 @@ export default function AIRouteBuilderScreen({ navigation }) {
             <View style={styles.summaryRow}>
               <Ionicons name="cash-outline" size={20} color="#d4af37" />
               <Text style={styles.summaryText}>
-                {t('summaryBudget')}: ~{summary.totalCost} ₸
+                {t('summaryBudget')}: ~{summary.totalCost} â‚¸
               </Text>
             </View>
             <View style={styles.summaryRow}>
@@ -415,14 +574,14 @@ export default function AIRouteBuilderScreen({ navigation }) {
               onPress={() => setViewMode('timeline')}
             >
               <Ionicons name="list-outline" size={16} color={viewMode === 'timeline' ? '#fff' : '#1a4d3a'} />
-              <Text style={[styles.viewModeText, viewMode === 'timeline' && styles.viewModeTextActive]}>Таймлайн</Text>
+              <Text style={[styles.viewModeText, viewMode === 'timeline' && styles.viewModeTextActive]}>Ð¢Ð°Ð¹Ð¼Ð»Ð°Ð¹Ð½</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.viewModeButton, viewMode === 'daily' && styles.viewModeButtonActive]}
               onPress={() => setViewMode('daily')}
             >
               <Ionicons name="calendar-outline" size={16} color={viewMode === 'daily' ? '#fff' : '#1a4d3a'} />
-              <Text style={[styles.viewModeText, viewMode === 'daily' && styles.viewModeTextActive]}>По дням</Text>
+              <Text style={[styles.viewModeText, viewMode === 'daily' && styles.viewModeTextActive]}>ÐŸÐ¾ Ð´Ð½ÑÐ¼</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -460,6 +619,12 @@ export default function AIRouteBuilderScreen({ navigation }) {
               </View>
               <View style={styles.timelineContent}>
                 <Text style={styles.attractionName}>{stop.attraction.name}</Text>
+                {stop.why ? (
+                  <View style={styles.whyChip}>
+                    <Ionicons name="sparkles-outline" size={12} color="#1a4d3a" />
+                    <Text style={styles.whyText}>{stop.why}</Text>
+                  </View>
+                ) : null}
                 <Text style={styles.attractionDescription}>
                   {stop.attraction.description}
                 </Text>
@@ -480,7 +645,7 @@ export default function AIRouteBuilderScreen({ navigation }) {
                   )}
                   <View style={styles.detailItem}>
                     <Ionicons name="cash-outline" size={16} color="#666" />
-                    <Text style={styles.detailText}>~{Math.round(stop.estimatedCost)} ₸</Text>
+                    <Text style={styles.detailText}>~{Math.round(stop.estimatedCost)} â‚¸</Text>
                   </View>
                 </View>
 
@@ -490,7 +655,7 @@ export default function AIRouteBuilderScreen({ navigation }) {
                     <Text style={styles.alternativesTitle}>{`${t('alternatives')}:`}</Text>
                     {stop.alternatives.map(alt => (
                       <Text key={alt.id} style={styles.alternativeItem}>
-                        • {alt.name}
+                        â€¢ {alt.name}
                       </Text>
                     ))}
                   </View>
@@ -503,12 +668,12 @@ export default function AIRouteBuilderScreen({ navigation }) {
         {/* Day-by-Day View (for multi-day trips) */}
         {viewMode === 'daily' && duration === DURATIONS.THREE_DAYS && (
           <View style={styles.dailySchedule}>
-            <Text style={styles.dailyScheduleTitle}>📅 Расписание по дням</Text>
+            <Text style={styles.dailyScheduleTitle}>ðŸ“… Ð Ð°ÑÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ Ð¿Ð¾ Ð´Ð½ÑÐ¼</Text>
             {organizeByDays().map((day) => (
               <View key={day.dayNumber} style={styles.dayCard}>
                 <View style={styles.dayHeader}>
-                  <Text style={styles.dayTitle}>День {day.dayNumber}</Text>
-                  <Text style={styles.dayCost}>~{Math.round(day.totalCost).toLocaleString()} ₸</Text>
+                  <Text style={styles.dayTitle}>Ð”ÐµÐ½ÑŒ {day.dayNumber}</Text>
+                  <Text style={styles.dayCost}>~{Math.round(day.totalCost).toLocaleString()} â‚¸</Text>
                 </View>
                 {day.activities.map((activity, idx) => (
                   <View key={idx} style={styles.activityItem}>
@@ -516,9 +681,9 @@ export default function AIRouteBuilderScreen({ navigation }) {
                     <View style={styles.activityContent}>
                       <Text style={styles.activityName}>{activity.attraction.name}</Text>
                       <View style={styles.activityDetails}>
-                        <Text style={styles.activityDuration}>⏱ {activity.visitDuration} мин</Text>
+                        <Text style={styles.activityDuration}>â± {activity.visitDuration} Ð¼Ð¸Ð½</Text>
                         {activity.travelTime > 0 && (
-                          <Text style={styles.activityTravel}>🚗 +{activity.travelTime} мин</Text>
+                          <Text style={styles.activityTravel}>ðŸš— +{activity.travelTime} Ð¼Ð¸Ð½</Text>
                         )}
                       </View>
                     </View>
@@ -530,10 +695,40 @@ export default function AIRouteBuilderScreen({ navigation }) {
         )}
 
         {/* Add to Cart Button */}
-        <TouchableOpacity style={styles.addToCartButton} onPress={handleAddRouteToCart}>
-          <Ionicons name="cart-outline" size={20} color="#fff" />
-          <Text style={styles.addToCartText}>Добавить маршрут в корзину</Text>
-        </TouchableOpacity>
+        {cartAddedVisible ? (
+          <Animated.View
+            style={[
+              styles.cartAddedToast,
+              {
+                opacity: addCartToastOpacity,
+                transform: [{ translateY: addCartToastY }],
+              },
+            ]}
+          >
+            <Ionicons name="checkmark-circle" size={20} color="#1a4d3a" />
+            <Text style={styles.cartAddedText}>Маршрут уже в корзине</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('Cart')} style={styles.cartAddedLink}>
+              <Text style={styles.cartAddedLinkText}>Открыть</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        ) : null}
+
+        <Animated.View style={{ transform: [{ scale: addCartScale }] }}>
+          <TouchableOpacity
+            style={[styles.addToCartButton, isAddingToCart && styles.addToCartButtonBusy]}
+            onPress={handleAddRouteToCart}
+            disabled={isAddingToCart}
+          >
+            {isAddingToCart ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Ionicons name="cart-outline" size={20} color="#fff" />
+            )}
+            <Text style={styles.addToCartText}>
+              {isAddingToCart ? 'Добавляем...' : 'Добавить маршрут в корзину'}
+            </Text>
+          </TouchableOpacity>
+        </Animated.View>
       </View>
     );
   };
@@ -642,6 +837,22 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '600',
   },
+  errorBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#ffe5e5',
+    borderColor: '#d32f2f',
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 10,
+  },
+  errorBannerText: {
+    color: '#a01717',
+    fontSize: 13,
+    flex: 1,
+  },
   buildButton: {
     backgroundColor: '#1a4d3a',
     paddingVertical: 15,
@@ -656,6 +867,53 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  planningCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#0d231b',
+    borderRadius: 12,
+    padding: 14,
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: '#1a4d3a',
+  },
+  planningIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#173f31',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  planningTextWrap: {
+    flex: 1,
+  },
+  planningTitle: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '700',
+    marginBottom: 3,
+  },
+  planningPhrase: {
+    color: '#d7e6de',
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  planningDots: {
+    flexDirection: 'row',
+    gap: 4,
+    marginLeft: 8,
+  },
+  planningDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#315f4c',
+  },
+  planningDotActive: {
+    backgroundColor: '#d4af37',
   },
   emptyState: {
     padding: 40,
@@ -692,6 +950,47 @@ const styles = StyleSheet.create({
   summaryText: {
     fontSize: 14,
     color: '#fff',
+  },
+  narrativeText: {
+    color: '#f5f5f5',
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 12,
+    fontStyle: 'italic',
+  },
+  aiBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    alignSelf: 'flex-start',
+    backgroundColor: '#d4af37',
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 12,
+    marginBottom: 10,
+  },
+  aiBadgeText: {
+    color: '#1a4d3a',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  whyChip: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 6,
+    backgroundColor: '#fff8e1',
+    borderLeftWidth: 3,
+    borderLeftColor: '#d4af37',
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 6,
+    marginBottom: 8,
+  },
+  whyText: {
+    color: '#5a4a1a',
+    fontSize: 13,
+    lineHeight: 18,
+    flex: 1,
   },
   map: {
     height: 300,
@@ -893,9 +1192,42 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     gap: 8,
   },
+  addToCartButtonBusy: {
+    opacity: 0.82,
+  },
   addToCartText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  cartAddedToast: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#e8f5e9',
+    borderColor: '#1a4d3a',
+    borderWidth: 1,
+    borderRadius: 14,
+    marginHorizontal: 15,
+    marginTop: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    gap: 8,
+  },
+  cartAddedText: {
+    flex: 1,
+    color: '#1a4d3a',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  cartAddedLink: {
+    backgroundColor: '#1a4d3a',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  cartAddedLinkText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '700',
   },
 });

@@ -63,14 +63,19 @@
             "usesCleartextTraffic": true
           }
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "extra": {
       "apiUrl": "http://2.134.15.37:3001",
+      "googleClientIdWeb": "809036959951-fd9u7f6fb56ta5tnr0377vk6dc1endb7.apps.googleusercontent.com",
+      "googleClientIdAndroid": "809036959951-icb3n1i65bij3kbc4bnqujkg0mede8hl.apps.googleusercontent.com",
+      "googleClientIdIos": "",
       "eas": {
         "projectId": "b3591dc4-18de-435d-83c5-e5cc711c8760"
       }
     },
+    "scheme": "nomadway",
     "owner": "crazynodota3"
   }
 }

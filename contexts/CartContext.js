@@ -128,7 +128,7 @@ export const CartProvider = ({ children }) => {
     // Add item to cart
     const addToCart = useCallback(async (item) => {
         if (!requireAuth()) {
-            return;
+            return { success: false, error: 'Authentication required' };
         }
 
         const isServerCompatible = isAuthenticated && item?.type === 'attraction' && item?.id;
@@ -149,44 +149,58 @@ export const CartProvider = ({ children }) => {
 
                 if (response.ok) {
                     await loadCartFromServer();
+                    setAiSuggestions(null);
+                    return { success: true };
                 } else {
                     const data = await response.json().catch(() => ({}));
                     const message = data?.error?.message || data?.error || `HTTP ${response.status}`;
                     console.error('Failed to add to cart:', message);
                     Alert.alert('Не удалось добавить в корзину', message);
+                    return { success: false, error: message };
                 }
             } catch (error) {
                 console.error('Error adding to cart:', error);
                 if (error.message !== 'Session expired') {
                     Alert.alert('Ошибка', 'Не удалось добавить в корзину. Попробуйте позже.');
                 }
+                return { success: false, error: error.message };
             }
         } else {
             // Fallback: store locally (tours/hot tours/routes or when offline)
+            const addedItem = {
+                ...item,
+                cartId: item.cartId || `local_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+                pax: item.pax || 1,
+            };
             setCartItems((prev) => {
-                const newItem = {
-                    ...item,
-                    cartId: item.cartId || `local_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-                    pax: item.pax || 1,
-                };
-                const newItems = [...prev, newItem];
+                const newItems = [...prev, addedItem];
                 saveCart(newItems);
                 return newItems;
             });
+            setAiSuggestions(null);
+            return { success: true, item: addedItem };
         }
-
-        setAiSuggestions(null);
     }, [isAuthenticated, authFetch, requireAuth]);
 
     // Remove item from cart
     const removeFromCart = useCallback(async (cartId) => {
-        if (!requireAuth()) {
-            return;
-        }
-
         const isLocalItem = cartId?.startsWith('local_');
 
-        if (isAuthenticated && !isLocalItem) {
+        if (isLocalItem) {
+            setCartItems((prevItems) => {
+                const newItems = prevItems.filter((item) => item.cartId !== cartId);
+                saveCart(newItems);
+                return newItems;
+            });
+            setAiSuggestions(null);
+            return { success: true };
+        }
+
+        if (!requireAuth()) {
+            return { success: false, error: 'Authentication required' };
+        }
+
+        if (isAuthenticated) {
             try {
                 const response = await authFetch(`/cart/${cartId}`, {
                     method: 'DELETE',
@@ -194,18 +208,19 @@ export const CartProvider = ({ children }) => {
 
                 if (response.ok) {
                     setCartItems((prevItems) => prevItems.filter((item) => item.cartId !== cartId));
+                    setAiSuggestions(null);
+                    return { success: true };
                 }
+                const data = await response.json().catch(() => ({}));
+                const message = data?.error?.message || data?.error || `HTTP ${response.status}`;
+                console.error('Failed to remove from cart:', message);
+                return { success: false, error: message };
             } catch (error) {
                 console.error('Error removing from cart:', error);
+                return { success: false, error: error.message };
             }
-        } else {
-            setCartItems((prevItems) => {
-                const newItems = prevItems.filter((item) => item.cartId !== cartId);
-                saveCart(newItems);
-                return newItems;
-            });
         }
-        setAiSuggestions(null);
+        return { success: false, error: 'Cart item is not removable in the current auth state' };
     }, [isAuthenticated, authFetch, requireAuth]);
 
     // Update pax count
@@ -219,7 +234,7 @@ export const CartProvider = ({ children }) => {
                 const response = await authFetch(`/cart/${cartId}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ quantity: newPax }),
+                    body: JSON.stringify({ paxCount: newPax }),
                 });
 
                 if (response.ok) {

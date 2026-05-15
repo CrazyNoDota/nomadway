@@ -5,13 +5,32 @@ const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
 
+const { retrieveContext, formatContext, loadIndex } = require('./src/services/rag');
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Initialize OpenAI
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Initialize NVIDIA-backed client (OpenAI-compatible). Falls back to OpenAI if no NVIDIA key.
+const useNvidia = !!process.env.NVIDIA_LLM_API_KEY;
+const llmClient = new OpenAI(
+  useNvidia
+    ? {
+        apiKey: process.env.NVIDIA_LLM_API_KEY,
+        baseURL: process.env.NVIDIA_BASE_URL || 'https://integrate.api.nvidia.com/v1',
+      }
+    : { apiKey: process.env.OPENAI_API_KEY }
+);
+const LLM_MODEL = useNvidia
+  ? process.env.NVIDIA_LLM_MODEL || 'minimaxai/minimax-m2.7'
+  : process.env.OPENAI_MODEL || 'gpt-4o-mini';
+const LLM_MAX_TOKENS = parseInt(
+  useNvidia ? process.env.LLM_MAX_TOKENS || '1024' : process.env.MAX_TOKENS || '512',
+  10
+);
+const LLM_TEMPERATURE = parseFloat(process.env.LLM_TEMPERATURE || '0.7');
+
+// Preload RAG index
+loadIndex();
 
 // Middleware
 app.use(cors());
@@ -27,8 +46,29 @@ try {
   console.error('Error loading attractions data:', error);
 }
 
-// System prompt for NomadWay context - NomadsWay AI Persona
-const SYSTEM_PROMPT = `You are the intelligent travel assistant for NomadsWay, a mobile app specializing in tourism across Kazakhstan.
+// System prompt for NomadWay context - NomadsWay AI Persona (RU-first, RAG-augmented)
+const SYSTEM_PROMPT_BASE = `Ты — умный туристический ассистент NomadsWay, мобильного приложения о путешествиях по Казахстану.
+
+Твоя миссия: помогать пользователям выбирать туры, составлять маршруты, объяснять региональные нюансы и решать логистику с учётом бюджета, сезона, города отправления и интересов.
+
+Правила:
+1. Тон: дружелюбный эксперт, как знающий местный. Кратко, по делу, без воды.
+2. Конкретика: цены в тенге, расстояния, время. Если данных нет — честно скажи.
+3. Проактивность: предлагай альтернативы, лучшее время, способы сэкономить.
+4. Язык: отвечай на том же языке, на котором задан вопрос (русский / English / қазақша).
+5. Маршруты: расписание утро/день/вечер по дням, транспорт между точками, смета.
+
+Источник истины: ниже приведён КОНТЕКСТ из официальных материалов NomadsWay. Если ответ есть в контексте — используй его и ссылайся на источник в формате [Источник N]. Если в контексте нет нужной информации — опирайся на общие знания о Казахстане, но прямо предупреди пользователя, что точных данных нет.`;
+
+function buildSystemPrompt(contextBlock) {
+  if (!contextBlock) {
+    return `${SYSTEM_PROMPT_BASE}\n\n(КОНТЕКСТ из базы знаний пуст для этого запроса — отвечай на основе общих знаний.)`;
+  }
+  return `${SYSTEM_PROMPT_BASE}\n\n=== КОНТЕКСТ ===\n${contextBlock}\n=== КОНЕЦ КОНТЕКСТА ===`;
+}
+
+// Legacy English prompt (kept for reference; no longer used)
+const _LEGACY_PROMPT = `You are the intelligent travel assistant for NomadsWay, a mobile app specializing in tourism across Kazakhstan.
 
 **Your Mission:** Assist users in selecting tours, creating custom itineraries, explaining regional nuances, and managing travel logistics based on their budget, season, departure city, and personal interests.
 
@@ -226,38 +266,39 @@ app.post('/api/routes/build', async (req, res) => {
   }
 });
 
-// Chat endpoint
+// Chat endpoint (NVIDIA + RAG)
 app.post('/api/chat', async (req, res) => {
   try {
-    const { message, conversationHistory = [] } = req.body;
+    const { message, conversationHistory = [], stream = false } = req.body;
 
     if (!message || !message.trim()) {
       return res.status(400).json({ error: 'Message is required' });
     }
 
-    // Build messages array with system prompt and conversation history
+    const hits = await retrieveContext(message);
+    const contextBlock = formatContext(hits);
+    const sources = hits.map((h) => ({ source: h.source, score: Number(h.score.toFixed(3)) }));
+
     const messages = [
-      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'system', content: buildSystemPrompt(contextBlock) },
       ...conversationHistory,
       { role: 'user', content: message },
     ];
 
-    // Check if streaming is requested
-    const stream = req.body.stream || false;
-
     if (stream) {
-      // Streaming response
       res.setHeader('Content-Type', 'text/event-stream');
       res.setHeader('Cache-Control', 'no-cache');
       res.setHeader('Connection', 'keep-alive');
 
-      const completion = await openai.chat.completions.create({
-        model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
-        messages: messages,
-        max_tokens: parseInt(process.env.MAX_TOKENS || '512'),
-        temperature: 0.7,
+      const completion = await llmClient.chat.completions.create({
+        model: LLM_MODEL,
+        messages,
+        max_tokens: LLM_MAX_TOKENS,
+        temperature: LLM_TEMPERATURE,
         stream: true,
       });
+
+      res.write(`data: ${JSON.stringify({ sources })}\n\n`);
 
       for await (const chunk of completion) {
         const content = chunk.choices[0]?.delta?.content || '';
@@ -269,33 +310,24 @@ app.post('/api/chat', async (req, res) => {
       res.write('data: [DONE]\n\n');
       res.end();
     } else {
-      // Non-streaming response
-      const completion = await openai.chat.completions.create({
-        model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
-        messages: messages,
-        max_tokens: parseInt(process.env.MAX_TOKENS || '512'),
-        temperature: 0.7,
+      const completion = await llmClient.chat.completions.create({
+        model: LLM_MODEL,
+        messages,
+        max_tokens: LLM_MAX_TOKENS,
+        temperature: LLM_TEMPERATURE,
       });
 
-      const response = completion.choices[0].message.content;
-
       res.json({
-        response,
+        response: completion.choices[0].message.content,
+        sources,
         usage: completion.usage,
       });
     }
   } catch (error) {
     console.error('Error in /api/chat:', error);
-    
-    if (error.response) {
-      res.status(error.response.status || 500).json({
-        error: error.response.data?.error?.message || 'OpenAI API error',
-      });
-    } else {
-      res.status(500).json({
-        error: error.message || 'Internal server error',
-      });
-    }
+    res.status(500).json({
+      error: error.message || 'Internal server error',
+    });
   }
 });
 
@@ -1438,11 +1470,15 @@ app.post('/api/v1/media/upload-url', (req, res) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`🚀 NomadWay AI Chat API server running on port ${PORT}`);
-  console.log(`📍 Health check: http://localhost:${PORT}/health`);
-  
-  if (!process.env.OPENAI_API_KEY) {
-    console.warn('⚠️  WARNING: OPENAI_API_KEY is not set in environment variables');
+  console.log(`NomadWay AI Chat API server running on port ${PORT}`);
+  console.log(`Health check: http://localhost:${PORT}/health`);
+  console.log(`LLM: ${LLM_MODEL} via ${useNvidia ? 'NVIDIA' : 'OpenAI'}`);
+
+  if (useNvidia && !process.env.NVIDIA_LLM_API_KEY) {
+    console.warn('NVIDIA_LLM_API_KEY not set');
+  }
+  if (!useNvidia && !process.env.OPENAI_API_KEY) {
+    console.warn('OPENAI_API_KEY not set');
   }
 });
 

@@ -4,6 +4,7 @@ const prisma = require('../config/database');
 const { authenticate, optionalAuth } = require('../middleware/auth');
 const { validate, buildRouteSchema } = require('../middleware/validation');
 const { sendRouteSummaryEmail } = require('../services/emailService');
+const { curateRoute } = require('../services/routeCurator');
 const config = require('../config');
 
 // Duration mapping
@@ -13,6 +14,10 @@ const DURATION_MAP = {
   '3_days': 1440,
 };
 
+// PostgreSQL INT4 ceiling — Prisma Int columns overflow above this.
+const INT4_MAX = 2147483647;
+const clampInt = (n) => Math.max(0, Math.min(INT4_MAX, Math.round(Number(n) || 0)));
+
 /**
  * POST /api/routes/build
  * Build an AI-optimized route
@@ -21,12 +26,19 @@ router.post('/build', optionalAuth, validate(buildRouteSchema), async (req, res)
   try {
     const {
       duration,
-      budget,
+      budget: rawBudget,
       interests,
       activityLevel,
       ageGroup,
       startLocation,
     } = req.body;
+
+    // Clamp budget to INT4 range so Prisma doesn't blow up on stray big numbers
+    const budget = {
+      min: clampInt(rawBudget?.min ?? 0),
+      max: clampInt(rawBudget?.max ?? 100000),
+    };
+    if (budget.max < budget.min) budget.max = budget.min;
 
     const totalMinutes = DURATION_MAP[duration] || 180;
 
@@ -67,72 +79,70 @@ router.post('/build', optionalAuth, validate(buildRouteSchema), async (req, res)
       ],
     });
 
-    // Build route with time and budget constraints
-    let route = [];
-    let totalTime = 0;
-    let totalCost = 0;
-    let lastLocation = startLocation;
-
-    for (const attraction of filteredAttractions) {
-      const visitTime = attraction.averageVisitDuration || 60;
-      let travelTime = 0;
-
-      // Calculate travel time if we have coordinates
-      if (lastLocation && attraction.latitude && attraction.longitude) {
-        const distance = calculateDistance(
-          lastLocation.latitude,
-          lastLocation.longitude,
-          attraction.latitude,
-          attraction.longitude
-        );
-        travelTime = calculateTravelTime(distance);
-      }
-
-      const attractionCost = ((attraction.budgetMin || 0) + (attraction.budgetMax || 0)) / 2;
-
-      // Check if we can fit this attraction
-      if (totalTime + visitTime + travelTime <= totalMinutes &&
-          totalCost + attractionCost <= budget.max) {
-        
-        const stopDistance = lastLocation && attraction.latitude && attraction.longitude
-          ? calculateDistance(
-              lastLocation.latitude,
-              lastLocation.longitude,
-              attraction.latitude,
-              attraction.longitude
-            )
-          : 0;
-
-        route.push({
-          attraction: {
-            id: attraction.id,
-            name: attraction.name,
-            nameEn: attraction.nameEn,
-            description: attraction.description,
-            image: attraction.image,
-            rating: attraction.rating,
-            category: attraction.category,
-            city: attraction.city,
-            latitude: attraction.latitude,
-            longitude: attraction.longitude,
-          },
-          visitDuration: visitTime,
-          travelTime: travelTime,
-          travelDistance: stopDistance,
-          estimatedCost: attractionCost,
-        });
-
-        totalTime += visitTime + travelTime;
-        totalCost += attractionCost;
-        lastLocation = {
-          latitude: attraction.latitude,
-          longitude: attraction.longitude,
-        };
-      }
-
-      // Stop if we've filled 90% of time
-      if (totalTime >= totalMinutes * 0.9) break;
+    // === LLM-first curation =============================================
+    // Ask the NVIDIA LLM to design the itinerary from the candidate pool.
+    // If it fails or returns nothing usable, fall back to the greedy loop.
+    let narrative = '';
+    let curationSource = 'heuristic';
+    let orderedAttractions = filteredAttractions;
+    const curated = await curateRoute(filteredAttractions, {
+      duration,
+      totalMinutes,
+      ageGroup,
+      activityLevel,
+      interests,
+      budget,
+    });
+    const whyById = new Map();
+    const dayById = new Map();
+    const slotById = new Map();
+    if (curated && curated.stops.length) {
+      narrative = curated.narrative;
+      curationSource = curated.source;
+      orderedAttractions = curated.stops.map((s) => s.attraction);
+      curated.stops.forEach((s, idx) => {
+        whyById.set(s.attraction.id, s.why);
+        dayById.set(s.attraction.id, s.day);
+        slotById.set(s.attraction.id, s.timeSlot);
+      });
     }
+
+    // Build a geographically coherent route. The LLM can suggest a story/order,
+    // but the server chooses the actual sequence so we do not end up with one
+    // expensive/far-away stop when a nearby cluster could fit several places.
+    const routePlan = buildCoherentRoute({
+      candidates: filteredAttractions,
+      preferredOrder: orderedAttractions,
+      totalMinutes,
+      budget,
+      startLocation,
+      duration,
+      interests,
+    });
+
+    const route = routePlan.route.map((stop, index) => ({
+      attraction: {
+        id: stop.attraction.id,
+        name: stop.attraction.name,
+        nameEn: stop.attraction.nameEn,
+        description: stop.attraction.description,
+        image: stop.attraction.image,
+        rating: stop.attraction.rating,
+        category: stop.attraction.category,
+        city: stop.attraction.city,
+        latitude: stop.attraction.latitude,
+        longitude: stop.attraction.longitude,
+      },
+      visitDuration: stop.visitDuration,
+      travelTime: stop.travelTime,
+      travelDistance: stop.travelDistance,
+      estimatedCost: stop.estimatedCost,
+      why: whyById.get(stop.attraction.id) || buildHeuristicWhy(stop.attraction, index),
+      day: dayById.get(stop.attraction.id) || stop.day,
+      timeSlot: slotById.get(stop.attraction.id) || stop.timeSlot,
+    }));
+    let totalTime = routePlan.totalTime;
+    let totalCost = routePlan.totalCost;
 
     // Generate alternatives for each stop
     const routeWithAlternatives = await Promise.all(
@@ -205,6 +215,8 @@ router.post('/build', optionalAuth, validate(buildRouteSchema), async (req, res)
         ageGroup,
         activityLevel,
         interests,
+        narrative,
+        curationSource, // 'llm' or 'heuristic' — useful for debugging / UI hints
       },
       savedRouteId,
     };
@@ -484,6 +496,236 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 function calculateTravelTime(distance) {
   const speedMetersPerMinute = 40000 / 60; // 40 km/h average
   return Math.round(distance / speedMetersPerMinute);
+}
+
+function estimateCost(attraction) {
+  return ((attraction.budgetMin || 0) + (attraction.budgetMax || 0)) / 2;
+}
+
+function plannedVisitDuration(attraction, duration) {
+  const raw = attraction.averageVisitDuration || 60;
+  const caps = {
+    '3_hours': 75,
+    '1_day': 120,
+    '3_days': 180,
+  };
+  const floors = {
+    '3_hours': 35,
+    '1_day': 45,
+    '3_days': 60,
+  };
+
+  return Math.max(floors[duration] || 45, Math.min(raw, caps[duration] || 120));
+}
+
+function hasCoordinates(attraction) {
+  return Number.isFinite(Number(attraction.latitude)) && Number.isFinite(Number(attraction.longitude));
+}
+
+function travelBetween(from, to) {
+  if (!from || !hasCoordinates(to)) {
+    return { distance: 0, minutes: 0 };
+  }
+
+  const fromLat = from.latitude;
+  const fromLon = from.longitude;
+  if (!Number.isFinite(Number(fromLat)) || !Number.isFinite(Number(fromLon))) {
+    return { distance: 0, minutes: 0 };
+  }
+
+  const distance = calculateDistance(fromLat, fromLon, to.latitude, to.longitude);
+  return { distance, minutes: calculateTravelTime(distance) };
+}
+
+function maxLegMinutes(duration) {
+  if (duration === '3_hours') return 150;
+  if (duration === '1_day') return 150;
+  return 300;
+}
+
+function desiredStopCount(duration) {
+  if (duration === '3_hours') return 3;
+  if (duration === '1_day') return 5;
+  return 10;
+}
+
+function timeFlexLimit(totalMinutes, duration) {
+  const flex = {
+    '3_hours': 1.6,
+    '1_day': 1.35,
+    '3_days': 1.2,
+  };
+  return totalMinutes * (flex[duration] || 1.3);
+}
+
+function buildStop(attraction, from, duration, index) {
+  const travel = travelBetween(from, attraction);
+  const visitDuration = plannedVisitDuration(attraction, duration);
+
+  return {
+    attraction,
+    visitDuration,
+    travelTime: travel.minutes,
+    travelDistance: travel.distance,
+    estimatedCost: estimateCost(attraction),
+    day: duration === '3_days' ? Math.floor(index / 3) + 1 : 1,
+    timeSlot: ['morning', 'afternoon', 'evening'][index % 3],
+  };
+}
+
+function scoreCandidate({ attraction, travelTime, route, preferredRank, interests }) {
+  const interestOverlap = (attraction.interests || []).filter((i) => interests.includes(i)).length;
+  const sameRegionBonus = route.length && route[0].attraction.region === attraction.region ? 18 : 0;
+  const sameCityBonus = route.length && route[route.length - 1].attraction.city === attraction.city ? 10 : 0;
+  const llmBonus = preferredRank.has(attraction.id) ? Math.max(0, 12 - preferredRank.get(attraction.id)) : 0;
+
+  return (
+    (Number(attraction.rating) || 0) * 10 +
+    interestOverlap * 8 +
+    sameRegionBonus +
+    sameCityBonus +
+    llmBonus -
+    travelTime * 0.45
+  );
+}
+
+function buildGreedySequence({ seed, pool, preferredRank, totalMinutes, budget, startLocation, duration, interests }) {
+  const route = [];
+  const used = new Set();
+  let totalTime = 0;
+  let activeVisitTime = 0;
+  let totalCost = 0;
+  let cursor = startLocation || null;
+  const maxLeg = maxLegMinutes(duration);
+  const maxTotalTime = timeFlexLimit(totalMinutes, duration);
+  const targetStops = desiredStopCount(duration);
+
+  function tryAdd(attraction) {
+    const stop = buildStop(attraction, cursor, duration, route.length);
+    const legAllowed = route.length === 0 || stop.travelTime <= maxLeg;
+    if (!legAllowed) return false;
+    if (activeVisitTime + stop.visitDuration > totalMinutes) return false;
+    if (totalTime + stop.visitDuration + stop.travelTime > maxTotalTime) return false;
+    if (totalCost + stop.estimatedCost > budget.max) return false;
+
+    route.push(stop);
+    used.add(attraction.id);
+    totalTime += stop.visitDuration + stop.travelTime;
+    activeVisitTime += stop.visitDuration;
+    totalCost += stop.estimatedCost;
+    cursor = {
+      latitude: attraction.latitude,
+      longitude: attraction.longitude,
+    };
+    return true;
+  }
+
+  tryAdd(seed);
+
+  while (route.length < targetStops) {
+    const next = pool
+      .filter((attraction) => !used.has(attraction.id))
+      .map((attraction) => {
+        const travel = travelBetween(cursor, attraction);
+        return {
+          attraction,
+          travelTime: travel.minutes,
+          score: scoreCandidate({
+            attraction,
+            travelTime: travel.minutes,
+            route,
+            preferredRank,
+            interests,
+          }),
+        };
+      })
+      .filter(({ attraction, travelTime }) => {
+        if (route.length > 0 && travelTime > maxLeg) return false;
+        const visitDuration = plannedVisitDuration(attraction, duration);
+        const cost = estimateCost(attraction);
+        return (
+          activeVisitTime + visitDuration <= totalMinutes &&
+          totalTime + travelTime + visitDuration <= maxTotalTime &&
+          totalCost + cost <= budget.max
+        );
+      })
+      .sort((a, b) => b.score - a.score)[0];
+
+    if (!next || !tryAdd(next.attraction)) break;
+  }
+
+  return {
+    route,
+    totalTime,
+    totalCost,
+  };
+}
+
+function routeScore(plan, duration) {
+  const ratingSum = plan.route.reduce((sum, stop) => sum + (Number(stop.attraction.rating) || 0), 0);
+  const travelMinutes = plan.route.reduce((sum, stop) => sum + stop.travelTime, 0);
+  const regionCount = new Set(plan.route.map((stop) => stop.attraction.region)).size;
+  const targetStops = desiredStopCount(duration);
+
+  return (
+    Math.min(plan.route.length, targetStops) * 1000 +
+    ratingSum * 20 -
+    travelMinutes * 1.5 -
+    Math.max(0, regionCount - 1) * 120
+  );
+}
+
+function buildCoherentRoute({ candidates, preferredOrder, totalMinutes, budget, startLocation, duration, interests }) {
+  const usable = candidates
+    .filter((a) => estimateCost(a) <= budget.max)
+    .filter(hasCoordinates);
+
+  if (!usable.length) {
+    return { route: [], totalTime: 0, totalCost: 0 };
+  }
+
+  const preferredRank = new Map(preferredOrder.map((a, index) => [a.id, index]));
+  const regions = [...new Set(usable.map((a) => a.region).filter(Boolean))];
+  const pools = [
+    usable,
+    ...regions.map((region) => usable.filter((a) => a.region === region)),
+  ].filter((pool) => pool.length > 0);
+
+  const plans = [];
+  for (const pool of pools) {
+    const seeds = [...pool]
+      .sort((a, b) => {
+        const aRank = preferredRank.has(a.id) ? preferredRank.get(a.id) : 999;
+        const bRank = preferredRank.has(b.id) ? preferredRank.get(b.id) : 999;
+        if (aRank !== bRank) return aRank - bRank;
+        return (Number(b.rating) || 0) - (Number(a.rating) || 0);
+      })
+      .slice(0, 8);
+
+    for (const seed of seeds) {
+      const plan = buildGreedySequence({
+        seed,
+        pool,
+        preferredRank,
+        totalMinutes,
+        budget,
+        startLocation,
+        duration,
+        interests,
+      });
+      if (plan.route.length) plans.push(plan);
+    }
+  }
+
+  return plans.sort((a, b) => routeScore(b, duration) - routeScore(a, duration))[0] ||
+    { route: [], totalTime: 0, totalCost: 0 };
+}
+
+function buildHeuristicWhy(attraction, index) {
+  if (index === 0) {
+    return `Начинаем с ${attraction.name}: сильная точка маршрута и удобный ориентир для дальнейшего пути.`;
+  }
+  return `${attraction.name} логично продолжает направление и добавляет маршруту больше впечатлений без лишнего крюка.`;
 }
 
 module.exports = router;

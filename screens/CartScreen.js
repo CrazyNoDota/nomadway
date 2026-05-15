@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useCart } from '../contexts/CartContext';
 import analyticsService from '../utils/AnalyticsService';
+import { notify } from '../utils/notify';
 
 const CartScreen = ({ navigation }) => {
     const {
@@ -43,18 +44,27 @@ const CartScreen = ({ navigation }) => {
     };
 
     const handleRemoveItem = (cartId, itemName) => {
-        Alert.alert(
+        notify(
             'Удалить из корзины',
             `Удалить "${itemName}" из корзины?`,
             [
                 { text: 'Отмена', style: 'cancel' },
-                { text: 'Удалить', style: 'destructive', onPress: () => removeFromCart(cartId) },
+                {
+                    text: 'Удалить',
+                    style: 'destructive',
+                    onPress: async () => {
+                        const result = await removeFromCart(cartId);
+                        if (!result?.success) {
+                            notify('Ошибка', result?.error || 'Не удалось удалить из корзины');
+                        }
+                    },
+                },
             ]
         );
     };
 
     const handleClearCart = () => {
-        Alert.alert(
+        notify(
             'Очистить корзину',
             'Вы уверены, что хотите очистить всю корзину?',
             [

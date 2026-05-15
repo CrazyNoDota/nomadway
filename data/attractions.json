@@ -7,7 +7,7 @@
       "description": "Уникальный природный памятник, напоминающий Гранд-Каньон. Расположен в Алматинской области, это одно из самых впечатляющих мест Казахстана.",
       "descriptionEn": "A unique natural monument resembling the Grand Canyon. Located in Almaty region, this is one of the most impressive places in Kazakhstan.",
       "longDescription": "Чарынский каньон — это природный памятник возрастом более 12 миллионов лет. Его красные скалы и причудливые формы создают незабываемое зрелище. Каньон протянулся на 154 км вдоль реки Чарын. Особенно популярна Долина замков — участок с уникальными скальными образованиями, напоминающими древние крепости.",
-      "image": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Charyn_Canyon%2C_Kazakhstan_03.jpg/3840px-Charyn_Canyon%2C_Kazakhstan_03.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "reviews": [
         {
           "id": 1,
@@ -69,7 +69,14 @@
         "summer",
         "autumn"
       ],
-      "difficultyLevel": "medium"
+      "difficultyLevel": "medium",
+      "imageOriginal": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800",
+      "imageThumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Charyn_Canyon%2C_Kazakhstan_03.jpg/330px-Charyn_Canyon%2C_Kazakhstan_03.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "imageAttribution": {
+        "source": "en.wikipedia.org",
+        "title": "Charyn Canyon",
+        "sourceUrl": "https://en.wikipedia.org/wiki/Charyn_Canyon"
+      }
     },
     {
       "id": 2,
@@ -78,7 +85,7 @@
       "description": "Живописный курортный регион с озёрами и горами. Идеальное место для отдыха и активного туризма.",
       "descriptionEn": "A picturesque resort region with lakes and mountains. Perfect for relaxation and active tourism.",
       "longDescription": "Боровое (Бурабай) — это жемчужина Казахстана, расположенная в Акмолинской области. Регион славится своими кристально чистыми озёрами, сосновыми лесами и гранитными скалами причудливой формы. Здесь можно заняться пешим туризмом, покататься на лодке или просто насладиться природой.",
-      "image": "https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/c/cf/%D0%9F%D0%B5%D1%80%D0%B5%D1%88%D0%B5%D0%B5%D0%BA_%D0%BC%D0%B5%D0%B6%D0%B4%D1%83_%D0%BE%D0%B7%D0%B5%D1%80%D0%BE%D0%BC_%D0%91%D0%BE%D1%80%D0%BE%D0%B2%D0%BE%D0%B5_%D0%B8_%D0%91%D0%BE%D0%BB%D1%8C%D1%88%D0%BE%D0%B5_%D0%A7%D0%B5%D0%B1%D0%B0%D1%87%D1%8C%D0%B5.JPG",
       "reviews": [
         {
           "id": 1,
@@ -142,7 +149,14 @@
         "summer",
         "autumn"
       ],
-      "difficultyLevel": "easy"
+      "difficultyLevel": "easy",
+      "imageOriginal": "https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800",
+      "imageThumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/%D0%9F%D0%B5%D1%80%D0%B5%D1%88%D0%B5%D0%B5%D0%BA_%D0%BC%D0%B5%D0%B6%D0%B4%D1%83_%D0%BE%D0%B7%D0%B5%D1%80%D0%BE%D0%BC_%D0%91%D0%BE%D1%80%D0%BE%D0%B2%D0%BE%D0%B5_%D0%B8_%D0%91%D0%BE%D0%BB%D1%8C%D1%88%D0%BE%D0%B5_%D0%A7%D0%B5%D0%B1%D0%B0%D1%87%D1%8C%D0%B5.JPG/330px-%D0%9F%D0%B5%D1%80%D0%B5%D1%88%D0%B5%D0%B5%D0%BA_%D0%BC%D0%B5%D0%B6%D0%B4%D1%83_%D0%BE%D0%B7%D0%B5%D1%80%D0%BE%D0%BC_%D0%91%D0%BE%D1%80%D0%BE%D0%B2%D0%BE%D0%B5_%D0%B8_%D0%91%D0%BE%D0%BB%D1%8C%D1%88%D0%BE%D0%B5_%D0%A7%D0%B5%D0%B1%D0%B0%D1%87%D1%8C%D0%B5.JPG",
+      "imageAttribution": {
+        "source": "en.wikipedia.org",
+        "title": "Burabay",
+        "sourceUrl": "https://en.wikipedia.org/wiki/Burabay"
+      }
     },
     {
       "id": 3,
@@ -151,7 +165,7 @@
       "description": "Величественный мавзолей XIV века в Туркестане, объект Всемирного наследия ЮНЕСКО.",
       "descriptionEn": "A magnificent 14th-century mausoleum in Turkestan, a UNESCO World Heritage Site.",
       "longDescription": "Мавзолей Ходжи Ахмеда Ясави — один из самых значимых архитектурных памятников Казахстана. Построенный в период правления Тамерлана, мавзолей является шедевром средневековой архитектуры Центральной Азии. Комплекс включает мечеть, библиотеку и мавзолей самого Ясави — известного суфийского поэта и философа.",
-      "image": "https://images.unsplash.com/photo-1572107998699-a5c2c60bc5fc?w=800",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/%D0%9C%D0%B0%D1%83%D0%B7%D0%BE%D0%BB%D0%B5%D1%98_%D0%A5%D0%BE%D0%B4%D0%B6%D0%B5_%D0%90%D1%85%D0%BC%D0%B5%D0%B4%D0%B0_%D0%88%D0%B0%D1%81%D0%B0%D0%B2%D0%B8%D1%98%D0%B0_%28%D0%B3%D1%80%D0%B0%D0%B4_%D0%A2%D1%83%D1%80%D0%BA%D0%B5%D1%81%D1%82%D0%B0%D0%BD%2C_%D0%9A%D0%B0%D0%B7%D0%B0%D1%85%D1%81%D1%82%D0%B0%D0%BD%29.jpg/3840px-%D0%9C%D0%B0%D1%83%D0%B7%D0%BE%D0%BB%D0%B5%D1%98_%D0%A5%D0%BE%D0%B4%D0%B6%D0%B5_%D0%90%D1%85%D0%BC%D0%B5%D0%B4%D0%B0_%D0%88%D0%B0%D1%81%D0%B0%D0%B2%D0%B8%D1%98%D0%B0_%28%D0%B3%D1%80%D0%B0%D0%B4_%D0%A2%D1%83%D1%80%D0%BA%D0%B5%D1%81%D1%82%D0%B0%D0%BD%2C_%D0%9A%D0%B0%D0%B7%D0%B0%D1%85%D1%81%D1%82%D0%B0%D0%BD%29.jpg",
       "reviews": [
         {
           "id": 1,
@@ -216,7 +230,14 @@
         "autumn",
         "winter"
       ],
-      "difficultyLevel": "easy"
+      "difficultyLevel": "easy",
+      "imageOriginal": "https://images.unsplash.com/photo-1572107998699-a5c2c60bc5fc?w=800",
+      "imageThumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/%D0%9C%D0%B0%D1%83%D0%B7%D0%BE%D0%BB%D0%B5%D1%98_%D0%A5%D0%BE%D0%B4%D0%B6%D0%B5_%D0%90%D1%85%D0%BC%D0%B5%D0%B4%D0%B0_%D0%88%D0%B0%D1%81%D0%B0%D0%B2%D0%B8%D1%98%D0%B0_%28%D0%B3%D1%80%D0%B0%D0%B4_%D0%A2%D1%83%D1%80%D0%BA%D0%B5%D1%81%D1%82%D0%B0%D0%BD%2C_%D0%9A%D0%B0%D0%B7%D0%B0%D1%85%D1%81%D1%82%D0%B0%D0%BD%29.jpg/330px-%D0%9C%D0%B0%D1%83%D0%B7%D0%BE%D0%BB%D0%B5%D1%98_%D0%A5%D0%BE%D0%B4%D0%B6%D0%B5_%D0%90%D1%85%D0%BC%D0%B5%D0%B4%D0%B0_%D0%88%D0%B0%D1%81%D0%B0%D0%B2%D0%B8%D1%98%D0%B0_%28%D0%B3%D1%80%D0%B0%D0%B4_%D0%A2%D1%83%D1%80%D0%BA%D0%B5%D1%81%D1%82%D0%B0%D0%BD%2C_%D0%9A%D0%B0%D0%B7%D0%B0%D1%85%D1%81%D1%82%D0%B0%D0%BD%29.jpg",
+      "imageAttribution": {
+        "source": "ru.wikipedia.org",
+        "title": "Мавзолей Ходжи Ахмеда Ясави",
+        "sourceUrl": "https://ru.wikipedia.org/wiki/%D0%9C%D0%B0%D0%B2%D0%B7%D0%BE%D0%BB%D0%B5%D0%B9_%D0%A5%D0%BE%D0%B4%D0%B6%D0%B8_%D0%90%D1%85%D0%BC%D0%B5%D0%B4%D0%B0_%D0%AF%D1%81%D0%B0%D0%B2%D0%B8"
+      }
     },
     {
       "id": 4,
@@ -225,7 +246,7 @@
       "description": "Загадочное подводное озеро с затопленным хвойным лесом. Уникальное место для дайвинга.",
       "descriptionEn": "A mysterious underwater lake with a sunken conifer forest. A unique diving destination.",
       "longDescription": "Озеро Каинды, также известное как 'Затонувший лес', образовалось в 1911 году после землетрясения. Вода затопила еловый лес, и теперь стволы деревьев торчат из воды, создавая сюрреалистический пейзаж. Озеро находится на высоте 2000 метров над уровнем моря и имеет изумрудно-голубой цвет.",
-      "image": "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/2/26/Kaindy_lake_south-east_Kazakhstan.jpg",
       "reviews": [
         {
           "id": 1,
@@ -286,7 +307,14 @@
         "summer",
         "autumn"
       ],
-      "difficultyLevel": "medium"
+      "difficultyLevel": "medium",
+      "imageOriginal": "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800",
+      "imageThumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Kaindy_lake_south-east_Kazakhstan.jpg/330px-Kaindy_lake_south-east_Kazakhstan.jpg",
+      "imageAttribution": {
+        "source": "en.wikipedia.org",
+        "title": "Lake Kaindy",
+        "sourceUrl": "https://en.wikipedia.org/wiki/Lake_Kaindy"
+      }
     },
     {
       "id": 5,
@@ -295,8 +323,8 @@
       "description": "Крупнейший город Казахстана, окружённый горами Заилийского Алатау.",
       "descriptionEn": "The largest city of Kazakhstan, surrounded by the Zailiysky Alatau mountains.",
       "longDescription": "Алматы — культурный и экономический центр Казахстана. Город расположен у подножия Заилийского Алатау, что создаёт потрясающий контраст между урбанистическим пейзажем и горными вершинами. Здесь можно посетить Центральный парк, подняться на Кок-Тобе, посетить музеи и насладиться местной кухней.",
-      "image": "https://images.unsplash.com/photo-1514565131-fce0801e5785?w=800",
-      "latitude": 43.2220,
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Almaty_city_skyline.jpg/3840px-Almaty_city_skyline.jpg",
+      "latitude": 43.222,
       "longitude": 76.8512,
       "city": "Алматы",
       "region": "south",
@@ -326,7 +354,14 @@
         "autumn",
         "winter"
       ],
-      "difficultyLevel": "easy"
+      "difficultyLevel": "easy",
+      "imageOriginal": "https://images.unsplash.com/photo-1514565131-fce0801e5785?w=800",
+      "imageThumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Almaty_city_skyline.jpg/330px-Almaty_city_skyline.jpg",
+      "imageAttribution": {
+        "source": "en.wikipedia.org",
+        "title": "Almaty",
+        "sourceUrl": "https://en.wikipedia.org/wiki/Almaty"
+      }
     },
     {
       "id": 6,
@@ -335,7 +370,7 @@
       "description": "Весеннее цветение тюльпанов в казахстанской степи — незабываемое зрелище.",
       "descriptionEn": "Spring tulip blooming in the Kazakh steppe - an unforgettable spectacle.",
       "longDescription": "Казахстан является родиной многих видов диких тюльпанов. Весной степи покрываются ковром из цветущих тюльпанов различных оттенков — от ярко-красных до нежно-жёлтых. Особенно известны тюльпаны Грейга и Кауфмана, которые можно увидеть в заповедниках и степных районах.",
-      "image": "https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Blooming_wild_tulips_in_the_spring_steppe.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
       "reviews": [
         {
           "id": 1,
@@ -371,8 +406,8 @@
         ],
         "summary": "Посетите в апреле, чтобы увидеть дикие тюльпаны во всей красе."
       },
-      "latitude": 44.0,
-      "longitude": 76.0,
+      "latitude": 44,
+      "longitude": 76,
       "city": "Алматинская область",
       "region": "south",
       "category": "Природа",
@@ -396,7 +431,16 @@
       "bestSeason": [
         "spring"
       ],
-      "difficultyLevel": "easy"
+      "difficultyLevel": "easy",
+      "imageOriginal": "https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800",
+      "imageThumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Blooming_wild_tulips_in_the_spring_steppe.jpg/1280px-Blooming_wild_tulips_in_the_spring_steppe.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "imageAttribution": {
+        "source": "commons.wikimedia.org",
+        "title": "File:Blooming wild tulips in the spring steppe.jpg",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Blooming_wild_tulips_in_the_spring_steppe.jpg",
+        "license": "CC BY-SA 4.0",
+        "artist": "Nartin r"
+      }
     },
     {
       "id": 7,
@@ -405,14 +449,14 @@
       "description": "Легендарная вершина Тянь-Шаня высотой 7010 метров. Мечта альпинистов.",
       "descriptionEn": "Legendary peak of Tian Shan at 7010 meters. A mountaineer's dream.",
       "longDescription": "Хан-Тенгри — одна из самых красивых и сложных вершин мира. Название переводится как 'Повелитель духов'. Гора находится на границе Казахстана, Кыргызстана и Китая. Её пирамидальная форма и розовый оттенок на закате делают её особенно фотогеничной. Восхождение требует серьёзной подготовки и опыта.",
-      "image": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Khan_Tengri%2C_Southern_Inylchek_Glacier%2C_Tien_Shan_%E2%80%94_Golden_Hour.jpg/3840px-Khan_Tengri%2C_Southern_Inylchek_Glacier%2C_Tien_Shan_%E2%80%94_Golden_Hour.jpg",
       "latitude": 42.2067,
-      "longitude": 80.1750,
+      "longitude": 80.175,
       "city": "Алматинская область",
       "region": "south",
       "category": "Горы",
       "tourType": "mountain",
-      "rating": 5.0,
+      "rating": 5,
       "ageGroups": [
         "young",
         "adults"
@@ -431,7 +475,14 @@
       "bestSeason": [
         "summer"
       ],
-      "difficultyLevel": "hard"
+      "difficultyLevel": "hard",
+      "imageOriginal": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
+      "imageThumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Khan_Tengri%2C_Southern_Inylchek_Glacier%2C_Tien_Shan_%E2%80%94_Golden_Hour.jpg/330px-Khan_Tengri%2C_Southern_Inylchek_Glacier%2C_Tien_Shan_%E2%80%94_Golden_Hour.jpg",
+      "imageAttribution": {
+        "source": "ru.wikipedia.org",
+        "title": "Хан-Тенгри",
+        "sourceUrl": "https://ru.wikipedia.org/wiki/%D0%A5%D0%B0%D0%BD-%D0%A2%D0%B5%D0%BD%D0%B3%D1%80%D0%B8"
+      }
     },
     {
       "id": 8,
@@ -440,7 +491,7 @@
       "description": "Самый высокогорный каток в мире, расположенный на высоте 1691 метр.",
       "descriptionEn": "The highest mountain ice rink in the world, located at 1691 meters altitude.",
       "longDescription": "Медеу — это уникальный высокогорный каток, построенный в 1972 году. Он расположен в ущелье Медеу недалеко от Алматы. Каток использовался для установления множества мировых рекордов по конькобежному спорту благодаря разрежённому воздуху и идеальному льду. Сегодня это популярное место для катания и спортивных мероприятий.",
-      "image": "https://images.unsplash.com/photo-1551524559-8af4e6624178?w=800",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/%D0%9C%D0%B5%D0%B4%D0%B5%D1%83%2C_%D0%90%D0%BB%D0%BC%D0%B0%D1%82%D1%8B%2C_2023_%D0%B6%D1%8B%D0%BB%D2%93%D1%8B_%D2%9B%D0%B0%D2%A3%D1%82%D0%B0%D1%80_%281%29.jpg/3840px-%D0%9C%D0%B5%D0%B4%D0%B5%D1%83%2C_%D0%90%D0%BB%D0%BC%D0%B0%D1%82%D1%8B%2C_2023_%D0%B6%D1%8B%D0%BB%D2%93%D1%8B_%D2%9B%D0%B0%D2%A3%D1%82%D0%B0%D1%80_%281%29.jpg",
       "reviews": [
         {
           "id": 1,
@@ -503,7 +554,14 @@
         "autumn",
         "spring"
       ],
-      "difficultyLevel": "easy"
+      "difficultyLevel": "easy",
+      "imageOriginal": "https://images.unsplash.com/photo-1551524559-8af4e6624178?w=800",
+      "imageThumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/%D0%9C%D0%B5%D0%B4%D0%B5%D1%83%2C_%D0%90%D0%BB%D0%BC%D0%B0%D1%82%D1%8B%2C_2023_%D0%B6%D1%8B%D0%BB%D2%93%D1%8B_%D2%9B%D0%B0%D2%A3%D1%82%D0%B0%D1%80_%281%29.jpg/330px-%D0%9C%D0%B5%D0%B4%D0%B5%D1%83%2C_%D0%90%D0%BB%D0%BC%D0%B0%D1%82%D1%8B%2C_2023_%D0%B6%D1%8B%D0%BB%D2%93%D1%8B_%D2%9B%D0%B0%D2%A3%D1%82%D0%B0%D1%80_%281%29.jpg",
+      "imageAttribution": {
+        "source": "en.wikipedia.org",
+        "title": "Medeu",
+        "sourceUrl": "https://en.wikipedia.org/wiki/Medeu"
+      }
     },
     {
       "id": 9,
@@ -512,7 +570,7 @@
       "description": "Каскад из трёх живописных горных озёр в отрогах Северного Тянь-Шаня.",
       "descriptionEn": "A cascade of three picturesque mountain lakes in the foothills of the Northern Tian Shan.",
       "longDescription": "Кольсайские озёра — это система из трёх высокогорных озёр, расположенных на высотах от 1818 до 2850 метров. Озёра окружены хвойными лесами и альпийскими лугами. Первое озеро самое доступное, до второго можно добраться пешком или на лошадях, третье требует серьёзного похода.",
-      "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/0/05/Kolsai_lakes.Mountains.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
       "latitude": 42.8333,
       "longitude": 78.3333,
       "city": "Алматинская область",
@@ -539,7 +597,16 @@
         "summer",
         "autumn"
       ],
-      "difficultyLevel": "medium"
+      "difficultyLevel": "medium",
+      "imageOriginal": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800",
+      "imageThumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Kolsai_lakes.Mountains.jpg/1280px-Kolsai_lakes.Mountains.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "imageAttribution": {
+        "source": "commons.wikimedia.org",
+        "title": "File:Kolsai lakes.Mountains.jpg",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Kolsai_lakes.Mountains.jpg",
+        "license": "CC BY-SA 4.0",
+        "artist": "Dimash Kenesbek"
+      }
     },
     {
       "id": 10,
@@ -548,7 +615,7 @@
       "description": "Марсианские пейзажи на дне древнего океана Тетис. Бозжира — визитная карточка Мангистау.",
       "descriptionEn": "Martian landscapes on the bottom of the ancient Tethys Ocean. Bozzhira is the hallmark of Mangystau.",
       "longDescription": "Бозжира — это урочище на плато Устюрт в Мангистауской области. Белые меловые скалы, останцы причудливых форм и бескрайние просторы создают ощущение другой планеты. Миллионы лет назад здесь было дно древнего океана Тетис. Место идеально для фотографов и любителей экстремального туризма.",
-      "image": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/%D0%91%D0%BE%D1%81%D0%B6%D0%B8%D1%80%D0%B07.jpg/3840px-%D0%91%D0%BE%D1%81%D0%B6%D0%B8%D1%80%D0%B07.jpg",
       "latitude": 43.4167,
       "longitude": 54.0833,
       "city": "Актау",
@@ -575,7 +642,14 @@
         "spring",
         "autumn"
       ],
-      "difficultyLevel": "medium"
+      "difficultyLevel": "medium",
+      "imageOriginal": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
+      "imageThumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/%D0%91%D0%BE%D1%81%D0%B6%D0%B8%D1%80%D0%B07.jpg/330px-%D0%91%D0%BE%D1%81%D0%B6%D0%B8%D1%80%D0%B07.jpg",
+      "imageAttribution": {
+        "source": "en.wikipedia.org",
+        "title": "Mangystau Region",
+        "sourceUrl": "https://en.wikipedia.org/wiki/Mangystau_Region"
+      }
     },
     {
       "id": 11,
@@ -584,7 +658,7 @@
       "description": "Гора-юрта в Мангистау, напоминающая огромную белую юрту или спящего льва.",
       "descriptionEn": "Yurt Mountain in Mangystau, resembling a huge white yurt or sleeping lion.",
       "longDescription": "Шеркала — уникальная гора высотой около 300 метров, с разных сторон напоминающая либо гигантскую юрту, либо спящего льва. Вокруг горы находятся древние некрополи и святые места. Это одна из самых узнаваемых достопримечательностей Мангистау.",
-      "image": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Sherqala.jpg/3840px-Sherqala.jpg",
       "latitude": 43.6833,
       "longitude": 52.1167,
       "city": "Актау",
@@ -612,7 +686,14 @@
         "spring",
         "autumn"
       ],
-      "difficultyLevel": "easy"
+      "difficultyLevel": "easy",
+      "imageOriginal": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
+      "imageThumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Sherqala.jpg/330px-Sherqala.jpg",
+      "imageAttribution": {
+        "source": "en.wikipedia.org",
+        "title": "Sherkala",
+        "sourceUrl": "https://en.wikipedia.org/wiki/Sherkala"
+      }
     },
     {
       "id": 12,
@@ -621,9 +702,9 @@
       "description": "Горный регион на стыке России, Китая и Монголии. Край озёр, рек и снежных вершин.",
       "descriptionEn": "Mountain region at the junction of Russia, China and Mongolia. Land of lakes, rivers and snow peaks.",
       "longDescription": "Казахстанский Алтай — это часть великой горной системы Алтая. Здесь находятся высочайшие вершины Сибири, чистейшие реки и озёра, древние курганы и петроглифы. Регион идеален для рафтинга, альпинизма, рыбалки и экологического туризма.",
-      "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800",
-      "latitude": 49.1500,
-      "longitude": 86.8500,
+      "image": "https://upload.wikimedia.org/wikipedia/commons/8/87/A_Kazakh_man_in_Altai_Mountains%2C_Mongolia_2014.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "latitude": 49.15,
+      "longitude": 86.85,
       "city": "Усть-Каменогорск",
       "region": "east",
       "category": "Природа",
@@ -647,7 +728,16 @@
       "bestSeason": [
         "summer"
       ],
-      "difficultyLevel": "hard"
+      "difficultyLevel": "hard",
+      "imageOriginal": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800",
+      "imageThumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/A_Kazakh_man_in_Altai_Mountains%2C_Mongolia_2014.jpg/1280px-A_Kazakh_man_in_Altai_Mountains%2C_Mongolia_2014.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "imageAttribution": {
+        "source": "commons.wikimedia.org",
+        "title": "File:A Kazakh man in Altai Mountains, Mongolia 2014.jpg",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:A_Kazakh_man_in_Altai_Mountains,_Mongolia_2014.jpg",
+        "license": "CC BY-SA 2.0",
+        "artist": "Ceyhun Kavakci"
+      }
     },
     {
       "id": 13,
@@ -656,9 +746,9 @@
       "description": "Живописный национальный парк с озёрами и скалами в Павлодарской области.",
       "descriptionEn": "Scenic national park with lakes and rocks in Pavlodar region.",
       "longDescription": "Баянаульский национальный парк — первый национальный парк Казахстана. Гранитные скалы причудливых форм, чистые озёра Жасыбай, Сабындыколь и Торайгыр, сосновые леса создают уникальный микроклимат. Парк популярен для семейного отдыха и активного туризма.",
-      "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/5/5e/%D0%A1%D0%B5%D0%BB%D0%BE_%D0%91%D0%B0%D1%8F%D0%BD%D0%B0%D1%83%D0%BB.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
       "latitude": 50.8167,
-      "longitude": 75.7000,
+      "longitude": 75.7,
       "city": "Павлодар",
       "region": "north",
       "category": "Природа",
@@ -684,7 +774,16 @@
         "summer",
         "autumn"
       ],
-      "difficultyLevel": "easy"
+      "difficultyLevel": "easy",
+      "imageOriginal": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800",
+      "imageThumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/%D0%A1%D0%B5%D0%BB%D0%BE_%D0%91%D0%B0%D1%8F%D0%BD%D0%B0%D1%83%D0%BB.jpg/1280px-%D0%A1%D0%B5%D0%BB%D0%BE_%D0%91%D0%B0%D1%8F%D0%BD%D0%B0%D1%83%D0%BB.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "imageAttribution": {
+        "source": "commons.wikimedia.org",
+        "title": "File:Село Баянаул.jpg",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:%D0%A1%D0%B5%D0%BB%D0%BE_%D0%91%D0%B0%D1%8F%D0%BD%D0%B0%D1%83%D0%BB.jpg",
+        "license": "CC BY-SA 4.0",
+        "artist": "Coopypasted"
+      }
     },
     {
       "id": 14,
@@ -693,7 +792,7 @@
       "description": "Солёное озеро с целебной водой на востоке Казахстана. Популярный пляжный курорт.",
       "descriptionEn": "Salt lake with healing water in eastern Kazakhstan. Popular beach resort.",
       "longDescription": "Алаколь — второе по величине солёное озеро Казахстана после Балхаша. Вода озера богата минералами и считается целебной. Чёрный песок пляжей также обладает лечебными свойствами. Озеро популярно для пляжного отдыха с июня по сентябрь.",
-      "image": "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/%D0%9E%D0%B7._%D0%90%D0%BB%D0%B0%D0%BA%D0%BE%D0%BB%D1%8C.jpg/3840px-%D0%9E%D0%B7._%D0%90%D0%BB%D0%B0%D0%BA%D0%BE%D0%BB%D1%8C.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "latitude": 46.1667,
       "longitude": 81.7167,
       "city": "Алматинская область",
@@ -720,7 +819,14 @@
       "bestSeason": [
         "summer"
       ],
-      "difficultyLevel": "easy"
+      "difficultyLevel": "easy",
+      "imageOriginal": "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800",
+      "imageThumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/%D0%9E%D0%B7._%D0%90%D0%BB%D0%B0%D0%BA%D0%BE%D0%BB%D1%8C.jpg/330px-%D0%9E%D0%B7._%D0%90%D0%BB%D0%B0%D0%BA%D0%BE%D0%BB%D1%8C.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "imageAttribution": {
+        "source": "en.wikipedia.org",
+        "title": "Lake Alakol",
+        "sourceUrl": "https://en.wikipedia.org/wiki/Lake_Alakol"
+      }
     },
     {
       "id": 15,
@@ -729,9 +835,9 @@
       "description": "Уникальное озеро, наполовину пресное, наполовину солёное. Рай для рыбаков.",
       "descriptionEn": "Unique lake, half fresh, half salt water. A paradise for fishermen.",
       "longDescription": "Балхаш — крупнейшее озеро Казахстана и 15-е в мире. Уникальность в том, что западная часть пресная, восточная — солёная. Озеро славится рыбалкой: здесь ловят сазана, судака, сома. Окрестности озера богаты птицами и дикой природой.",
-      "image": "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800",
-      "latitude": 46.5500,
-      "longitude": 75.0000,
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/STS039-085-00E_Lake_Balkhash%2C_Kazakhstan_April_1991.jpg/3840px-STS039-085-00E_Lake_Balkhash%2C_Kazakhstan_April_1991.jpg",
+      "latitude": 46.55,
+      "longitude": 75,
       "city": "Балхаш",
       "region": "central",
       "category": "Озёра",
@@ -755,7 +861,14 @@
         "summer",
         "autumn"
       ],
-      "difficultyLevel": "easy"
+      "difficultyLevel": "easy",
+      "imageOriginal": "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800",
+      "imageThumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/STS039-085-00E_Lake_Balkhash%2C_Kazakhstan_April_1991.jpg/330px-STS039-085-00E_Lake_Balkhash%2C_Kazakhstan_April_1991.jpg",
+      "imageAttribution": {
+        "source": "en.wikipedia.org",
+        "title": "Lake Balkhash",
+        "sourceUrl": "https://en.wikipedia.org/wiki/Lake_Balkhash"
+      }
     },
     {
       "id": 16,
@@ -764,7 +877,7 @@
       "description": "Курортный посёлок в Акмолинской области с озёрами и горами.",
       "descriptionEn": "Resort village in Akmola region with lakes and mountains.",
       "longDescription": "Зеренда — живописный курортный посёлок недалеко от Кокшетау. Известен озером Зеренда, скалой Смольная Сопка и природным памятником 'Гигантский гриб'. По легенде, если загадать желание у Гриба, оно сбудется. Место популярно для однодневных экскурсий из Астаны.",
-      "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Zerenda_June_01.jpg/3840px-Zerenda_June_01.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "latitude": 52.9333,
       "longitude": 69.1333,
       "city": "Кокшетау",
@@ -792,7 +905,14 @@
         "summer",
         "autumn"
       ],
-      "difficultyLevel": "easy"
+      "difficultyLevel": "easy",
+      "imageOriginal": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800",
+      "imageThumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Zerenda_June_01.jpg/330px-Zerenda_June_01.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "imageAttribution": {
+        "source": "en.wikipedia.org",
+        "title": "Zerendi (lake)",
+        "sourceUrl": "https://en.wikipedia.org/wiki/Zerendi_(lake)"
+      }
     },
     {
       "id": 17,
@@ -801,7 +921,7 @@
       "description": "Столица Казахстана с футуристической архитектурой и современными достопримечательностями.",
       "descriptionEn": "Capital of Kazakhstan with futuristic architecture and modern attractions.",
       "longDescription": "Астана — молодая столица Казахстана с уникальной современной архитектурой. Здесь находятся знаменитый Байтерек, мечеть Хазрет Султан, развлекательный центр Хан Шатыр, Национальный музей и океанариум 'Думан'. Город впечатляет масштабом и амбициями.",
-      "image": "https://images.unsplash.com/photo-1514565131-fce0801e5785?w=800",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Astana_DSC04362_%287711355642%29.jpg/3840px-Astana_DSC04362_%287711355642%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "latitude": 51.1694,
       "longitude": 71.4491,
       "city": "Астана",
@@ -832,7 +952,14 @@
         "autumn",
         "winter"
       ],
-      "difficultyLevel": "easy"
+      "difficultyLevel": "easy",
+      "imageOriginal": "https://images.unsplash.com/photo-1514565131-fce0801e5785?w=800",
+      "imageThumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Astana_DSC04362_%287711355642%29.jpg/330px-Astana_DSC04362_%287711355642%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "imageAttribution": {
+        "source": "en.wikipedia.org",
+        "title": "Astana",
+        "sourceUrl": "https://en.wikipedia.org/wiki/Astana"
+      }
     },
     {
       "id": 18,
@@ -841,9 +968,9 @@
       "description": "Город с розовым озером Кобейтуз и древними археологическими памятниками.",
       "descriptionEn": "City with the pink Kobeytuz Lake and ancient archaeological sites.",
       "longDescription": "Ерейментау — город в Акмолинской области, известный розовым озером Кобейтуз, цвет которого меняется в зависимости от сезона. Рядом находятся 'Каменные ворота', живописные скалы и археологический комплекс Кумай с тюркскими изваяниями VI-VIII веков.",
-      "image": "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/%D0%96%D0%B5%D0%BB%D0%B5%D0%B7%D0%BD%D0%BE%D0%B4%D0%BE%D1%80%D0%BE%D0%B6%D0%BD%D0%B0%D1%8F_%D1%81%D1%82%D0%B0%D0%BD%D1%86%D0%B8%D1%8F_%D0%95%D1%80%D0%B5%D0%B9%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D1%83_2023-07.jpg/3840px-%D0%96%D0%B5%D0%BB%D0%B5%D0%B7%D0%BD%D0%BE%D0%B4%D0%BE%D1%80%D0%BE%D0%B6%D0%BD%D0%B0%D1%8F_%D1%81%D1%82%D0%B0%D0%BD%D1%86%D0%B8%D1%8F_%D0%95%D1%80%D0%B5%D0%B9%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D1%83_2023-07.jpg",
       "latitude": 51.6333,
-      "longitude": 73.1000,
+      "longitude": 73.1,
       "city": "Ерейментау",
       "region": "central",
       "category": "Природа",
@@ -870,7 +997,14 @@
         "summer",
         "autumn"
       ],
-      "difficultyLevel": "easy"
+      "difficultyLevel": "easy",
+      "imageOriginal": "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800",
+      "imageThumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/%D0%96%D0%B5%D0%BB%D0%B5%D0%B7%D0%BD%D0%BE%D0%B4%D0%BE%D1%80%D0%BE%D0%B6%D0%BD%D0%B0%D1%8F_%D1%81%D1%82%D0%B0%D0%BD%D1%86%D0%B8%D1%8F_%D0%95%D1%80%D0%B5%D0%B9%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D1%83_2023-07.jpg/330px-%D0%96%D0%B5%D0%BB%D0%B5%D0%B7%D0%BD%D0%BE%D0%B4%D0%BE%D1%80%D0%BE%D0%B6%D0%BD%D0%B0%D1%8F_%D1%81%D1%82%D0%B0%D0%BD%D1%86%D0%B8%D1%8F_%D0%95%D1%80%D0%B5%D0%B9%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D1%83_2023-07.jpg",
+      "imageAttribution": {
+        "source": "ru.wikipedia.org",
+        "title": "Ерейментау",
+        "sourceUrl": "https://ru.wikipedia.org/wiki/%D0%95%D1%80%D0%B5%D0%B9%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D1%83"
+      }
     },
     {
       "id": 19,
@@ -879,7 +1013,7 @@
       "description": "Город на севере Казахстана с богатой историей и музеями.",
       "descriptionEn": "City in northern Kazakhstan with rich history and museums.",
       "longDescription": "Костанай — административный центр Костанайской области. Город известен музеем И. Алтынсарина — просветителя казахского народа, музеем игрушек, часовой башней и живописной набережной реки Тобол. Идеальное место для изучения истории региона.",
-      "image": "https://images.unsplash.com/photo-1514565131-fce0801e5785?w=800",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/c/cf/%D0%90%D0%BA%D0%B8%D0%BC%D0%B0%D1%82_%D0%9A%D0%BE%D1%81%D1%82%D0%B0%D0%BD%D0%B0%D0%B9.jpg",
       "latitude": 53.2144,
       "longitude": 63.6246,
       "city": "Костанай",
@@ -908,7 +1042,14 @@
         "summer",
         "autumn"
       ],
-      "difficultyLevel": "easy"
+      "difficultyLevel": "easy",
+      "imageOriginal": "https://images.unsplash.com/photo-1514565131-fce0801e5785?w=800",
+      "imageThumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/%D0%90%D0%BA%D0%B8%D0%BC%D0%B0%D1%82_%D0%9A%D0%BE%D1%81%D1%82%D0%B0%D0%BD%D0%B0%D0%B9.jpg/330px-%D0%90%D0%BA%D0%B8%D0%BC%D0%B0%D1%82_%D0%9A%D0%BE%D1%81%D1%82%D0%B0%D0%BD%D0%B0%D0%B9.jpg",
+      "imageAttribution": {
+        "source": "en.wikipedia.org",
+        "title": "Kostanay",
+        "sourceUrl": "https://en.wikipedia.org/wiki/Kostanay"
+      }
     },
     {
       "id": 20,
@@ -917,9 +1058,9 @@
       "description": "Северный город с аквапарком 'Нептун' и богатым культурным наследием.",
       "descriptionEn": "Northern city with 'Neptune' water park and rich cultural heritage.",
       "longDescription": "Петропавловск — город на севере Казахстана у границы с Россией. Известен Собором Петра и Павла, краеведческим музеем, картинной галереей и современным аквапарком 'Нептун'. Набережная реки Ишим — популярное место для прогулок.",
-      "image": "https://images.unsplash.com/photo-1514565131-fce0801e5785?w=800",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/%D0%A1%D1%82%D0%B5%D0%BB%D0%B0_%C2%AB%D0%A1%D0%B5%D0%B2%D0%B5%D1%80%D0%BD%D0%B0%D1%8F_%D0%B7%D0%B2%D0%B5%D0%B7%D0%B4%D0%B0%C2%BB.jpg/3840px-%D0%A1%D1%82%D0%B5%D0%BB%D0%B0_%C2%AB%D0%A1%D0%B5%D0%B2%D0%B5%D1%80%D0%BD%D0%B0%D1%8F_%D0%B7%D0%B2%D0%B5%D0%B7%D0%B4%D0%B0%C2%BB.jpg",
       "latitude": 54.8667,
-      "longitude": 69.1500,
+      "longitude": 69.15,
       "city": "Петропавловск",
       "region": "north",
       "category": "Город",
@@ -944,7 +1085,14 @@
       "bestSeason": [
         "summer"
       ],
-      "difficultyLevel": "easy"
+      "difficultyLevel": "easy",
+      "imageOriginal": "https://images.unsplash.com/photo-1514565131-fce0801e5785?w=800",
+      "imageThumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/%D0%A1%D1%82%D0%B5%D0%BB%D0%B0_%C2%AB%D0%A1%D0%B5%D0%B2%D0%B5%D1%80%D0%BD%D0%B0%D1%8F_%D0%B7%D0%B2%D0%B5%D0%B7%D0%B4%D0%B0%C2%BB.jpg/330px-%D0%A1%D1%82%D0%B5%D0%BB%D0%B0_%C2%AB%D0%A1%D0%B5%D0%B2%D0%B5%D1%80%D0%BD%D0%B0%D1%8F_%D0%B7%D0%B2%D0%B5%D0%B7%D0%B4%D0%B0%C2%BB.jpg",
+      "imageAttribution": {
+        "source": "ru.wikipedia.org",
+        "title": "Петропавловск",
+        "sourceUrl": "https://ru.wikipedia.org/wiki/%D0%9F%D0%B5%D1%82%D1%80%D0%BE%D0%BF%D0%B0%D0%B2%D0%BB%D0%BE%D0%B2%D1%81%D0%BA"
+      }
     },
     {
       "id": 21,
@@ -954,8 +1102,8 @@
       "descriptionEn": "Picturesque waterfall in Akmola region with Aidakhar cave.",
       "longDescription": "Улгулинский водопад (Ермаковский водопад) — красивый каскадный водопад в Улгулинском каньоне. Рядом находится загадочная пещера Айдахар и древние курганы бронзового века в сёлах Кенотекель и Карсак. Идеальное место для однодневного похода.",
       "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800",
-      "latitude": 52.5000,
-      "longitude": 69.5000,
+      "latitude": 52.5,
+      "longitude": 69.5,
       "city": "Акмолинская область",
       "region": "north",
       "category": "Природа",
@@ -989,9 +1137,9 @@
       "description": "Родовое имение бабушки Шокана Уалиханова — Айганым.",
       "descriptionEn": "Ancestral estate of Shokan Ualikhanov's grandmother - Aiganym.",
       "longDescription": "Сырымбет — историческое место в Северо-Казахстанской области, связанное с именем великого учёного Шокана Уалиханова. Здесь находится усадьба его бабушки Айганым, историко-этнографический музей. Посетителей угощают чаем из настоящего самовара.",
-      "image": "https://images.unsplash.com/photo-1539650116574-75c0c6d73a6e?w=800",
-      "latitude": 53.5000,
-      "longitude": 66.5000,
+      "image": "https://upload.wikimedia.org/wikipedia/commons/b/bb/Syrymbet_from_SW.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "latitude": 53.5,
+      "longitude": 66.5,
       "city": "Северо-Казахстанская область",
       "region": "north",
       "category": "История",
@@ -1018,7 +1166,16 @@
         "summer",
         "autumn"
       ],
-      "difficultyLevel": "easy"
+      "difficultyLevel": "easy",
+      "imageOriginal": "https://images.unsplash.com/photo-1539650116574-75c0c6d73a6e?w=800",
+      "imageThumb": "https://upload.wikimedia.org/wikipedia/commons/b/bb/Syrymbet_from_SW.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "imageAttribution": {
+        "source": "commons.wikimedia.org",
+        "title": "File:Syrymbet from SW.jpg",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Syrymbet_from_SW.jpg",
+        "license": "CC BY 3.0",
+        "artist": "Sergoman"
+      }
     },
     {
       "id": 23,

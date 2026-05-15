@@ -5,34 +5,38 @@ import Constants from 'expo-constants';
 import { navigationRef } from '../utils/navigationRef';
 
 // Derive API base URL similar to communityApi so physical devices resolve the host correctly
+function withApiPath(baseUrl) {
+  return `${baseUrl.replace(/\/+$/, '')}/api`;
+}
+
 function getApiBaseUrl() {
-  // Check embedded config in app.json first (for EAS builds)
-  const embeddedApiUrl = Constants.expoConfig?.extra?.apiUrl;
-  if (embeddedApiUrl) {
-    return `${embeddedApiUrl}/api`;
-  }
-
-  // Environment variable (for local development)
+  // Environment variable should win in local development and CI.
   if (process.env.EXPO_PUBLIC_API_URL) {
-    return `${process.env.EXPO_PUBLIC_API_URL}/api`;
+    return withApiPath(process.env.EXPO_PUBLIC_API_URL);
   }
 
-  // Infer from Expo bundler host (covers physical devices on LAN)
-  const hostUri =
-    Constants.expoConfig?.hostUri ||
-    Constants.expoGoConfig?.hostUri ||
-    Constants.manifest?.debuggerHost;
-
-  if (hostUri) {
-    const hostname = hostUri.split(':')[0];
-    return `http://${hostname}:3001/api`;
-  }
-
-  // Emulator/simulator fallbacks
+  // In Expo development, app.json extra.apiUrl may point at production for APK
+  // builds. Prefer the running local backend so OAuth can be verified locally.
   if (__DEV__) {
+    const hostUri =
+      Constants.expoConfig?.hostUri ||
+      Constants.expoGoConfig?.hostUri ||
+      Constants.manifest?.debuggerHost;
+
+    if (hostUri) {
+      const hostname = hostUri.split(':')[0];
+      return withApiPath(`http://${hostname}:3001`);
+    }
+
     return Platform.OS === 'android'
       ? 'http://10.0.2.2:3001/api'
       : 'http://localhost:3001/api';
+  }
+
+  // Check embedded config in app.json for production/EAS builds.
+  const embeddedApiUrl = Constants.expoConfig?.extra?.apiUrl;
+  if (embeddedApiUrl) {
+    return withApiPath(embeddedApiUrl);
   }
 
   // Production API
@@ -43,6 +47,17 @@ const API_URL = getApiBaseUrl();
 console.log('Auth API Base URL:', API_URL);
 
 const AuthContext = createContext(undefined);
+
+async function readResponseJson(response) {
+  const text = await response.text();
+  if (!text) return null;
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
 
 // Token storage keys
 const TOKEN_KEY = 'nomadway_access_token';
@@ -230,6 +245,46 @@ export function AuthProvider({ children }) {
         navigationRef.navigate('Home', { screen: 'Profile' });
       }
 
+      return { success: true, user: data.user };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  };
+
+  // Persist tokens + user and flip the auth state. Shared helper for every
+  // sign-in path (email, Google, future Apple, etc.).
+  const persistSession = async ({ accessToken: at, refreshToken: rt, user: u }) => {
+    await Promise.all([
+      storage.setItem(TOKEN_KEY, at),
+      storage.setItem(REFRESH_TOKEN_KEY, rt),
+      storage.setItem(USER_KEY, JSON.stringify(u)),
+    ]);
+    setAccessToken(at);
+    setRefreshToken(rt);
+    setUser(u);
+    setIsAuthenticated(true);
+    if (navigationRef.isReady()) {
+      navigationRef.navigate('Home', { screen: 'Profile' });
+    }
+  };
+
+  // Exchange a Google ID token for our own JWTs. The token is obtained by
+  // expo-auth-session in AuthScreen; this function is provider-agnostic so
+  // future providers (Apple, etc.) can follow the same shape.
+  const loginWithGoogle = async (idToken) => {
+    try {
+      if (!idToken) throw new Error('No Google ID token returned');
+      const response = await fetch(`${API_URL}/auth/google`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken }),
+      });
+      const data = await readResponseJson(response);
+      if (!response.ok) {
+        const msg = data?.error?.message || data?.error || `Google sign-in failed (${response.status})`;
+        throw new Error(msg);
+      }
+      await persistSession(data);
       return { success: true, user: data.user };
     } catch (error) {
       return { success: false, error: error.message };
@@ -460,6 +515,7 @@ export function AuthProvider({ children }) {
     isAdmin: user?.role === 'ADMIN',
     register,
     login,
+    loginWithGoogle,
     logout,
     updateProfile,
     forgotPassword,

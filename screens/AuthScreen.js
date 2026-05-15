@@ -15,16 +15,83 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import Constants from 'expo-constants';
+import * as Google from 'expo-auth-session/providers/google';
+import * as WebBrowser from 'expo-web-browser';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLocalization } from '../contexts/LocalizationContext';
 
+// Required so the OAuth redirect closes the in-app browser on return.
+WebBrowser.maybeCompleteAuthSession();
+
+const GOOGLE_CLIENT_ID_WEB = Constants.expoConfig?.extra?.googleClientIdWeb || undefined;
+const GOOGLE_CLIENT_ID_ANDROID = Constants.expoConfig?.extra?.googleClientIdAndroid || undefined;
+const GOOGLE_CLIENT_ID_IOS = Constants.expoConfig?.extra?.googleClientIdIos || undefined;
+const GOOGLE_ENABLED = !!(GOOGLE_CLIENT_ID_WEB || GOOGLE_CLIENT_ID_ANDROID || GOOGLE_CLIENT_ID_IOS);
+
 const { width, height } = Dimensions.get('window');
 
 export default function AuthScreen({ navigation }) {
-    const { login, register, forgotPassword, isLoading } = useAuth();
+    const { login, register, forgotPassword, loginWithGoogle, isLoading } = useAuth();
     const { theme } = useTheme();
     const { t, isRussian } = useLocalization();
+
+    // expo-auth-session Google hook — returns the request + the response when
+    // the user finishes the OAuth flow.
+    const [googleRequest, googleResponse, promptGoogle] = Google.useIdTokenAuthRequest({
+        webClientId: GOOGLE_CLIENT_ID_WEB,
+        androidClientId: GOOGLE_CLIENT_ID_ANDROID,
+        iosClientId: GOOGLE_CLIENT_ID_IOS,
+    });
+    const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
+
+    useEffect(() => {
+        if (googleResponse?.type === 'success') {
+            const idToken =
+                googleResponse.params?.id_token ||
+                googleResponse.authentication?.idToken;
+            if (!idToken) {
+                setIsGoogleSubmitting(false);
+                Alert.alert(
+                    isRussian ? 'Ошибка' : 'Error',
+                    isRussian ? 'Google не вернул токен' : 'Google did not return an ID token'
+                );
+                return;
+            }
+            (async () => {
+                const result = await loginWithGoogle(idToken);
+                setIsGoogleSubmitting(false);
+                if (!result.success) {
+                    Alert.alert(isRussian ? 'Ошибка' : 'Error', result.error);
+                }
+            })();
+        } else if (googleResponse?.type === 'error') {
+            setIsGoogleSubmitting(false);
+            Alert.alert(
+                isRussian ? 'Ошибка' : 'Error',
+                googleResponse.error?.message ||
+                    (isRussian ? 'Не удалось войти через Google' : 'Google sign-in failed')
+            );
+        } else if (googleResponse?.type === 'cancel' || googleResponse?.type === 'dismiss') {
+            setIsGoogleSubmitting(false);
+        }
+    }, [googleResponse]);
+
+    const handleGoogleSignIn = async () => {
+        if (!GOOGLE_ENABLED) {
+            Alert.alert(
+                isRussian ? 'Скоро' : 'Coming soon',
+                isRussian
+                    ? 'Google вход ещё не настроен на этом устройстве.'
+                    : 'Google sign-in is not configured yet on this build.'
+            );
+            return;
+        }
+        if (!googleRequest) return;
+        setIsGoogleSubmitting(true);
+        await promptGoogle();
+    };
     
     const [mode, setMode] = useState('login'); // login, register, forgot
     const [email, setEmail] = useState('');
@@ -390,15 +457,31 @@ export default function AuthScreen({ navigation }) {
                                     </View>
 
                                     <View style={styles.socialButtons}>
-                                        <TouchableOpacity 
-                                            style={styles.socialButton}
-                                            onPress={() => Alert.alert('Coming Soon', 'Google login will be available soon!')}
+                                        <TouchableOpacity
+                                            style={[
+                                                styles.socialButton,
+                                                isGoogleSubmitting && styles.socialButtonBusy,
+                                            ]}
+                                            onPress={handleGoogleSignIn}
+                                            disabled={isGoogleSubmitting || (GOOGLE_ENABLED && !googleRequest)}
+                                            activeOpacity={0.85}
                                         >
-                                            <Ionicons name="logo-google" size={24} color="#DB4437" />
+                                            {isGoogleSubmitting ? (
+                                                <Animated.View style={{ transform: [{ rotate: spin }] }}>
+                                                    <Ionicons name="sync" size={20} color="#DB4437" />
+                                                </Animated.View>
+                                            ) : (
+                                                <Ionicons name="logo-google" size={24} color="#DB4437" />
+                                            )}
                                         </TouchableOpacity>
-                                        <TouchableOpacity 
+                                        <TouchableOpacity
                                             style={styles.socialButton}
-                                            onPress={() => Alert.alert('Coming Soon', 'Apple login will be available soon!')}
+                                            onPress={() => Alert.alert(
+                                                isRussian ? 'Скоро' : 'Coming soon',
+                                                isRussian
+                                                    ? 'Apple вход появится позже.'
+                                                    : 'Apple sign-in is coming later.'
+                                            )}
                                         >
                                             <Ionicons name="logo-apple" size={24} color="#000" />
                                         </TouchableOpacity>
@@ -626,6 +709,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         borderWidth: 1,
         borderColor: '#eee',
+    },
+    socialButtonBusy: {
+        opacity: 0.7,
     },
     // Mode Switch
     switchContainer: {

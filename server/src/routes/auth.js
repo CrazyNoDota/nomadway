@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
+const { OAuth2Client } = require('google-auth-library');
 const prisma = require('../config/database');
+const config = require('../config');
 const {
   hashPassword,
   comparePassword,
@@ -16,6 +18,10 @@ const {
 const { authenticate } = require('../middleware/auth');
 const { validate, registerSchema, loginSchema, refreshTokenSchema, forgotPasswordSchema, resetPasswordSchema, updateProfileSchema } = require('../middleware/validation');
 const { sendWelcomeEmail, sendPasswordResetEmail, sendVerificationEmail } = require('../services/emailService');
+
+// Lazily-constructed Google OAuth client. Only the audiences matter for ID-token
+// verification — we never use it to exchange auth codes server-side.
+const googleClient = new OAuth2Client();
 
 /**
  * POST /api/auth/register
@@ -166,6 +172,124 @@ router.post('/login', validate(loginSchema), async (req, res) => {
         code: 'LOGIN_FAILED',
         message: 'Login failed',
       },
+    });
+  }
+});
+
+/**
+ * POST /api/auth/google
+ * Sign in with a Google ID token obtained from the client (expo-auth-session).
+ * Body: { idToken: string }
+ */
+router.post('/google', async (req, res) => {
+  try {
+    const { idToken } = req.body;
+    if (!idToken || typeof idToken !== 'string') {
+      return res.status(400).json({
+        error: { code: 'MISSING_TOKEN', message: 'idToken is required' },
+      });
+    }
+    if (!config.google.audiences.length) {
+      return res.status(500).json({
+        error: {
+          code: 'OAUTH_NOT_CONFIGURED',
+          message: 'Server is missing GOOGLE_CLIENT_ID_* environment variables',
+        },
+      });
+    }
+
+    // Verify the ID token. Throws if the signature, audience, or expiry is wrong.
+    let payload;
+    try {
+      const ticket = await googleClient.verifyIdToken({
+        idToken,
+        audience: config.google.audiences,
+      });
+      payload = ticket.getPayload();
+    } catch (err) {
+      console.warn('Google token verify failed:', err.message);
+      return res.status(401).json({
+        error: { code: 'INVALID_GOOGLE_TOKEN', message: 'Could not verify Google token' },
+      });
+    }
+
+    const googleId = payload.sub;
+    const email = payload.email?.toLowerCase();
+    const emailVerified = !!payload.email_verified;
+    const fullName = payload.name || null;
+    const givenName = payload.given_name || null;
+    const picture = payload.picture || null;
+
+    if (!email || !emailVerified) {
+      return res.status(401).json({
+        error: {
+          code: 'EMAIL_NOT_VERIFIED',
+          message: 'Google account email is not verified',
+        },
+      });
+    }
+
+    // Find by googleId first, then fall back to email (link existing account).
+    let user = await prisma.user.findUnique({ where: { googleId } });
+    if (!user) {
+      const existingByEmail = await prisma.user.findUnique({ where: { email } });
+      if (existingByEmail) {
+        user = await prisma.user.update({
+          where: { id: existingByEmail.id },
+          data: {
+            googleId,
+            authProvider: existingByEmail.authProvider === 'email' ? 'email' : 'google',
+            emailVerified: true,
+            avatarUrl: existingByEmail.avatarUrl || picture,
+          },
+        });
+      } else {
+        user = await prisma.user.create({
+          data: {
+            email,
+            googleId,
+            authProvider: 'google',
+            emailVerified: true,
+            fullName,
+            displayName: givenName || fullName?.split(' ')[0] || email.split('@')[0],
+            avatarUrl: picture,
+          },
+        });
+        // Async — don't await
+        sendWelcomeEmail(user);
+      }
+    }
+
+    if (!user.isActive || user.isDeleted) {
+      return res.status(401).json({
+        error: { code: 'ACCOUNT_DISABLED', message: 'This account has been disabled' },
+      });
+    }
+
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
+    await storeRefreshToken(user.id, refreshToken);
+
+    res.json({
+      message: 'Google sign-in successful',
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        fullName: user.fullName,
+        displayName: user.displayName,
+        avatarUrl: user.avatarUrl,
+        points: user.points,
+        emailVerified: user.emailVerified,
+        authProvider: user.authProvider,
+      },
+      accessToken,
+      refreshToken,
+    });
+  } catch (error) {
+    console.error('Google sign-in error:', error);
+    res.status(500).json({
+      error: { code: 'OAUTH_FAILED', message: 'Google sign-in failed' },
     });
   }
 });

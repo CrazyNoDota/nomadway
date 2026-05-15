@@ -20,6 +20,7 @@ RUN npx prisma generate
 
 # Copy source code
 COPY src ./src/
+COPY data ./data/
 
 # Expose port
 EXPOSE 3001

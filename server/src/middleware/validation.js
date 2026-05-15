@@ -151,11 +151,13 @@ const reportSchema = z.object({
 
 // ================== ROUTE BUILDER SCHEMAS ==================
 
+// PostgreSQL INT4 ceiling — anything above this overflows Prisma Int columns.
+const INT4_MAX = 2147483647;
 const buildRouteSchema = z.object({
   duration: z.enum(['3_hours', '1_day', '3_days']),
   budget: z.object({
-    min: z.number().min(0),
-    max: z.number().min(0),
+    min: z.number().min(0).max(INT4_MAX),
+    max: z.number().min(0).max(INT4_MAX),
   }),
   interests: z.array(z.string()).min(1),
   activityLevel: z.enum(['easy', 'moderate', 'intense']),

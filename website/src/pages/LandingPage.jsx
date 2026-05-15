@@ -1,11 +1,11 @@
 import { motion } from 'framer-motion'
-import { 
-  MapPin, 
-  Download, 
-  Star, 
-  Users, 
-  Mountain, 
-  Compass, 
+import {
+  MapPin,
+  Download,
+  Star,
+  Users,
+  Mountain,
+  Compass,
   ChevronDown,
   Smartphone,
   Shield,
@@ -14,7 +14,14 @@ import {
   Heart,
   Eye,
   TrendingUp,
-  Activity
+  Activity,
+  BrainCircuit,
+  Database,
+  Search,
+  Sparkles,
+  FileText,
+  BadgeCheck,
+  ArrowRight,
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { 
@@ -27,6 +34,7 @@ import {
   ResponsiveContainer 
 } from 'recharts'
 import { trackDownload, trackVisit, getPublicStats } from '../utils/analytics'
+import AttractionsMap from '../components/AttractionsMap'
 
 // Animation variants
 const fadeInUp = {
@@ -159,8 +167,10 @@ export default function LandingPage() {
             className="hidden md:flex items-center gap-8"
           >
             <a href="#features" className="text-dark-300 hover:text-white transition-colors">Features</a>
+            <a href="#ai" className="text-dark-300 hover:text-white transition-colors">AI</a>
             <a href="#stats" className="text-dark-300 hover:text-white transition-colors">Live Stats</a>
             <a href="#destinations" className="text-dark-300 hover:text-white transition-colors">Destinations</a>
+            <a href="#map" className="text-dark-300 hover:text-white transition-colors">Map</a>
             <a href="#download" className="text-dark-300 hover:text-white transition-colors">Download</a>
           </motion.div>
         </div>
@@ -576,6 +586,177 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ================== RAG / AI Section ================== */}
+      <section id="ai" className="py-24 px-6 relative overflow-hidden">
+        {/* Background glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary-500/10 blur-3xl rounded-full pointer-events-none" />
+        <div className="absolute inset-0 pattern-dots opacity-20" />
+
+        <div className="max-w-7xl mx-auto relative">
+          {/* Heading */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card mb-6">
+              <Sparkles className="w-4 h-4 text-primary-400" />
+              <span className="text-sm text-dark-200">RAG-Powered Intelligence</span>
+            </div>
+            <h2 className="font-display text-4xl md:text-5xl font-bold mb-4">
+              Not Just AI.{' '}
+              <span className="text-gradient">Grounded AI.</span>
+            </h2>
+            <p className="text-lg text-dark-300 max-w-3xl mx-auto">
+              NomadWay runs a production <strong className="text-white">Retrieval-Augmented Generation</strong> system.
+              Every answer is grounded in our curated Kazakhstan travel corpus — no hallucinations,
+              no generic ChatGPT output, just verified data with citations.
+            </p>
+          </motion.div>
+
+          {/* Pipeline diagram */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="grid md:grid-cols-4 gap-4 mb-16 relative"
+          >
+            {[
+              {
+                icon: FileText,
+                title: 'Curated Corpus',
+                description: 'Official tourism documents, sacred-site registries, and seasonal programs — all vetted Kazakh travel sources.',
+                stat: '5 source docs',
+                gradient: 'from-amber-500 to-orange-600',
+              },
+              {
+                icon: Database,
+                title: 'Vector Index',
+                description: 'Documents are chunked and embedded into a high-dimensional semantic index for instant lookup.',
+                stat: '235 chunks · 2048-dim',
+                gradient: 'from-purple-500 to-pink-600',
+              },
+              {
+                icon: Search,
+                title: 'Semantic Retrieval',
+                description: 'Every query is embedded and matched against the corpus by cosine similarity — top-K passages win.',
+                stat: 'NVIDIA NIM embeddings',
+                gradient: 'from-blue-500 to-cyan-600',
+              },
+              {
+                icon: BrainCircuit,
+                title: 'Grounded LLM',
+                description: 'Retrieved context is injected into the prompt so the model answers from your data, not its training set.',
+                stat: 'minimax-m2.7',
+                gradient: 'from-primary-500 to-emerald-500',
+              },
+            ].map((step, idx) => (
+              <motion.div
+                key={step.title}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.15 + idx * 0.1 }}
+                className="glass-card p-6 relative group hover:bg-white/10 transition-all duration-300"
+              >
+                {/* Step number */}
+                <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-dark-900 border border-white/10 flex items-center justify-center text-xs font-mono text-dark-300">
+                  {idx + 1}
+                </div>
+                {/* Connector arrow on desktop */}
+                {idx < 3 && (
+                  <ArrowRight className="hidden md:block absolute top-1/2 -right-6 -translate-y-1/2 w-5 h-5 text-dark-500" />
+                )}
+                <div
+                  className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${step.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}
+                >
+                  <step.icon className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="font-display text-lg font-semibold mb-2">{step.title}</h3>
+                <p className="text-sm text-dark-300 mb-3 leading-relaxed">{step.description}</p>
+                <div className="text-xs font-mono text-primary-300/80">{step.stat}</div>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* Why this matters / benefits row */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.4 }}
+            className="grid md:grid-cols-3 gap-4 mb-12"
+          >
+            {[
+              {
+                icon: BadgeCheck,
+                title: 'Cited, Verifiable',
+                description: 'Every answer ships with the exact source documents it drew from. No "trust me, bro" AI.',
+              },
+              {
+                icon: Globe,
+                title: 'Multilingual by Design',
+                description: 'Russian, English, and Kazakh queries hit the same index — answers come back in the asker\'s language.',
+              },
+              {
+                icon: Zap,
+                title: 'Updatable in Minutes',
+                description: 'New tourism data? Drop a .docx, run one command, redeploy. The knowledge base is a living document.',
+              },
+            ].map((b, idx) => (
+              <motion.div
+                key={b.title}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.5 + idx * 0.1 }}
+                className="glass-card p-5 flex gap-4"
+              >
+                <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-primary-500/20 border border-primary-500/30 flex items-center justify-center">
+                  <b.icon className="w-5 h-5 text-primary-400" />
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-1">{b.title}</h4>
+                  <p className="text-sm text-dark-400">{b.description}</p>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* Sample Q&A demo */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.7 }}
+            className="glass-card p-6 md:p-8 max-w-4xl mx-auto"
+          >
+            <div className="flex items-center gap-2 mb-4 text-xs font-mono text-dark-400">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              LIVE · /api/chat
+            </div>
+            <div className="space-y-3">
+              <div className="bg-white/5 rounded-2xl px-4 py-3 ml-auto max-w-md">
+                <div className="text-xs text-dark-400 mb-1">You</div>
+                <div className="text-sm">Расскажи про Бурабай — что посмотреть?</div>
+              </div>
+              <div className="bg-gradient-to-br from-primary-500/10 to-emerald-500/10 border border-primary-500/20 rounded-2xl px-4 py-3 max-w-2xl">
+                <div className="text-xs text-primary-300 mb-1 flex items-center gap-2">
+                  <BrainCircuit className="w-3 h-3" /> NomadWay AI · retrieved 8 passages
+                </div>
+                <div className="text-sm text-dark-200 leading-relaxed">
+                  Бурабай — жемчужина Акмолинской области, &laquo;Казахстанская Швейцария&raquo;.
+                  В 2025 году на курорте построены 8 смотровых площадок (Болектау, Туфелька,
+                  Долина любви, Аю-тас...) <span className="text-primary-300 text-xs">[Источник: ПРО БУРАБАЙ.docx]</span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Destinations Section */}
       <section id="destinations" className="py-24 px-6 relative overflow-hidden">
         <div className="absolute inset-0 pattern-grid opacity-20" />
@@ -597,14 +778,62 @@ export default function LandingPage() {
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { name: 'Charyn Canyon', region: 'Almaty', emoji: '🏜️', rating: 4.9 },
-              { name: 'Kolsai Lakes', region: 'Almaty', emoji: '🏔️', rating: 4.8 },
-              { name: 'Borovoe', region: 'Akmola', emoji: '🌲', rating: 4.7 },
-              { name: 'Mangystau', region: 'Mangystau', emoji: '🪨', rating: 4.9 },
-              { name: 'Turkestan', region: 'Turkestan', emoji: '🕌', rating: 4.8 },
-              { name: 'Almaty', region: 'Almaty', emoji: '🏙️', rating: 4.6 },
-              { name: 'Khan Tengri', region: 'Almaty', emoji: '⛰️', rating: 4.9 },
-              { name: 'Alakol Lake', region: 'Almaty', emoji: '🌊', rating: 4.5 },
+              {
+                name: 'Charyn Canyon',
+                region: 'Almaty',
+                rating: 4.9,
+                image:
+                  'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Charyn_Canyon%2C_Kazakhstan_03.jpg/640px-Charyn_Canyon%2C_Kazakhstan_03.jpg',
+              },
+              {
+                name: 'Kolsai Lakes',
+                region: 'Almaty',
+                rating: 4.8,
+                image:
+                  'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Kolsay_Lake_-_panoramio.jpg/640px-Kolsay_Lake_-_panoramio.jpg',
+              },
+              {
+                name: 'Borovoe',
+                region: 'Akmola',
+                rating: 4.7,
+                image:
+                  'https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Burabay_lake.jpg/640px-Burabay_lake.jpg',
+              },
+              {
+                name: 'Mangystau',
+                region: 'Mangystau',
+                rating: 4.9,
+                image:
+                  'https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Bozzhyra_tract%2C_Mangystau_Region%2C_Kazakhstan.jpg/640px-Bozzhyra_tract%2C_Mangystau_Region%2C_Kazakhstan.jpg',
+              },
+              {
+                name: 'Turkestan',
+                region: 'Turkestan',
+                rating: 4.8,
+                image:
+                  'https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Mausoleum_of_Khoja_Ahmed_Yasawi-2.jpg/640px-Mausoleum_of_Khoja_Ahmed_Yasawi-2.jpg',
+              },
+              {
+                name: 'Almaty',
+                region: 'Almaty',
+                rating: 4.6,
+                image:
+                  'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Almaty_View_Kok-Tobe.jpg/640px-Almaty_View_Kok-Tobe.jpg',
+              },
+              {
+                name: 'Khan Tengri',
+                region: 'Almaty',
+                rating: 4.9,
+                image:
+                  'https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Khan_Tengri_2007.jpg/640px-Khan_Tengri_2007.jpg',
+              },
+              {
+                name: 'Alakol Lake',
+                region: 'Almaty',
+                rating: 4.5,
+                image:
+                  'https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Alakol_lake.jpg/640px-Alakol_lake.jpg',
+              },
             ].map((destination, index) => (
               <motion.div
                 key={destination.name}
@@ -612,22 +841,33 @@ export default function LandingPage() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.05 }}
-                className="glass-card p-5 hover:bg-white/10 transition-all duration-300 cursor-pointer group"
+                className="glass-card overflow-hidden hover:bg-white/10 transition-all duration-300 cursor-pointer group"
               >
-                <div className="text-4xl mb-3 group-hover:scale-125 transition-transform duration-300 inline-block">
-                  {destination.emoji}
+                <div className="relative h-40 overflow-hidden">
+                  <img
+                    src={destination.image}
+                    alt={destination.name}
+                    loading="lazy"
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-dark-900 via-dark-900/30 to-transparent" />
                 </div>
-                <h3 className="font-semibold text-lg mb-1">{destination.name}</h3>
-                <p className="text-sm text-dark-400 mb-2">{destination.region} Region</p>
-                <div className="flex items-center gap-1">
-                  <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  <span className="text-sm">{destination.rating}</span>
+                <div className="p-5">
+                  <h3 className="font-semibold text-lg mb-1">{destination.name}</h3>
+                  <p className="text-sm text-dark-400 mb-2">{destination.region} Region</p>
+                  <div className="flex items-center gap-1">
+                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    <span className="text-sm">{destination.rating}</span>
+                  </div>
                 </div>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
+
+      {/* Interactive Map Section */}
+      <AttractionsMap />
 
       {/* Download CTA Section */}
       <section id="download" className="py-24 px-6">

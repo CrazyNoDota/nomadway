@@ -3,502 +3,440 @@ import {
   View,
   Text,
   StyleSheet,
-  FlatList,
   Image,
   TouchableOpacity,
   Alert,
   ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Animated, { FadeInDown, FadeIn } from 'react-native-reanimated';
+
 import { useLocalization } from '../contexts/LocalizationContext';
-import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useFavorites } from '../contexts/FavoritesContext';
 import AvatarUpload from '../components/AvatarUpload';
+import Card from '../components/ui/Card';
+import Pill from '../components/ui/Pill';
+import Button from '../components/ui/Button';
+import { tokens } from '../theme/tokens';
 
-const LOGO_URL = 'https://raw.githubusercontent.com/CrazyNoDota/danik/21bad4af7ac400b27c470851e9968c5860b06407/photo_2025-11-15_23-14-57-removebg-preview.png';
+const MENU = [
+  { id: 'routes', icon: 'map', screen: 'PersonalizedRoute', accent: tokens.palette.info },
+  { id: 'achievements', icon: 'trophy', screen: 'Achievements', accent: tokens.palette.gold },
+  { id: 'leaderboard', icon: 'podium', screen: 'Leaderboard', accent: tokens.palette.emerald },
+  { id: 'community', icon: 'people', screen: 'CommunityProfile', accent: '#A855F7' },
+  { id: 'settings', icon: 'settings', screen: 'Settings', accent: tokens.palette.textMid },
+];
+
+const MENU_LABEL = {
+  ru: {
+    routes: 'Мои маршруты',
+    achievements: 'Достижения',
+    leaderboard: 'Рейтинг',
+    community: 'Профиль сообщества',
+    settings: 'Настройки',
+  },
+  en: {
+    routes: 'My routes',
+    achievements: 'Achievements',
+    leaderboard: 'Leaderboard',
+    community: 'Community profile',
+    settings: 'Settings',
+  },
+};
 
 export default function ProfileScreen({ navigation }) {
-  const { t, isRussian } = useLocalization();
-  const { colors, isDark } = useTheme();
+  const { isRussian, language } = useLocalization();
   const { user, isAuthenticated, logout } = useAuth();
   const { favorites, removeFromFavorites } = useFavorites();
+  const insets = useSafeAreaInsets();
+  const isRu = isRussian;
+  const labels = MENU_LABEL[language === 'en' ? 'en' : 'ru'];
 
   const handleLogout = () => {
     Alert.alert(
-      isRussian ? 'Выход' : 'Logout',
-      isRussian ? 'Вы уверены, что хотите выйти?' : 'Are you sure you want to logout?',
+      isRu ? 'Выход' : 'Logout',
+      isRu ? 'Вы уверены?' : 'Are you sure?',
       [
-        { text: isRussian ? 'Отмена' : 'Cancel', style: 'cancel' },
-        {
-          text: isRussian ? 'Выйти' : 'Logout',
-          style: 'destructive',
-          onPress: async () => {
-            await logout();
-          },
-        },
+        { text: isRu ? 'Отмена' : 'Cancel', style: 'cancel' },
+        { text: isRu ? 'Выйти' : 'Logout', style: 'destructive', onPress: () => logout() },
       ]
     );
   };
 
-  const renderFavoriteItem = ({ item }) => (
-    <TouchableOpacity
-      style={[styles.card, { backgroundColor: colors.card }]}
-      onPress={() => {
-        if (item.type === 'route') {
-          navigation.navigate('RouteDetails', { route: item });
-        } else {
-          navigation.navigate('AttractionDetails', { attraction: item });
-        }
-      }}
-    >
-      <Image source={{ uri: item.image }} style={styles.cardImage} />
-      <View style={styles.cardContent}>
-        <Text style={[styles.cardTitle, { color: colors.text }]}>{item.name}</Text>
-        <Text style={[styles.cardDescription, { color: colors.textSecondary }]} numberOfLines={2}>
-          {item.region} • {item.category}
-        </Text>
-        <View style={styles.cardFooter}>
-          <View style={[styles.typeTag, { backgroundColor: isDark ? '#3d3420' : '#fff9e6' }]}>
-            <Ionicons 
-              name={item.type === 'route' ? 'map' : 'location'} 
-              size={14} 
-              color="#d4af37" 
-            />
-            <Text style={styles.typeText}>
-              {item.type === 'route' 
-                ? (isRussian ? 'Маршрут' : 'Route') 
-                : (isRussian ? 'Место' : 'Place')}
-            </Text>
-          </View>
-          <TouchableOpacity
-            onPress={() => removeFromFavorites(item.id, item.type)}
-            style={styles.removeButton}
-          >
-            <Ionicons name="trash-outline" size={20} color="#e74c3c" />
-          </TouchableOpacity>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
-
+  /* ============== Guest view ============== */
   if (!isAuthenticated) {
     return (
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={styles.guestContent}>
-          <Image source={{ uri: LOGO_URL }} style={styles.guestLogo} />
-          <Text style={[styles.guestTitle, { color: colors.text }]}>
-            {isRussian ? 'Добро пожаловать в NomadWay' : 'Welcome to NomadWay'}
-          </Text>
-          <Text style={[styles.guestSubtitle, { color: colors.textSecondary }]}>
-            {isRussian 
-              ? 'Войдите, чтобы сохранять маршруты, получать достижения и общаться с сообществом' 
-              : 'Sign in to save routes, earn achievements, and connect with the community'}
-          </Text>
-          
-          <TouchableOpacity
-            style={styles.loginButton}
-            onPress={() => navigation.navigate('Auth')}
-          >
-            <Text style={styles.loginButtonText}>
-              {isRussian ? 'Войти / Регистрация' : 'Login / Register'}
+      <View style={styles.root}>
+        <LinearGradient
+          colors={tokens.gradients.hero}
+          style={StyleSheet.absoluteFillObject}
+        />
+        <View style={[styles.guest, { paddingTop: insets.top + 80 }]}>
+          <Animated.View entering={FadeIn.duration(600)}>
+            <View style={styles.guestBadge}>
+              <Ionicons name="compass" size={32} color={tokens.palette.ink0} />
+            </View>
+            <Text style={styles.guestTitle}>NomadWay</Text>
+            <Text style={styles.guestSubtitle}>
+              {isRu
+                ? 'Войдите, чтобы сохранять маршруты, открывать AI-агента и собирать достижения.'
+                : 'Sign in to save routes, use the AI agent, and earn achievements.'}
             </Text>
-          </TouchableOpacity>
+          </Animated.View>
 
-          <TouchableOpacity
-            style={[styles.settingsButton, { backgroundColor: colors.card }]}
-            onPress={() => navigation.navigate('Settings')}
-          >
-            <Ionicons name="settings-outline" size={20} color={colors.text} />
-            <Text style={[styles.settingsButtonText, { color: colors.text }]}>
-              {isRussian ? 'Настройки' : 'Settings'}
-            </Text>
-          </TouchableOpacity>
+          <Animated.View entering={FadeInDown.delay(150).duration(550)} style={{ width: '100%' }}>
+            <Button
+              label={isRu ? 'Войти / Регистрация' : 'Sign in / Register'}
+              icon="log-in-outline"
+              onPress={() => navigation.navigate('Auth')}
+              fullWidth
+            />
+            <View style={{ height: 12 }} />
+            <Button
+              label={isRu ? 'Настройки' : 'Settings'}
+              icon="settings-outline"
+              variant="ghost"
+              onPress={() => navigation.navigate('Settings')}
+              fullWidth
+            />
+          </Animated.View>
         </View>
       </View>
     );
   }
 
+  /* ============== Authenticated view ============== */
+  const providerLabel =
+    user?.authProvider === 'google'
+      ? 'Google'
+      : user?.role === 'ADMIN'
+      ? 'Admin'
+      : isRu
+      ? 'Путешественник'
+      : 'Traveler';
+  const providerIcon =
+    user?.authProvider === 'google' ? 'logo-google' : user?.role === 'ADMIN' ? 'shield-checkmark' : 'person';
+
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Header Section */}
-        <View style={[styles.header, { backgroundColor: colors.headerBackground }]}>
-          <View style={styles.profileHeader}>
-            <AvatarUpload size={100} />
-            <View style={styles.userInfo}>
-              <Text style={styles.userName}>{user?.fullName || user?.displayName || 'Nomad'}</Text>
-              <Text style={styles.userEmail}>{user?.email}</Text>
-              <View style={styles.roleTag}>
-                <Text style={styles.roleText}>
-                  {user?.role === 'ADMIN' ? 'Admin' : 'Traveler'}
-                </Text>
+    <View style={styles.root}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 80 }}
+      >
+        {/* ===== Hero ===== */}
+        <View style={[styles.heroWrap, { paddingTop: insets.top + 16 }]}>
+          <LinearGradient
+            colors={['rgba(212, 175, 55, 0.18)', 'rgba(82, 183, 136, 0.06)', 'transparent']}
+            style={StyleSheet.absoluteFillObject}
+          />
+          <Animated.View entering={FadeInDown.duration(500)} style={styles.profileHead}>
+            <AvatarUpload size={88} />
+            <View style={styles.profileMeta}>
+              <Text style={styles.userName} numberOfLines={1}>
+                {user?.fullName || user?.displayName || 'Nomad'}
+              </Text>
+              <Text style={styles.userEmail} numberOfLines={1}>
+                {user?.email}
+              </Text>
+              <View style={styles.providerRow}>
+                <Pill icon={providerIcon} label={providerLabel} active={user?.role === 'ADMIN'} />
+                {user?.emailVerified && (
+                  <Pill icon="checkmark-circle" label={isRu ? 'Подтверждён' : 'Verified'} />
+                )}
               </View>
             </View>
-          </View>
+          </Animated.View>
 
-          <View style={styles.statsRow}>
-            <TouchableOpacity 
+          {/* Stats */}
+          <Animated.View entering={FadeInDown.delay(100).duration(500)} style={styles.statsRow}>
+            <TouchableOpacity
               style={styles.statItem}
               onPress={() => navigation.navigate('Achievements')}
+              activeOpacity={0.85}
             >
               <Text style={styles.statValue}>{user?.points || 0}</Text>
-              <Text style={styles.statLabel}>{isRussian ? 'Баллы' : 'Points'}</Text>
+              <Text style={styles.statLabel}>{isRu ? 'Баллы' : 'Points'}</Text>
             </TouchableOpacity>
             <View style={styles.statDivider} />
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.statItem}
               onPress={() => navigation.navigate('Achievements')}
+              activeOpacity={0.85}
             >
               <Text style={styles.statValue}>{favorites.length}</Text>
-              <Text style={styles.statLabel}>{isRussian ? 'Избранное' : 'Favorites'}</Text>
+              <Text style={styles.statLabel}>{isRu ? 'Сохранено' : 'Saved'}</Text>
             </TouchableOpacity>
             <View style={styles.statDivider} />
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.statItem}
               onPress={() => navigation.navigate('CommunityProfile')}
+              activeOpacity={0.85}
             >
               <Text style={styles.statValue}>0</Text>
-              <Text style={styles.statLabel}>{isRussian ? 'Посты' : 'Posts'}</Text>
+              <Text style={styles.statLabel}>{isRu ? 'Посты' : 'Posts'}</Text>
             </TouchableOpacity>
-          </View>
+          </Animated.View>
         </View>
 
-        {/* Menu Actions */}
-        <View style={styles.menuContainer}>
-          <TouchableOpacity
-            style={[styles.menuItem, { backgroundColor: colors.card }]}
-            onPress={() => navigation.navigate('PersonalizedRoute')}
-          >
-            <View style={[styles.menuIcon, { backgroundColor: '#e3f2fd' }]}>
-              <Ionicons name="map" size={22} color="#1976d2" />
-            </View>
-            <Text style={[styles.menuText, { color: colors.text }]}>
-              {isRussian ? 'Мои маршруты' : 'My Routes'}
-            </Text>
-            <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.menuItem, { backgroundColor: colors.card }]}
-            onPress={() => navigation.navigate('Achievements')}
-          >
-            <View style={[styles.menuIcon, { backgroundColor: '#fff3e0' }]}>
-              <Ionicons name="trophy" size={22} color="#f57c00" />
-            </View>
-            <Text style={[styles.menuText, { color: colors.text }]}>
-              {isRussian ? 'Достижения' : 'Achievements'}
-            </Text>
-            <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.menuItem, { backgroundColor: colors.card }]}
-            onPress={() => navigation.navigate('Settings')}
-          >
-            <View style={[styles.menuIcon, { backgroundColor: '#f3e5f5' }]}>
-              <Ionicons name="settings" size={22} color="#7b1fa2" />
-            </View>
-            <Text style={[styles.menuText, { color: colors.text }]}>
-              {isRussian ? 'Настройки' : 'Settings'}
-            </Text>
-            <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
-          </TouchableOpacity>
+        {/* ===== Menu ===== */}
+        <View style={styles.section}>
+          {MENU.filter((m) => m.id !== 'community' || true).map((item, idx) => (
+            <Animated.View
+              key={item.id}
+              entering={FadeInDown.delay(150 + idx * 50).duration(450)}
+              style={{ marginBottom: 8 }}
+            >
+              <TouchableOpacity
+                activeOpacity={0.88}
+                onPress={() => navigation.navigate(item.screen)}
+              >
+                <Card style={styles.menuRow}>
+                  <View
+                    style={[styles.menuIcon, { backgroundColor: item.accent + '22', borderColor: item.accent + '55' }]}
+                  >
+                    <Ionicons name={item.icon} size={18} color={item.accent} />
+                  </View>
+                  <Text style={styles.menuText}>{labels[item.id]}</Text>
+                  <Ionicons name="chevron-forward" size={18} color={tokens.palette.textLo} />
+                </Card>
+              </TouchableOpacity>
+            </Animated.View>
+          ))}
 
           {user?.role === 'ADMIN' && (
-            <TouchableOpacity
-              style={[styles.menuItem, { backgroundColor: colors.card }]}
-              onPress={() => Alert.alert('Admin Dashboard', 'Coming soon!')}
-            >
-              <View style={[styles.menuIcon, { backgroundColor: '#ffebee' }]}>
-                <Ionicons name="shield-checkmark" size={22} color="#d32f2f" />
-              </View>
-              <Text style={[styles.menuText, { color: colors.text }]}>
-                Admin Dashboard
-              </Text>
-              <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
-            </TouchableOpacity>
+            <Animated.View entering={FadeInDown.delay(450).duration(450)}>
+              <TouchableOpacity
+                activeOpacity={0.88}
+                onPress={() => Alert.alert('Admin', 'Coming soon')}
+              >
+                <Card style={styles.menuRow}>
+                  <View style={[styles.menuIcon, { backgroundColor: 'rgba(239, 68, 68, 0.2)', borderColor: 'rgba(239, 68, 68, 0.5)' }]}>
+                    <Ionicons name="shield-checkmark" size={18} color="#EF4444" />
+                  </View>
+                  <Text style={styles.menuText}>Admin Dashboard</Text>
+                  <Ionicons name="chevron-forward" size={18} color={tokens.palette.textLo} />
+                </Card>
+              </TouchableOpacity>
+            </Animated.View>
           )}
         </View>
 
-        {/* Favorites Section */}
+        {/* ===== Favorites ===== */}
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            {isRussian ? 'Избранное' : 'Favorites'}
-          </Text>
+          <Text style={styles.sectionTitle}>{isRu ? 'Избранное' : 'Favorites'}</Text>
           {favorites.length > 0 ? (
-            favorites.map((item) => (
-              <View key={`${item.type}_${item.id}`}>
-                {renderFavoriteItem({ item })}
-              </View>
+            favorites.map((item, idx) => (
+              <Animated.View
+                key={`${item.type}_${item.id}`}
+                entering={FadeInDown.delay(idx * 40).duration(400)}
+                style={{ marginBottom: 8 }}
+              >
+                <TouchableOpacity
+                  activeOpacity={0.92}
+                  onPress={() =>
+                    item.type === 'route'
+                      ? navigation.navigate('RouteDetails', { route: item })
+                      : navigation.navigate('AttractionDetails', { attraction: item })
+                  }
+                >
+                  <Card padding={0} style={styles.favCard}>
+                    <Image source={{ uri: item.image }} style={styles.favImage} />
+                    <View style={styles.favBody}>
+                      <Text style={styles.favTitle} numberOfLines={1}>
+                        {item.name}
+                      </Text>
+                      <Text style={styles.favMeta} numberOfLines={1}>
+                        {item.region} {item.category ? `· ${item.category}` : ''}
+                      </Text>
+                      <View style={styles.favRow}>
+                        <Pill
+                          icon={item.type === 'route' ? 'map' : 'location'}
+                          label={
+                            item.type === 'route'
+                              ? isRu ? 'Маршрут' : 'Route'
+                              : isRu ? 'Место' : 'Place'
+                          }
+                        />
+                        <TouchableOpacity
+                          onPress={() => removeFromFavorites(item.id, item.type)}
+                          hitSlop={8}
+                        >
+                          <Ionicons name="trash-outline" size={16} color="#EF4444" />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  </Card>
+                </TouchableOpacity>
+              </Animated.View>
             ))
           ) : (
-            <View style={[styles.emptyState, { backgroundColor: colors.card }]}>
-              <Ionicons name="heart-outline" size={48} color={colors.textSecondary} />
-              <Text style={[styles.emptyStateText, { color: colors.textSecondary }]}>
-                {isRussian ? 'У вас пока нет избранных мест' : 'No favorites yet'}
+            <Card style={styles.emptyCard}>
+              <Ionicons name="heart-outline" size={36} color={tokens.palette.textLo} />
+              <Text style={styles.emptyText}>
+                {isRu ? 'Пока ничего не сохранено' : 'No favorites yet'}
               </Text>
-            </View>
+            </Card>
           )}
         </View>
 
-        <TouchableOpacity
-          style={styles.logoutButton}
-          onPress={handleLogout}
-        >
-          <Text style={styles.logoutText}>
-            {isRussian ? 'Выйти из аккаунта' : 'Log Out'}
-          </Text>
-        </TouchableOpacity>
-
-        <View style={styles.footer}>
-          <Text style={[styles.versionText, { color: colors.textSecondary }]}>
-            Version 2.0.0
-          </Text>
+        {/* ===== Logout ===== */}
+        <View style={styles.section}>
+          <Button
+            label={isRu ? 'Выйти из аккаунта' : 'Sign out'}
+            icon="log-out-outline"
+            variant="ghost"
+            onPress={handleLogout}
+            fullWidth
+          />
         </View>
+
+        <Text style={styles.versionText}>NomadWay v2.0</Text>
       </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  root: { flex: 1, backgroundColor: tokens.palette.ink0 },
+
+  // Guest
+  guest: {
     flex: 1,
+    paddingHorizontal: tokens.spacing.xl,
+    alignItems: 'center',
   },
-  // Guest Styles
-  guestContent: {
-    flex: 1,
+  guestBadge: {
+    width: 80,
+    height: 80,
+    borderRadius: 24,
+    backgroundColor: tokens.palette.gold,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 24,
-  },
-  guestLogo: {
-    width: 120,
-    height: 120,
-    marginBottom: 24,
-    borderRadius: 60,
+    alignSelf: 'center',
+    marginBottom: tokens.spacing.lg,
+    ...tokens.shadows.glow,
   },
   guestTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 12,
+    color: tokens.palette.textHi,
+    fontSize: 28,
+    fontWeight: '800',
     textAlign: 'center',
+    letterSpacing: 0.5,
   },
   guestSubtitle: {
-    fontSize: 16,
+    color: tokens.palette.textMid,
+    fontSize: 14,
+    lineHeight: 22,
     textAlign: 'center',
-    marginBottom: 32,
-    lineHeight: 24,
+    marginTop: tokens.spacing.sm,
+    marginBottom: tokens.spacing.xxl,
   },
-  loginButton: {
-    backgroundColor: '#FF6B35',
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    borderRadius: 12,
-    width: '100%',
-    alignItems: 'center',
-    marginBottom: 16,
+
+  // Hero
+  heroWrap: {
+    paddingHorizontal: tokens.spacing.lg,
+    paddingBottom: tokens.spacing.lg,
+    overflow: 'hidden',
   },
-  loginButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  settingsButton: {
+  profileHead: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 12,
+    marginBottom: tokens.spacing.xl,
   },
-  settingsButtonText: {
-    marginLeft: 8,
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  // Authenticated Styles
-  header: {
-    padding: 24,
-    paddingTop: 60,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  profileHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  userInfo: {
-    marginLeft: 20,
-    flex: 1,
-  },
+  profileMeta: { flex: 1, marginLeft: tokens.spacing.md },
   userName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 4,
+    color: tokens.palette.textHi,
+    fontSize: 20,
+    fontWeight: '800',
+    letterSpacing: -0.3,
   },
   userEmail: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.8)',
-    marginBottom: 8,
-  },
-  roleTag: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-    alignSelf: 'flex-start',
-  },
-  roleText: {
-    color: '#fff',
+    color: tokens.palette.textMid,
     fontSize: 12,
-    fontWeight: '600',
+    marginTop: 2,
   },
+  providerRow: { flexDirection: 'row', gap: 6, marginTop: 8 },
+
+  // Stats
   statsRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 16,
-    padding: 16,
+    backgroundColor: tokens.palette.ink1,
+    borderRadius: tokens.radii.lg,
+    borderWidth: 1,
+    borderColor: tokens.palette.hairline,
+    paddingVertical: 14,
   },
-  statItem: {
-    alignItems: 'center',
-    flex: 1,
-  },
+  statItem: { flex: 1, alignItems: 'center' },
   statValue: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#fff',
+    color: tokens.palette.gold,
+    fontSize: 22,
+    fontWeight: '800',
   },
   statLabel: {
-    fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.8)',
-    marginTop: 4,
+    color: tokens.palette.textMid,
+    fontSize: 11,
+    marginTop: 2,
+    letterSpacing: 0.3,
   },
   statDivider: {
     width: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: tokens.palette.hairline,
+    marginVertical: 6,
   },
+
+  // Sections
+  section: {
+    paddingHorizontal: tokens.spacing.lg,
+    marginTop: tokens.spacing.lg,
+  },
+  sectionTitle: {
+    color: tokens.palette.textHi,
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: tokens.spacing.sm,
+  },
+
   // Menu
-  menuContainer: {
-    padding: 24,
-  },
-  menuItem: {
+  menuRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    borderRadius: 16,
-    marginBottom: 12,
+    padding: 14,
   },
   menuIcon: {
-    width: 40,
-    height: 40,
+    width: 36,
+    height: 36,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 16,
+    borderWidth: 1,
+    marginRight: 12,
   },
-  menuText: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: '500',
-  },
+  menuText: { flex: 1, color: tokens.palette.textHi, fontSize: 14, fontWeight: '600' },
+
   // Favorites
-  section: {
-    padding: 24,
-    paddingTop: 0,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 16,
-  },
-  card: {
-    flexDirection: 'row',
-    borderRadius: 16,
-    marginBottom: 16,
-    overflow: 'hidden',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  cardImage: {
-    width: 100,
-    height: 100,
-  },
-  cardContent: {
-    flex: 1,
-    padding: 12,
-  },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  cardDescription: {
-    fontSize: 12,
-    marginBottom: 8,
-  },
-  cardFooter: {
+  favCard: { flexDirection: 'row', overflow: 'hidden' },
+  favImage: { width: 90, height: 90 },
+  favBody: { flex: 1, padding: 12, justifyContent: 'space-between' },
+  favTitle: { color: tokens.palette.textHi, fontSize: 14, fontWeight: '700' },
+  favMeta: { color: tokens.palette.textMid, fontSize: 11, marginTop: 2 },
+  favRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginTop: 8,
   },
-  typeTag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  typeText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#d4af37',
-    marginLeft: 4,
-  },
-  removeButton: {
-    padding: 4,
-  },
-  emptyState: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 32,
-    borderRadius: 16,
-  },
-  emptyStateText: {
-    marginTop: 12,
-    fontSize: 16,
-  },
-  // Logout
-  logoutButton: {
-    margin: 24,
-    marginTop: 0,
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#e74c3c',
-    alignItems: 'center',
-  },
-  logoutText: {
-    color: '#e74c3c',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  footer: {
-    alignItems: 'center',
-    marginBottom: 32,
-  },
+
+  // Empty
+  emptyCard: { alignItems: 'center', paddingVertical: 28 },
+  emptyText: { color: tokens.palette.textMid, fontSize: 13, marginTop: 8 },
+
   versionText: {
-    fontSize: 12,
+    color: tokens.palette.textLo,
+    fontSize: 11,
+    textAlign: 'center',
+    marginTop: tokens.spacing.lg,
   },
 });
-

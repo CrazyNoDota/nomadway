@@ -17,7 +17,8 @@ export default function AIGuideScreen({ navigation }) {
   const [messages, setMessages] = useState([
     {
       id: 1,
-      text: 'Привет! Я ваш AI-гид NomadWay. Задайте мне вопрос о путешествиях по Казахстану и не только, например: "Что посмотреть в Алматы за 2 дня?"',
+      text:
+        'Здравствуйте! Я — AI-агент NomadWay. У меня есть доступ к проверенной базе знаний о Казахстане: туристические маршруты, сакральные места, сезонные программы и инфраструктура курортов.\n\nСпросите, например: «Что посмотреть в Бурабае?» или «Маршрут на 3 дня из Астаны».',
       isBot: true,
       timestamp: new Date(),
     },
@@ -147,10 +148,10 @@ export default function AIGuideScreen({ navigation }) {
   );
 
   const quickQuestions = [
-    'Что посмотреть в Алматы за 2 дня?',
-    'Лучшие места для фото в Казахстане',
-    'Маршрут по историческим местам',
-    'Где лучше отдохнуть летом?',
+    'Что посмотреть в Бурабае?',
+    'Сакральные места Акмолинской области',
+    'Маршрут на 3 дня из Астаны',
+    'Зимние направления 2026 года',
   ];
 
   return (
@@ -161,12 +162,36 @@ export default function AIGuideScreen({ navigation }) {
     >
       <View style={styles.header}>
         <View style={styles.headerContent}>
-          <Ionicons name="sparkles" size={24} color="#d4af37" />
-          <Text style={styles.headerTitle}>AI-Гид</Text>
+          <View style={styles.aiAvatar}>
+            <Ionicons name="sparkles" size={20} color="#1a4d3a" />
+          </View>
+          <View style={{ flex: 1 }}>
+            <View style={styles.headerTitleRow}>
+              <Text style={styles.headerTitle}>NomadWay AI</Text>
+              <View style={styles.liveBadge}>
+                <View style={styles.liveDot} />
+                <Text style={styles.liveText}>LIVE</Text>
+              </View>
+            </View>
+            <Text style={styles.headerSubtitle}>
+              Умный агент · база знаний о Казахстане
+            </Text>
+          </View>
         </View>
-        <Text style={styles.headerSubtitle}>
-          Задайте вопрос о путешествиях
-        </Text>
+        <View style={styles.capabilityRow}>
+          <View style={styles.capabilityPill}>
+            <Ionicons name="library-outline" size={12} color="#d4af37" />
+            <Text style={styles.capabilityText}>Проверенные источники</Text>
+          </View>
+          <View style={styles.capabilityPill}>
+            <Ionicons name="git-network-outline" size={12} color="#d4af37" />
+            <Text style={styles.capabilityText}>Семантический поиск</Text>
+          </View>
+          <View style={styles.capabilityPill}>
+            <Ionicons name="language-outline" size={12} color="#d4af37" />
+            <Text style={styles.capabilityText}>RU · EN · KZ</Text>
+          </View>
+        </View>
       </View>
 
       <ScrollView
@@ -238,23 +263,83 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: '#1a4d3a',
     paddingTop: 50,
-    paddingBottom: 16,
+    paddingBottom: 14,
     paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(212, 175, 55, 0.2)',
   },
   headerContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 12,
+  },
+  aiAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#d4af37',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  headerTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#fff',
+    letterSpacing: 0.3,
+  },
+  liveBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(46, 204, 113, 0.18)',
+    borderRadius: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    gap: 4,
     marginLeft: 8,
   },
+  liveDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#2ecc71',
+  },
+  liveText: {
+    color: '#2ecc71',
+    fontSize: 9,
+    fontWeight: '700',
+    letterSpacing: 0.8,
+  },
   headerSubtitle: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#d4af37',
+    marginTop: 2,
+  },
+  capabilityRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
+  capabilityPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(212, 175, 55, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.25)',
+    borderRadius: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    gap: 4,
+  },
+  capabilityText: {
+    color: '#d4af37',
+    fontSize: 10,
+    fontWeight: '600',
   },
   messagesContainer: {
     flex: 1,

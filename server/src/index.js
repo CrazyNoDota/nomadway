@@ -7,6 +7,7 @@ const { Server } = require('socket.io');
 const OpenAI = require('openai');
 
 const config = require('./config');
+const { retrieveContext, formatContext, loadIndex } = require('./services/rag');
 require('./config/database'); // Initialize database connection
 
 // Import routes
@@ -33,10 +34,20 @@ const io = new Server(httpServer, {
   },
 });
 
-// Initialize OpenAI
-const openai = new OpenAI({
-  apiKey: config.openai.apiKey,
-});
+// Initialize NVIDIA-backed client (OpenAI-compatible endpoint).
+// Falls back to OpenAI proper if NVIDIA_LLM_API_KEY is not set.
+const useNvidia = !!config.nvidia.llmApiKey;
+const llmClient = new OpenAI(
+  useNvidia
+    ? { apiKey: config.nvidia.llmApiKey, baseURL: config.nvidia.baseUrl }
+    : { apiKey: config.openai.apiKey }
+);
+const LLM_MODEL = useNvidia ? config.nvidia.llmModel : config.openai.model;
+const LLM_MAX_TOKENS = useNvidia ? config.nvidia.maxTokens : config.openai.maxTokens;
+const LLM_TEMPERATURE = useNvidia ? config.nvidia.temperature : 0.7;
+
+// Preload RAG index at boot (no network call; just JSON read)
+loadIndex();
 
 // ================== MIDDLEWARE ==================
 
@@ -119,19 +130,25 @@ app.use('/download', express.static(path.join(__dirname, '../public/apk'), {
 
 // ================== AI CHAT ENDPOINT ==================
 
-const SYSTEM_PROMPT = `You are the intelligent travel assistant for NomadsWay, a mobile app specializing in tourism across Kazakhstan.
+const SYSTEM_PROMPT_BASE = `Ты — умный туристический ассистент NomadsWay, мобильного приложения о путешествиях по Казахстану.
 
-**Your Mission:** Assist users in selecting tours, creating custom itineraries, explaining regional nuances, and managing travel logistics based on their budget, season, departure city, and personal interests.
+Твоя миссия: помогать пользователям выбирать туры, составлять маршруты, объяснять региональные нюансы и решать логистику с учётом бюджета, сезона, города отправления и интересов.
 
-**Guidelines:**
-1. **Tone:** Be friendly, expert, encouraging, and concise. Speak like a knowledgeable local who loves sharing Kazakhstan's beauty.
-2. **Output:** Provide clear, useful answers. Avoid fluff. Be specific with prices (in Tenge), distances, and timeframes.
-3. **Proactivity:** Always suggest alternatives, add-on services, better timing, and money-saving tips.
-4. **Language:** Respond in Russian when the user writes in Russian, in English when they write in English.
-5. **Route Building:** When creating itineraries, include day-by-day schedules with morning/afternoon/evening activities.
-6. **Review Summarization:** When analyzing reviews, summarize top 3 Pros and top 3 Cons concisely.
+Правила:
+1. Тон: дружелюбный эксперт, как знающий местный. Кратко, по делу, без воды.
+2. Конкретика: цены в тенге, расстояния, время. Если данных нет — честно скажи.
+3. Проактивность: предлагай альтернативы, лучшее время, способы сэкономить.
+4. Язык: отвечай на том же языке, на котором задан вопрос (русский / English / қазақша).
+5. Маршруты: расписание утро/день/вечер по дням, транспорт между точками, смета.
 
-Available destinations include: Charyn Canyon, Borovoe/Burabay, Turkestan, Kaindy Lake, Almaty, Khan Tengri, Medeu, Kolsai Lakes, Mangystau, Altai, Bayanaul, Alakol, Balkhash, and more.`;
+Источник истины: ниже приведён КОНТЕКСТ из официальных материалов NomadsWay. Если ответ есть в контексте — используй его и ссылайся на источник в формате [Источник N]. Если в контексте нет нужной информации — опирайся на общие знания о Казахстане, но прямо предупреди пользователя, что точных данных нет.`;
+
+function buildSystemPrompt(contextBlock) {
+  if (!contextBlock) {
+    return `${SYSTEM_PROMPT_BASE}\n\n(КОНТЕКСТ из базы знаний пуст для этого запроса — отвечай на основе общих знаний.)`;
+  }
+  return `${SYSTEM_PROMPT_BASE}\n\n=== КОНТЕКСТ ===\n${contextBlock}\n=== КОНЕЦ КОНТЕКСТА ===`;
+}
 
 app.post('/api/chat', async (req, res) => {
   try {
@@ -141,8 +158,13 @@ app.post('/api/chat', async (req, res) => {
       return res.status(400).json({ error: 'Message is required' });
     }
 
+    // Retrieve relevant chunks from the RAG index
+    const hits = await retrieveContext(message);
+    const contextBlock = formatContext(hits);
+    const sources = hits.map((h) => ({ source: h.source, score: Number(h.score.toFixed(3)) }));
+
     const messages = [
-      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'system', content: buildSystemPrompt(contextBlock) },
       ...conversationHistory,
       { role: 'user', content: message },
     ];
@@ -152,13 +174,16 @@ app.post('/api/chat', async (req, res) => {
       res.setHeader('Cache-Control', 'no-cache');
       res.setHeader('Connection', 'keep-alive');
 
-      const completion = await openai.chat.completions.create({
-        model: config.openai.model,
+      const completion = await llmClient.chat.completions.create({
+        model: LLM_MODEL,
         messages,
-        max_tokens: config.openai.maxTokens,
-        temperature: 0.7,
+        max_tokens: LLM_MAX_TOKENS,
+        temperature: LLM_TEMPERATURE,
         stream: true,
       });
+
+      // Send retrieved sources first so the client can show citations
+      res.write(`data: ${JSON.stringify({ sources })}\n\n`);
 
       for await (const chunk of completion) {
         const content = chunk.choices[0]?.delta?.content || '';
@@ -170,15 +195,16 @@ app.post('/api/chat', async (req, res) => {
       res.write('data: [DONE]\n\n');
       res.end();
     } else {
-      const completion = await openai.chat.completions.create({
-        model: config.openai.model,
+      const completion = await llmClient.chat.completions.create({
+        model: LLM_MODEL,
         messages,
-        max_tokens: config.openai.maxTokens,
-        temperature: 0.7,
+        max_tokens: LLM_MAX_TOKENS,
+        temperature: LLM_TEMPERATURE,
       });
 
       res.json({
         response: completion.choices[0].message.content,
+        sources,
         usage: completion.usage,
       });
     }
