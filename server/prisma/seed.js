@@ -175,7 +175,11 @@ async function main() {
   // ================== SEED ATTRACTIONS FROM JSON ==================
   console.log('Seeding attractions from JSON...');
 
-  const attractionsPath = path.join(__dirname, '../../data/attractions.json');
+  const packagedAttractionsPath = path.join(__dirname, '../data/attractions.json');
+  const legacyAttractionsPath = path.join(__dirname, '../../data/attractions.json');
+  const attractionsPath = fs.existsSync(packagedAttractionsPath)
+    ? packagedAttractionsPath
+    : legacyAttractionsPath;
   
   if (fs.existsSync(attractionsPath)) {
     const attractionsData = JSON.parse(fs.readFileSync(attractionsPath, 'utf8'));
