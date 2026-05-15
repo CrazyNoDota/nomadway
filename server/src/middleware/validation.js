@@ -162,6 +162,7 @@ const buildRouteSchema = z.object({
   interests: z.array(z.string()).min(1),
   activityLevel: z.enum(['easy', 'moderate', 'intense']),
   ageGroup: z.enum(['family', 'young', 'adults']),
+  description: z.string().max(500).optional(),
   startLocation: z.object({
     latitude: z.number().min(-90).max(90),
     longitude: z.number().min(-180).max(180),

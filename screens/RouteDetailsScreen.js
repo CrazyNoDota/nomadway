@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -6,13 +6,17 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import MapView, { Marker, Polyline } from 'react-native-maps';
-import routesData from '../data/routes.json';
+import Constants from 'expo-constants';
 import attractionsData from '../data/attractions.json';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { getTranslatedAttraction } from '../utils/attractionTranslations';
+
+const MAPS_ENABLED =
+  Platform.OS !== 'android' || !!Constants.expoConfig?.android?.config?.googleMaps?.apiKey;
 
 export default function RouteDetailsScreen({ route, navigation }) {
   const { route: routeData } = route.params;
@@ -20,16 +24,35 @@ export default function RouteDetailsScreen({ route, navigation }) {
   const [stops, setStops] = useState([]);
   const [region, setRegion] = useState(null);
 
+  const title = language === 'en' && routeData.nameEn ? routeData.nameEn : routeData.name;
+  const description =
+    language === 'en' && routeData.longDescriptionEn
+      ? routeData.longDescriptionEn
+      : routeData.longDescription || routeData.description;
+  const difficulty =
+    language === 'en' && routeData.difficultyLevel
+      ? routeData.difficultyLevel
+      : routeData.difficulty;
+
   useEffect(() => {
-    const routeStops = routeData.stops.map((id) => {
-      const attraction = attractionsData.attractions.find((attr) => attr.id === id);
-      return attraction ? getTranslatedAttraction(attraction, language) : null;
-    }).filter(Boolean);
+    const stopIds = Array.isArray(routeData?.stops) ? routeData.stops : [];
+    const routeStops = stopIds
+      .map((stop) => {
+        const id = typeof stop === 'object' ? stop.id || stop.attractionId : stop;
+        const attraction = attractionsData.attractions.find((attr) => attr.id === id);
+        return attraction ? getTranslatedAttraction(attraction, language) : null;
+      })
+      .filter((stop) => (
+        stop &&
+        Number.isFinite(Number(stop.latitude)) &&
+        Number.isFinite(Number(stop.longitude))
+      ));
+
     setStops(routeStops);
 
     if (routeStops.length > 0) {
-      const latitudes = routeStops.map((s) => s.latitude);
-      const longitudes = routeStops.map((s) => s.longitude);
+      const latitudes = routeStops.map((s) => Number(s.latitude));
+      const longitudes = routeStops.map((s) => Number(s.longitude));
       const minLat = Math.min(...latitudes);
       const maxLat = Math.max(...latitudes);
       const minLng = Math.min(...longitudes);
@@ -38,19 +61,24 @@ export default function RouteDetailsScreen({ route, navigation }) {
       setRegion({
         latitude: (minLat + maxLat) / 2,
         longitude: (minLng + maxLng) / 2,
-        latitudeDelta: (maxLat - minLat) * 1.5 + 0.1,
-        longitudeDelta: (maxLng - minLng) * 1.5 + 0.1,
+        latitudeDelta: Math.max((maxLat - minLat) * 1.5, 0.1),
+        longitudeDelta: Math.max((maxLng - minLng) * 1.5, 0.1),
       });
+    } else {
+      setRegion(null);
     }
   }, [routeData, language]);
 
-  const getDifficultyColor = (difficulty) => {
-    switch (difficulty) {
+  const getDifficultyColor = (value) => {
+    switch (value) {
       case 'Лёгкая':
+      case 'easy':
         return '#27ae60';
       case 'Средняя':
+      case 'medium':
         return '#f39c12';
       case 'Сложная':
+      case 'hard':
         return '#e74c3c';
       default:
         return '#8e8e93';
@@ -61,48 +89,57 @@ export default function RouteDetailsScreen({ route, navigation }) {
     navigation.navigate('MapScreen', {
       attractions: stops,
       route: routeData,
-      title: routeData.name,
+      title,
     });
   };
 
   const coordinates = stops.map((stop) => ({
-    latitude: stop.latitude,
-    longitude: stop.longitude,
+    latitude: Number(stop.latitude),
+    longitude: Number(stop.longitude),
   }));
 
   return (
     <ScrollView style={styles.container}>
       <Image source={{ uri: routeData.image }} style={styles.headerImage} />
-      
+
       <View style={styles.content}>
-        <Text style={styles.title}>{routeData.name}</Text>
-        
+        <Text style={styles.title}>{title}</Text>
+
         <View style={styles.metaContainer}>
           <View style={styles.metaItem}>
             <Ionicons name="time-outline" size={20} color="#1a4d3a" />
             <Text style={styles.metaText}>{routeData.duration}</Text>
           </View>
-          <View style={[styles.difficultyBadge, { backgroundColor: getDifficultyColor(routeData.difficulty) + '20' }]}>
-            <Text style={[styles.difficultyText, { color: getDifficultyColor(routeData.difficulty) }]}>
-              {routeData.difficulty}
+          <View style={[styles.difficultyBadge, { backgroundColor: `${getDifficultyColor(difficulty)}20` }]}>
+            <Text style={[styles.difficultyText, { color: getDifficultyColor(difficulty) }]}>
+              {difficulty}
             </Text>
           </View>
         </View>
 
-        <Text style={styles.description}>{routeData.longDescription || routeData.description}</Text>
+        <Text style={styles.description}>{description}</Text>
 
-        <TouchableOpacity style={styles.mapButton} onPress={openMap}>
-          <Ionicons name="map" size={24} color="#1a4d3a" />
-          <Text style={styles.mapButtonText}>Открыть полную карту</Text>
-        </TouchableOpacity>
+        {MAPS_ENABLED ? (
+          <TouchableOpacity style={styles.mapButton} onPress={openMap}>
+            <Ionicons name="map" size={24} color="#1a4d3a" />
+            <Text style={styles.mapButtonText}>Открыть полную карту</Text>
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.mapFallback}>
+            <Ionicons name="map-outline" size={32} color="#d4af37" />
+            <Text style={styles.mapFallbackText}>
+              Карта будет доступна после настройки Google Maps для Android.
+            </Text>
+          </View>
+        )}
 
-        {region && (
+        {MAPS_ENABLED && region ? (
           <View style={styles.mapContainer}>
             <MapView style={styles.map} initialRegion={region} scrollEnabled={false}>
               {stops.map((stop, index) => (
                 <Marker
                   key={stop.id}
-                  coordinate={{ latitude: stop.latitude, longitude: stop.longitude }}
+                  coordinate={{ latitude: Number(stop.latitude), longitude: Number(stop.longitude) }}
                   title={stop.name}
                   pinColor={routeData.color}
                 >
@@ -111,16 +148,12 @@ export default function RouteDetailsScreen({ route, navigation }) {
                   </View>
                 </Marker>
               ))}
-              {coordinates.length > 1 && (
-                <Polyline
-                  coordinates={coordinates}
-                  strokeColor={routeData.color}
-                  strokeWidth={3}
-                />
-              )}
+              {coordinates.length > 1 ? (
+                <Polyline coordinates={coordinates} strokeColor={routeData.color} strokeWidth={3} />
+              ) : null}
             </MapView>
           </View>
-        )}
+        ) : null}
 
         <View style={styles.stopsSection}>
           <Text style={styles.sectionTitle}>Остановки маршрута</Text>
@@ -130,7 +163,7 @@ export default function RouteDetailsScreen({ route, navigation }) {
               style={styles.stopItem}
               onPress={() => navigation.navigate('AttractionDetails', { attraction: stop })}
             >
-              <View style={[styles.stopNumber, { backgroundColor: routeData.color }]}>
+              <View style={[styles.stopNumber, { backgroundColor: routeData.color || '#d4af37' }]}>
                 <Text style={styles.stopNumberText}>{index + 1}</Text>
               </View>
               <View style={styles.stopContent}>
@@ -214,6 +247,22 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#1a4d3a',
   },
+  mapFallback: {
+    minHeight: 140,
+    borderRadius: 12,
+    marginBottom: 16,
+    paddingHorizontal: 20,
+    backgroundColor: '#0d231b',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  mapFallbackText: {
+    color: '#d7e6de',
+    fontSize: 14,
+    lineHeight: 20,
+    textAlign: 'center',
+    marginTop: 10,
+  },
   mapContainer: {
     height: 300,
     borderRadius: 12,
@@ -286,4 +335,3 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
 });
-

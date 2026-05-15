@@ -50,6 +50,7 @@ USER PREFERENCES
 - Audience: ${prefs.ageGroup}
 - Activity level: ${prefs.activityLevel}
 - Interests: ${prefs.interests.join(', ')}
+- User description: ${prefs.description || 'not provided'}
 - Money budget: ${prefs.budget.min}–${prefs.budget.max} KZT
 
 CANDIDATES (JSON list, ${candidates.length} places — pick from these only)

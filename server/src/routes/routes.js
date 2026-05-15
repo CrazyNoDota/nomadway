@@ -30,6 +30,7 @@ router.post('/build', optionalAuth, validate(buildRouteSchema), async (req, res)
       interests,
       activityLevel,
       ageGroup,
+      description,
       startLocation,
     } = req.body;
 
@@ -91,6 +92,7 @@ router.post('/build', optionalAuth, validate(buildRouteSchema), async (req, res)
       ageGroup,
       activityLevel,
       interests,
+      description,
       budget,
     });
     const whyById = new Map();
@@ -118,6 +120,7 @@ router.post('/build', optionalAuth, validate(buildRouteSchema), async (req, res)
       startLocation,
       duration,
       interests,
+      description,
     });
 
     const route = routePlan.route.map((stop, index) => ({
@@ -573,8 +576,25 @@ function buildStop(attraction, from, duration, index) {
   };
 }
 
-function scoreCandidate({ attraction, travelTime, route, preferredRank, interests }) {
+function tokenizeDescription(description) {
+  return String(description || '')
+    .toLowerCase()
+    .split(/[^\p{L}\p{N}]+/u)
+    .filter((word) => word.length >= 4)
+    .slice(0, 30);
+}
+
+function scoreCandidate({ attraction, travelTime, route, preferredRank, interests, descriptionTerms }) {
   const interestOverlap = (attraction.interests || []).filter((i) => interests.includes(i)).length;
+  const haystack = [
+    attraction.name,
+    attraction.nameEn,
+    attraction.description,
+    attraction.category,
+    attraction.city,
+    ...(attraction.interests || []),
+  ].join(' ').toLowerCase();
+  const descriptionOverlap = (descriptionTerms || []).filter((term) => haystack.includes(term)).length;
   const sameRegionBonus = route.length && route[0].attraction.region === attraction.region ? 18 : 0;
   const sameCityBonus = route.length && route[route.length - 1].attraction.city === attraction.city ? 10 : 0;
   const llmBonus = preferredRank.has(attraction.id) ? Math.max(0, 12 - preferredRank.get(attraction.id)) : 0;
@@ -582,6 +602,7 @@ function scoreCandidate({ attraction, travelTime, route, preferredRank, interest
   return (
     (Number(attraction.rating) || 0) * 10 +
     interestOverlap * 8 +
+    descriptionOverlap * 5 +
     sameRegionBonus +
     sameCityBonus +
     llmBonus -
@@ -589,7 +610,7 @@ function scoreCandidate({ attraction, travelTime, route, preferredRank, interest
   );
 }
 
-function buildGreedySequence({ seed, pool, preferredRank, totalMinutes, budget, startLocation, duration, interests }) {
+function buildGreedySequence({ seed, pool, preferredRank, totalMinutes, budget, startLocation, duration, interests, descriptionTerms }) {
   const route = [];
   const used = new Set();
   let totalTime = 0;
@@ -636,6 +657,7 @@ function buildGreedySequence({ seed, pool, preferredRank, totalMinutes, budget, 
             route,
             preferredRank,
             interests,
+            descriptionTerms,
           }),
         };
       })
@@ -675,7 +697,7 @@ function routeScore(plan, duration) {
   );
 }
 
-function buildCoherentRoute({ candidates, preferredOrder, totalMinutes, budget, startLocation, duration, interests }) {
+function buildCoherentRoute({ candidates, preferredOrder, totalMinutes, budget, startLocation, duration, interests, description }) {
   const usable = candidates
     .filter((a) => estimateCost(a) <= budget.max)
     .filter(hasCoordinates);
@@ -685,6 +707,7 @@ function buildCoherentRoute({ candidates, preferredOrder, totalMinutes, budget, 
   }
 
   const preferredRank = new Map(preferredOrder.map((a, index) => [a.id, index]));
+  const descriptionTerms = tokenizeDescription(description);
   const regions = [...new Set(usable.map((a) => a.region).filter(Boolean))];
   const pools = [
     usable,
@@ -712,6 +735,7 @@ function buildCoherentRoute({ candidates, preferredOrder, totalMinutes, budget, 
         startLocation,
         duration,
         interests,
+        descriptionTerms,
       });
       if (plan.route.length) plans.push(plan);
     }

@@ -15,11 +15,13 @@ export default function SplashScreen() {
   return (
     <View style={styles.container}>
       <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
-        <Image 
-          source={{ uri: 'https://raw.githubusercontent.com/CrazyNoDota/danik/21bad4af7ac400b27c470851e9968c5860b06407/photo_2025-11-15_23-14-57-removebg-preview.png' }}
-          style={styles.logoImage}
-          resizeMode="contain"
-        />
+        <View style={styles.logoCard}>
+          <Image
+            source={require('../assets/logo.png')}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
+        </View>
         <Text style={styles.logo}>NomadWay</Text>
         <Text style={styles.tagline}>Почувствуй дух степи</Text>
       </Animated.View>
@@ -37,10 +39,26 @@ const styles = StyleSheet.create({
   content: {
     alignItems: 'center',
   },
+  logoCard: {
+    width: 178,
+    height: 178,
+    borderRadius: 34,
+    backgroundColor: '#f7f2df',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.22,
+    shadowRadius: 18,
+    elevation: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.45)',
+  },
   logoImage: {
-    width: 150,
-    height: 150,
-    marginBottom: 20,
+    width: 152,
+    height: 152,
+    borderRadius: 24,
   },
   logo: {
     fontSize: 48,
@@ -56,4 +74,3 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
 });
-

@@ -38,16 +38,20 @@ const DURATION_ORDER = [
 ];
 
 const LOADING_PHRASES = [
-  'Ð¡Ð¿Ð¾Ñ€Ð¸Ð¼ Ñ ÐºÐ¾Ð¼Ð¿Ð°ÑÐ¾Ð¼ Ð¾ ÐºÑ€Ð°ÑÐ¸Ð²Ð¾Ð¼ Ð¿Ð¾Ð²Ð¾Ñ€Ð¾Ñ‚Ðµ...',
-  'Ð£ÐºÐ»Ð°Ð´Ñ‹Ð²Ð°ÐµÐ¼ Ð±ÑŽÐ´Ð¶ÐµÑ‚ Ð² Ñ‡ÐµÐ¼Ð¾Ð´Ð°Ð½ Ð±ÐµÐ· Ð»Ð¸ÑˆÐ½ÐµÐ³Ð¾ ÑˆÑƒÐ¼Ð°...',
-  'Ð˜Ñ‰ÐµÐ¼ Ñ‚Ð¾Ñ‡ÐºÐ¸, ÐºÐ¾Ñ‚Ð¾Ñ€Ñ‹Ðµ Ð´Ñ€ÑƒÐ¶Ð°Ñ‚ Ð¿Ð¾ Ð´Ð¾Ñ€Ð¾Ð³Ðµ...',
-  'ÐŸÑ€Ð¾ÑÐ¸Ð¼ ÐºÐ°Ñ€Ñ‚Ñƒ Ð½Ðµ ÑÑ‚Ñ€Ð¾Ð¸Ñ‚ÑŒ Ð·Ð¸Ð³Ð·Ð°Ð³Ð¸...',
-  'Ð¡Ð¾Ð±Ð¸Ñ€Ð°ÐµÐ¼ Ð¼Ð°Ñ€ÑˆÑ€ÑƒÑ‚, Ð³Ð´Ðµ ÐºÐ°Ð¶Ð´Ñ‹Ð¹ ÑÐ»ÐµÐ´ÑƒÑŽÑ‰Ð¸Ð¹ ÑˆÐ°Ð³ Ð¸Ð¼ÐµÐµÑ‚ ÑÐ¼Ñ‹ÑÐ»...',
+  'Спорим с компасом о красивом повороте...',
+  'Укладываем бюджет в чемодан без лишнего шума...',
+  'Ищем точки, которые дружат по дороге...',
+  'Просим карту не строить зигзаги...',
+  'Собираем маршрут, где каждый следующий шаг имеет смысл...',
 ];
 
 const getApiBaseUrl = () => {
   if (process.env.EXPO_PUBLIC_API_URL) {
     return process.env.EXPO_PUBLIC_API_URL;
+  }
+
+  if (!__DEV__) {
+    return Constants.expoConfig?.extra?.apiUrl || 'https://nomadsway.kz';
   }
 
   const hostUri =
@@ -67,6 +71,20 @@ const getApiBaseUrl = () => {
   return 'http://localhost:3001';
 };
 
+async function fetchWithTimeout(url, options = {}, timeoutMs = 20000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+const MAPS_ENABLED =
+  Platform.OS !== 'android' || !!Constants.expoConfig?.android?.config?.googleMaps?.apiKey;
+
 export default function AIRouteBuilderScreen({ navigation }) {
   const { t } = useLocalization();
   const { addToCart } = useCart();
@@ -79,6 +97,7 @@ export default function AIRouteBuilderScreen({ navigation }) {
   const [budgetMax, setBudgetMax] = useState('15000');
   const [activityLevel, setActivityLevel] = useState(ACTIVITY_LEVELS.MODERATE);
   const [selectedInterests, setSelectedInterests] = useState([]);
+  const [routeDescription, setRouteDescription] = useState('');
 
   // Route state
   const [loading, setLoading] = useState(false);
@@ -208,7 +227,7 @@ export default function AIRouteBuilderScreen({ navigation }) {
     setLoading(true);
 
     try {
-      const response = await fetch(`${getApiBaseUrl()}/api/routes/build`, {
+      const response = await fetchWithTimeout(`${getApiBaseUrl()}/api/routes/build`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -222,8 +241,9 @@ export default function AIRouteBuilderScreen({ navigation }) {
           interests: selectedInterests,
           activityLevel,
           ageGroup,
+          description: routeDescription.trim() || undefined,
         }),
-      });
+      }, 20000);
 
       const data = await response.json();
 
@@ -231,7 +251,7 @@ export default function AIRouteBuilderScreen({ navigation }) {
         setRoute(data.route);
         setSummary(data.summary);
         if (!data.route || data.route.length === 0) {
-          setFormError('ÐÐµ Ð½Ð°ÑˆÐ»Ð¾ÑÑŒ Ð¼ÐµÑÑ‚ Ð¿Ð¾Ð´ ÑÑ‚Ð¸ Ð¿Ð°Ñ€Ð°Ð¼ÐµÑ‚Ñ€Ñ‹. ÐŸÐ¾Ð¿Ñ€Ð¾Ð±ÑƒÐ¹Ñ‚Ðµ Ñ€Ð°ÑÑˆÐ¸Ñ€Ð¸Ñ‚ÑŒ Ð±ÑŽÐ´Ð¶ÐµÑ‚ Ð¸Ð»Ð¸ Ð´Ð¾Ð±Ð°Ð²Ð¸Ñ‚ÑŒ Ð¸Ð½Ñ‚ÐµÑ€ÐµÑÑ‹.');
+          setFormError('Не нашлось мест под эти параметры. Попробуйте расширить бюджет или добавить интересы.');
         }
       } else {
         const msg = data?.error?.message || data?.error || t('routeBuildFailed');
@@ -240,8 +260,11 @@ export default function AIRouteBuilderScreen({ navigation }) {
       }
     } catch (error) {
       console.error('Error building route:', error);
-      setFormError(t('serverConnectionError'));
-      notify(t('error'), t('serverConnectionError'));
+      const timeoutMessage = error?.name === 'AbortError'
+        ? 'Сервер слишком долго строил маршрут. Попробуйте сузить бюджет, интересы или повторить запрос.'
+        : t('serverConnectionError');
+      setFormError(timeoutMessage);
+      notify(t('error'), timeoutMessage);
     } finally {
       setLoading(false);
     }
@@ -264,9 +287,9 @@ export default function AIRouteBuilderScreen({ navigation }) {
       const activities = [];
       const timeSlots = ['morning', 'afternoon', 'evening'];
       const timeLabels = {
-        morning: 'ðŸŒ… Ð£Ñ‚Ñ€Ð¾ (9:00-12:00)',
-        afternoon: 'â˜€ï¸ Ð”ÐµÐ½ÑŒ (12:00-18:00)',
-        evening: 'ðŸŒ™ Ð’ÐµÑ‡ÐµÑ€ (18:00-21:00)',
+        morning: 'Утро (9:00-12:00)',
+        afternoon: 'День (12:00-18:00)',
+        evening: 'Вечер (18:00-21:00)',
       };
 
       dayStops.forEach((stop, index) => {
@@ -308,8 +331,8 @@ export default function AIRouteBuilderScreen({ navigation }) {
     const result = await addToCart({
       id: `custom_route_${Date.now()}`,
       type: 'tour',
-      name: `Ð˜Ð½Ð´Ð¸Ð²Ð¸Ð´ÑƒÐ°Ð»ÑŒÐ½Ñ‹Ð¹ Ñ‚ÑƒÑ€ (${route.length} Ð¼ÐµÑÑ‚)`,
-      city: route[0]?.attraction?.city || 'ÐšÐ°Ð·Ð°Ñ…ÑÑ‚Ð°Ð½',
+      name: `Индивидуальный тур (${route.length} мест)`,
+      city: route[0]?.attraction?.city || 'Казахстан',
       region: route[0]?.attraction?.region || 'mixed',
       price: { min: summary?.totalCost * 0.8, max: summary?.totalCost * 1.2 },
       durationDays: durationDays,
@@ -318,7 +341,7 @@ export default function AIRouteBuilderScreen({ navigation }) {
     setIsAddingToCart(false);
 
     if (!result?.success) {
-      notify('ÐžÑˆÐ¸Ð±ÐºÐ°', result?.error || 'ÐÐµ ÑƒÐ´Ð°Ð»Ð¾ÑÑŒ Ð´Ð¾Ð±Ð°Ð²Ð¸Ñ‚ÑŒ Ð¼Ð°Ñ€ÑˆÑ€ÑƒÑ‚ Ð² ÐºÐ¾Ñ€Ð·Ð¸Ð½Ñƒ');
+      notify('Ошибка', result?.error || 'Не удалось добавить маршрут в корзину');
       return;
     }
 
@@ -328,6 +351,20 @@ export default function AIRouteBuilderScreen({ navigation }) {
   const renderForm = () => (
     <View style={styles.formContainer}>
       <Text style={styles.sectionTitle}>{t('routeParams')}</Text>
+
+      <View style={styles.fieldContainer}>
+        <Text style={styles.label}>Опишите маршрут</Text>
+        <TextInput
+          style={styles.descriptionInput}
+          placeholder="Например: хочу спокойный маршрут по природе без долгих переездов, с красивыми видами и кафе по пути"
+          placeholderTextColor="#8e8e93"
+          value={routeDescription}
+          onChangeText={setRouteDescription}
+          multiline
+          maxLength={500}
+          textAlignVertical="top"
+        />
+      </View>
 
       {/* Age Group Selection */}
       <View style={styles.fieldContainer}>
@@ -392,7 +429,7 @@ export default function AIRouteBuilderScreen({ navigation }) {
             value={budgetMin}
             onChangeText={setBudgetMin}
           />
-          <Text style={styles.budgetSeparator}>â€”</Text>
+          <Text style={styles.budgetSeparator}>-</Text>
           <TextInput
             style={styles.budgetInput}
             placeholder={t('budgetMax')}
@@ -472,7 +509,7 @@ export default function AIRouteBuilderScreen({ navigation }) {
         {loading ? (
           <>
             <ActivityIndicator color="#fff" />
-            <Text style={styles.buildButtonText}>ÐœÐ°Ñ€ÑˆÑ€ÑƒÑ‚ Ð²Ð°Ñ€Ð¸Ñ‚ÑÑ...</Text>
+            <Text style={styles.buildButtonText}>Маршрут варится...</Text>
           </>
         ) : (
           <>
@@ -488,7 +525,7 @@ export default function AIRouteBuilderScreen({ navigation }) {
             <Ionicons name="compass-outline" size={26} color="#d4af37" />
           </Animated.View>
           <View style={styles.planningTextWrap}>
-            <Text style={styles.planningTitle}>AI-ÐºÑƒÑ€Ð°Ñ‚Ð¾Ñ€ Ð¿Ñ€Ð¾ÐºÐ»Ð°Ð´Ñ‹Ð²Ð°ÐµÑ‚ Ð¿ÑƒÑ‚ÑŒ</Text>
+            <Text style={styles.planningTitle}>AI-куратор прокладывает путь</Text>
             <Text style={styles.planningPhrase}>{LOADING_PHRASES[loadingPhraseIndex]}</Text>
           </View>
           <View style={styles.planningDots}>
@@ -542,7 +579,7 @@ export default function AIRouteBuilderScreen({ navigation }) {
             {summary.curationSource === 'llm' ? (
               <View style={styles.aiBadge}>
                 <Ionicons name="sparkles-outline" size={12} color="#1a4d3a" />
-                <Text style={styles.aiBadgeText}>ÐŸÐ¾Ð´Ð¾Ð±Ñ€Ð°Ð½Ð¾ AI-ÐºÑƒÑ€Ð°Ñ‚Ð¾Ñ€Ð¾Ð¼</Text>
+                <Text style={styles.aiBadgeText}>Подобрано AI-куратором</Text>
               </View>
             ) : null}
             <View style={styles.summaryRow}>
@@ -554,7 +591,7 @@ export default function AIRouteBuilderScreen({ navigation }) {
             <View style={styles.summaryRow}>
               <Ionicons name="cash-outline" size={20} color="#d4af37" />
               <Text style={styles.summaryText}>
-                {t('summaryBudget')}: ~{summary.totalCost} â‚¸
+                {t('summaryBudget')}: ~{summary.totalCost} ₸
               </Text>
             </View>
             <View style={styles.summaryRow}>
@@ -574,41 +611,48 @@ export default function AIRouteBuilderScreen({ navigation }) {
               onPress={() => setViewMode('timeline')}
             >
               <Ionicons name="list-outline" size={16} color={viewMode === 'timeline' ? '#fff' : '#1a4d3a'} />
-              <Text style={[styles.viewModeText, viewMode === 'timeline' && styles.viewModeTextActive]}>Ð¢Ð°Ð¹Ð¼Ð»Ð°Ð¹Ð½</Text>
+              <Text style={[styles.viewModeText, viewMode === 'timeline' && styles.viewModeTextActive]}>Таймлайн</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.viewModeButton, viewMode === 'daily' && styles.viewModeButtonActive]}
               onPress={() => setViewMode('daily')}
             >
               <Ionicons name="calendar-outline" size={16} color={viewMode === 'daily' ? '#fff' : '#1a4d3a'} />
-              <Text style={[styles.viewModeText, viewMode === 'daily' && styles.viewModeTextActive]}>ÐŸÐ¾ Ð´Ð½ÑÐ¼</Text>
+              <Text style={[styles.viewModeText, viewMode === 'daily' && styles.viewModeTextActive]}>По дням</Text>
             </TouchableOpacity>
           </View>
         )}
 
         {/* Map */}
-        <MapView style={styles.map} initialRegion={region}>
-          {route.map((stop, index) => (
-            <Marker
-              key={stop.attraction.id}
-              coordinate={{
-                latitude: stop.attraction.latitude,
-                longitude: stop.attraction.longitude,
-              }}
-              title={stop.attraction.name}
-              description={stop.attraction.description}
-            >
-              <View style={styles.markerContainer}>
-                <Text style={styles.markerNumber}>{index + 1}</Text>
-              </View>
-            </Marker>
-          ))}
-          <Polyline
-            coordinates={coordinates}
-            strokeColor="#d4af37"
-            strokeWidth={3}
-          />
-        </MapView>
+        {MAPS_ENABLED ? (
+          <MapView style={styles.map} initialRegion={region}>
+            {route.map((stop, index) => (
+              <Marker
+                key={stop.attraction.id}
+                coordinate={{
+                  latitude: stop.attraction.latitude,
+                  longitude: stop.attraction.longitude,
+                }}
+                title={stop.attraction.name}
+                description={stop.attraction.description}
+              >
+                <View style={styles.markerContainer}>
+                  <Text style={styles.markerNumber}>{index + 1}</Text>
+                </View>
+              </Marker>
+            ))}
+            <Polyline
+              coordinates={coordinates}
+              strokeColor="#d4af37"
+              strokeWidth={3}
+            />
+          </MapView>
+        ) : (
+          <View style={[styles.map, styles.mapFallback]}>
+            <Ionicons name="map-outline" size={32} color="#d4af37" />
+            <Text style={styles.mapFallbackText}>Карта будет доступна после настройки Google Maps для Android.</Text>
+          </View>
+        )}
 
         {/* Route Timeline */}
         <ScrollView style={styles.timeline}>
@@ -645,7 +689,7 @@ export default function AIRouteBuilderScreen({ navigation }) {
                   )}
                   <View style={styles.detailItem}>
                     <Ionicons name="cash-outline" size={16} color="#666" />
-                    <Text style={styles.detailText}>~{Math.round(stop.estimatedCost)} â‚¸</Text>
+                    <Text style={styles.detailText}>~{Math.round(stop.estimatedCost)} ₸</Text>
                   </View>
                 </View>
 
@@ -655,7 +699,7 @@ export default function AIRouteBuilderScreen({ navigation }) {
                     <Text style={styles.alternativesTitle}>{`${t('alternatives')}:`}</Text>
                     {stop.alternatives.map(alt => (
                       <Text key={alt.id} style={styles.alternativeItem}>
-                        â€¢ {alt.name}
+                        • {alt.name}
                       </Text>
                     ))}
                   </View>
@@ -668,12 +712,12 @@ export default function AIRouteBuilderScreen({ navigation }) {
         {/* Day-by-Day View (for multi-day trips) */}
         {viewMode === 'daily' && duration === DURATIONS.THREE_DAYS && (
           <View style={styles.dailySchedule}>
-            <Text style={styles.dailyScheduleTitle}>ðŸ“… Ð Ð°ÑÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ Ð¿Ð¾ Ð´Ð½ÑÐ¼</Text>
+            <Text style={styles.dailyScheduleTitle}>Расписание по дням</Text>
             {organizeByDays().map((day) => (
               <View key={day.dayNumber} style={styles.dayCard}>
                 <View style={styles.dayHeader}>
-                  <Text style={styles.dayTitle}>Ð”ÐµÐ½ÑŒ {day.dayNumber}</Text>
-                  <Text style={styles.dayCost}>~{Math.round(day.totalCost).toLocaleString()} â‚¸</Text>
+                  <Text style={styles.dayTitle}>День {day.dayNumber}</Text>
+                  <Text style={styles.dayCost}>~{Math.round(day.totalCost).toLocaleString()} ₸</Text>
                 </View>
                 {day.activities.map((activity, idx) => (
                   <View key={idx} style={styles.activityItem}>
@@ -681,9 +725,9 @@ export default function AIRouteBuilderScreen({ navigation }) {
                     <View style={styles.activityContent}>
                       <Text style={styles.activityName}>{activity.attraction.name}</Text>
                       <View style={styles.activityDetails}>
-                        <Text style={styles.activityDuration}>â± {activity.visitDuration} Ð¼Ð¸Ð½</Text>
+                        <Text style={styles.activityDuration}>{activity.visitDuration} мин</Text>
                         {activity.travelTime > 0 && (
-                          <Text style={styles.activityTravel}>ðŸš— +{activity.travelTime} Ð¼Ð¸Ð½</Text>
+                          <Text style={styles.activityTravel}>+{activity.travelTime} мин</Text>
                         )}
                       </View>
                     </View>
@@ -806,6 +850,18 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 15,
     fontSize: 16,
+    backgroundColor: '#fff',
+  },
+  descriptionInput: {
+    minHeight: 104,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    fontSize: 15,
+    lineHeight: 21,
+    color: '#222',
     backgroundColor: '#fff',
   },
   budgetSeparator: {
@@ -997,6 +1053,19 @@ const styles = StyleSheet.create({
     marginHorizontal: 15,
     borderRadius: 10,
     overflow: 'hidden',
+  },
+  mapFallback: {
+    backgroundColor: '#0d231b',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  mapFallbackText: {
+    color: '#d7e6de',
+    fontSize: 14,
+    lineHeight: 20,
+    textAlign: 'center',
+    marginTop: 10,
   },
   markerContainer: {
     backgroundColor: '#d4af37',
