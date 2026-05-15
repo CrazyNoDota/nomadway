@@ -6,11 +6,14 @@ const OpenAI = require('openai');
 const config = require('../config');
 
 const useNvidia = !!config.nvidia.llmApiKey;
-const llmClient = new OpenAI(
-  useNvidia
-    ? { apiKey: config.nvidia.llmApiKey, baseURL: config.nvidia.baseUrl }
-    : { apiKey: config.openai.apiKey }
-);
+const llmApiKey = useNvidia ? config.nvidia.llmApiKey : config.openai.apiKey;
+const llmClient = llmApiKey
+  ? new OpenAI(
+      useNvidia
+        ? { apiKey: llmApiKey, baseURL: config.nvidia.baseUrl }
+        : { apiKey: llmApiKey }
+    )
+  : null;
 const LLM_MODEL = useNvidia ? config.nvidia.llmModel : config.openai.model;
 const CURATOR_TIMEOUT_MS = Number(process.env.ROUTE_CURATOR_TIMEOUT_MS || 5000);
 
@@ -82,8 +85,8 @@ function parseJsonLoose(text) {
   }
 }
 
-async function callLLM(candidates, prefs) {
-  if (!useNvidia && !config.openai.apiKey) return null;
+async function callLLM(candidates, prefs, signal) {
+  if (!llmClient) return null;
 
   const completion = await llmClient.chat.completions.create({
     model: LLM_MODEL,
@@ -97,19 +100,28 @@ async function callLLM(candidates, prefs) {
       },
       { role: 'user', content: buildPrompt(candidates, prefs) },
     ],
-  });
+  }, { signal });
+
+  if (signal?.aborted) {
+    return null;
+  }
 
   const raw = completion.choices?.[0]?.message?.content || '';
   return parseJsonLoose(raw);
 }
 
-function withTimeout(promise, ms) {
-  let timer;
-  const timeout = new Promise((resolve) => {
-    timer = setTimeout(() => resolve(null), ms);
-  });
+async function withTimeout(fn, ms) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
 
-  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+  try {
+    return await fn(controller.signal);
+  } catch (err) {
+    if (controller.signal.aborted || err.name === 'AbortError') return null;
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 /**
@@ -126,7 +138,10 @@ async function curateRoute(candidates, prefs) {
   const byId = new Map(candidates.map((a) => [a.id, a]));
 
   try {
-    const parsed = await withTimeout(callLLM(candidatePayload, prefs), CURATOR_TIMEOUT_MS);
+    const parsed = await withTimeout(
+      (signal) => callLLM(candidatePayload, prefs, signal),
+      CURATOR_TIMEOUT_MS
+    );
     if (parsed?.stops?.length) {
       const stops = parsed.stops
         .map((s) => {
