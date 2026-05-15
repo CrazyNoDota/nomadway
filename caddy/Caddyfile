@@ -1,6 +1,14 @@
 nomadsway.kz, www.nomadsway.kz {
     encode zstd gzip
 
+    # Port 80 is held by another service on this host, so HTTP-01 is unusable.
+    # Caddy uses TLS-ALPN-01 on 443 for issuance and renewal.
+    tls {
+        issuer acme {
+            disable_http_challenge
+        }
+    }
+
     @api path /api/* /socket.io/* /health
     reverse_proxy @api backend:3001
 
