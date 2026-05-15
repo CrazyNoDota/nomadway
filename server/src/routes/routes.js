@@ -62,11 +62,11 @@ router.post('/build', optionalAuth, validate(buildRouteSchema), async (req, res)
       where.interests = { hasSome: interests };
     }
 
-    // Budget filter
+    // Budget filter: max budget is the affordability ceiling. Do not exclude
+    // cheaper stops just because the user can spend more.
     if (budget) {
       where.AND = [
         { budgetMin: { lte: budget.max } },
-        { budgetMax: { gte: budget.min } },
       ];
     }
 
