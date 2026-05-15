@@ -81,6 +81,8 @@ services:
     restart: unless-stopped
     depends_on:
       - backend
+    volumes:
+      - ${APK_HOST_PATH:-./website/public/nomadway.apk}:/usr/share/nginx/html/nomadway.apk:ro
     networks:
       - nomadway-network
 
