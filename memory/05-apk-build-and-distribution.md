@@ -13,18 +13,22 @@ a new build is required.
 
 | Field | Value |
 |---|---|
-| Build ID | `aac034ef-7af2-49e8-93be-86992490bd5b` |
+| Build ID | `e9609d43-3057-4709-a6b5-979ef1f29fa9` |
+| Git commit | `c2b4b9b` (Maps key + MAPS_ENABLED guards on AttractionDetails/MapScreen) |
+| versionCode | `3` (`appBuildVersion`) |
 | Profile | `preview` (EAS `distribution: internal`, `buildType: apk`) |
-| API URL in APK | `http://2.134.15.37:3001` (HTTP, no TLS — hits backend direct, bypassing Caddy) |
-| Size | 97.7 MiB |
-| Location in repo | `website/public/nomadway.apk` |
+| API URL in APK | `https://nomadsway.kz` (from `app.json` `extra.apiUrl`) |
+| Google Maps Android key | embedded in APK via `android.config.googleMaps.apiKey` in `app.json` — restrict in Cloud Console to package `com.nomadway.app` + SHA-1 `72:90:92:D3:2D:7E:3C:87:A4:05:AA:84:1B:5C:28:78:00:C8:F7:D8` and API `Maps SDK for Android` only |
+| Size | 107.18 MiB (over GitHub 100 MiB hard limit — see Git LFS note below) |
+| Location in repo | `website/public/nomadway.apk` (tracked by git-lfs) |
 | Public URL | https://nomadsway.kz/nomadway.apk |
-| Build page | https://expo.dev/accounts/crazynodota3/projects/nomadway/builds/aac034ef-7af2-49e8-93be-86992490bd5b |
+| Artifact URL (expires) | https://expo.dev/artifacts/eas/uPtdJwDBrHh4JVqqPMSf44.apk |
+| Build page | https://expo.dev/accounts/crazynodota3/projects/nomadway/builds/e9609d43-3057-4709-a6b5-979ef1f29fa9 |
 
 `app.json` has `"usesCleartextTraffic": true` under `android` and in the
-`expo-build-properties` plugin — this is what allows Android to make the
-plain-HTTP call on port 3001. If you switch the APK to an HTTPS URL you
-can remove those flags.
+`expo-build-properties` plugin — historically needed for HTTP-only backend
+URLs. Current APK points at `https://nomadsway.kz`, so the cleartext flags
+are no longer strictly required but left in for fallback.
 
 ## How to build a new APK
 
@@ -45,11 +49,17 @@ after that it's reused. Preview builds do **not** auto-increment
 ## How to publish a new APK to the site
 
 1. Wait for the build to reach `FINISHED`.
-2. Download the artifact from the URL shown by EAS (or `eas build:view <id> --json`).
-3. Replace `website/public/nomadway.apk`.
-4. Commit — `*.apk` is globally ignored, but `!website/public/nomadway.apk`
-   in `.gitignore` keeps this one in git.
-5. Push, SSH in, `git pull && docker compose up -d --build website`.
+2. Download the artifact:
+   `curl -L -o website/public/nomadway.apk "$(eas build:view <id> --json | jq -r .artifacts.applicationArchiveUrl)"`.
+3. **APKs are now tracked by git-lfs** (`.gitattributes` line
+   `website/public/*.apk filter=lfs diff=lfs merge=lfs -text`). A normal
+   `git add website/public/nomadway.apk` is enough — LFS will swap in a
+   pointer automatically. Verify with `git show :website/public/nomadway.apk | head -3`
+   (should print the LFS `version` / `oid` / `size` header).
+4. Commit + `git push origin master` — push also uploads the LFS blob
+   (~100 MiB, watch for `Uploading LFS objects: ...` line).
+5. On the VPS: `git lfs pull && git pull && docker compose up -d --build website`.
+   First-time on the VPS: `git lfs install` once, then `git lfs pull`.
 
 ## Download flow on the site
 
@@ -74,9 +84,10 @@ back into `app.json`.
 
 ## Repo-size consideration
 
-GitHub warned the 98 MiB APK exceeds their 50 MiB soft limit (but is
-below the 100 MiB hard limit, so the push succeeded). If APK updates
-become frequent, migrate to **Git LFS**:
+**Done — migrated to Git LFS in commit `9a62d32` (2026-05-16).** Trigger
+was the Maps-key APK growing to 107 MiB, over GitHub's 100 MiB hard
+limit. `.gitattributes` tracks `website/public/*.apk`; the recipe used
+was:
 
 ```bash
 git lfs install
@@ -86,3 +97,8 @@ git rm --cached website/public/nomadway.apk
 git add website/public/nomadway.apk
 git commit -m "migrate APK to git-lfs"
 ```
+
+**Watch the LFS quota** on the `CrazyNoDota/nomadway` repo —
+GitHub's free plan gives 1 GiB storage + 1 GiB/month bandwidth. Each
+APK push burns ~100 MiB of both. Track usage at
+https://github.com/settings/billing/summary if pushes start failing.
