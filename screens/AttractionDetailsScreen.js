@@ -62,6 +62,7 @@ export default function AttractionDetailsScreen({ route, navigation }) {
     (attraction?.discountPrice
       ? { min: attraction.discountPrice, max: attraction.originalPrice || attraction.discountPrice }
       : null);
+  const imageUri = attraction?.imageThumb || attraction?.imageOriginal || attraction?.image;
 
   useEffect(() => {
     AsyncStorage.getItem(`saved_${attraction.id}`)
@@ -107,7 +108,7 @@ export default function AttractionDetailsScreen({ route, navigation }) {
       price,
       durationDays: attraction.durationDays || 1,
       bestSeason: attraction.bestSeason,
-      image: attraction.image,
+      image: imageUri,
     });
     Alert.alert(
       isRu ? 'Добавлено в корзину' : 'Added to cart',
@@ -131,6 +132,11 @@ export default function AttractionDetailsScreen({ route, navigation }) {
     if (attraction.imageAttribution?.sourceUrl) {
       Linking.openURL(attraction.imageAttribution.sourceUrl).catch(() => {});
     }
+  };
+
+  const openIn2GIS = () => {
+    if (!hasLocation) return;
+    Linking.openURL(`https://2gis.kz/geo/${attraction.longitude},${attraction.latitude}`).catch(() => {});
   };
 
   // Parallax scroll
@@ -199,7 +205,7 @@ export default function AttractionDetailsScreen({ route, navigation }) {
         {/* Parallax hero */}
         <View style={styles.heroWrap}>
           <Animated.Image
-            source={{ uri: attraction.image }}
+            source={{ uri: imageUri }}
             style={[styles.heroImage, heroStyle]}
             resizeMode="cover"
           />
@@ -380,6 +386,12 @@ export default function AttractionDetailsScreen({ route, navigation }) {
                         ? 'Карта будет доступна после настройки Google Maps для Android.'
                         : 'Map will be available after Google Maps for Android is configured.'}
                     </Text>
+                    <TouchableOpacity style={styles.externalMapButton} onPress={openIn2GIS}>
+                      <Ionicons name="navigate-outline" size={16} color="#08110d" />
+                      <Text style={styles.externalMapButtonText}>
+                        {isRu ? '\u041e\u0442\u043a\u0440\u044b\u0442\u044c \u0432 2\u0413\u0418\u0421' : 'Open in 2GIS'}
+                      </Text>
+                    </TouchableOpacity>
                   </View>
                 )}
               </TouchableOpacity>
@@ -508,7 +520,7 @@ const styles = StyleSheet.create({
   heroOverlay: { ...StyleSheet.absoluteFillObject },
   attribution: {
     position: 'absolute',
-    bottom: 12,
+    bottom: 82,
     left: 12,
     flexDirection: 'row',
     alignItems: 'center',
@@ -647,6 +659,21 @@ const styles = StyleSheet.create({
     fontSize: 13,
     textAlign: 'center',
     marginTop: 8,
+  },
+  externalMapButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    borderRadius: 999,
+    backgroundColor: '#d4af37',
+  },
+  externalMapButtonText: {
+    color: '#08110d',
+    fontSize: 13,
+    fontWeight: '700',
+    marginLeft: 6,
   },
   mapHint: {
     position: 'absolute',

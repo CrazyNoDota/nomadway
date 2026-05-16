@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Dimensions,
   Platform,
+  Linking,
 } from 'react-native';
 import Constants from 'expo-constants';
 import { Ionicons } from '@expo/vector-icons';
@@ -121,6 +122,16 @@ export default function MapScreen({ route, navigation }) {
     longitude: attraction.longitude,
   }));
 
+  const openIn2GIS = () => {
+    const point = zoomToPlace || attractions[0] || KAZAKHSTAN_CENTER;
+    const latitude = Number(point?.latitude);
+    const longitude = Number(point?.longitude);
+    const url = Number.isFinite(latitude) && Number.isFinite(longitude)
+      ? `https://2gis.kz/geo/${longitude},${latitude}`
+      : 'https://2gis.kz';
+    Linking.openURL(url).catch(() => {});
+  };
+
   if (!MAPS_ENABLED) {
     const isRu = language !== 'en';
     return (
@@ -131,6 +142,12 @@ export default function MapScreen({ route, navigation }) {
             ? 'Карта будет доступна после настройки Google Maps для Android.'
             : 'Map will be available after Google Maps for Android is configured.'}
         </Text>
+        <TouchableOpacity style={styles.externalMapButton} onPress={openIn2GIS}>
+          <Ionicons name="navigate-outline" size={16} color="#08110d" />
+          <Text style={styles.externalMapButtonText}>
+            {isRu ? '\u041e\u0442\u043a\u0440\u044b\u0442\u044c \u0432 2\u0413\u0418\u0421' : 'Open in 2GIS'}
+          </Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -229,6 +246,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
     marginTop: 12,
+  },
+  externalMapButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 999,
+    backgroundColor: '#d4af37',
+  },
+  externalMapButtonText: {
+    color: '#08110d',
+    fontSize: 14,
+    fontWeight: '700',
+    marginLeft: 6,
   },
   map: {
     width: '100%',

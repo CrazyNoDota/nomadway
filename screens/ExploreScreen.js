@@ -34,6 +34,7 @@ export default function ExploreScreen({ navigation, route }) {
   const { addToCart, getItemCount } = useCart();
   const { toggleFavorite, isFavorite } = useFavorites();
   const { requireAuth } = useAuth();
+  const getImageUri = (item) => item?.imageThumb || item?.imageOriginal || item?.image;
 
   // Handle tab switching from navigation params
   useEffect(() => {
@@ -51,7 +52,7 @@ export default function ExploreScreen({ navigation, route }) {
         description: item.description,
         duration: item.duration,
         difficulty: item.difficulty,
-        image: item.image,
+        image: getImageUri(item),
         color: item.color,
         stopsCount: item.stops?.length || 0,
       });
@@ -62,7 +63,7 @@ export default function ExploreScreen({ navigation, route }) {
         name: item.name,
         city: item.city,
         region: item.region,
-        image: item.image,
+        image: getImageUri(item),
         rating: item.rating,
         category: item.category,
         budget: item.budget,
@@ -173,7 +174,7 @@ export default function ExploreScreen({ navigation, route }) {
       price: item.budget,
       durationDays: 1,
       bestSeason: item.bestSeason,
-      image: item.image,
+      image: getImageUri(item),
     });
 
     Alert.alert(
@@ -191,7 +192,7 @@ export default function ExploreScreen({ navigation, route }) {
       style={styles.card}
       onPress={() => navigation.navigate('AttractionDetails', { attraction: item })}
     >
-      <Image source={{ uri: item.image }} style={styles.cardImage} />
+      <Image source={{ uri: getImageUri(item) }} style={styles.cardImage} />
 
       {/* Quick info badges */}
       <View style={styles.cardBadges}>
@@ -296,7 +297,7 @@ export default function ExploreScreen({ navigation, route }) {
       onPress={() => navigation.navigate('RouteDetails', { route: item })}
     >
       <View style={styles.routeImageContainer}>
-        <Image source={{ uri: item.image }} style={styles.routeCardImage} />
+        <Image source={{ uri: getImageUri(item) }} style={styles.routeCardImage} />
         <TouchableOpacity
           style={styles.favoriteButton}
           onPress={() => handleToggleFavorite(item, 'route')}

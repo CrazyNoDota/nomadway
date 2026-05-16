@@ -8,6 +8,7 @@ import {
   TextInput,
   ActivityIndicator,
   Platform,
+  Linking,
   Animated,
   Easing,
 } from 'react-native';
@@ -44,6 +45,21 @@ const LOADING_PHRASES = [
   'Просим карту не строить зигзаги...',
   'Собираем маршрут, где каждый следующий шаг имеет смысл...',
 ];
+
+const LOADING_FACTS = {
+  ru: [
+    '\u041a\u0430\u0437\u0430\u0445\u0441\u0442\u0430\u043d \u0432\u0445\u043e\u0434\u0438\u0442 \u0432 \u0442\u043e\u043f-10 \u0441\u0442\u0440\u0430\u043d \u043c\u0438\u0440\u0430 \u043f\u043e \u043f\u043b\u043e\u0449\u0430\u0434\u0438.',
+    '\u041e\u0437\u0435\u0440\u043e \u0411\u0430\u043b\u0445\u0430\u0448 \u0443\u043d\u0438\u043a\u0430\u043b\u044c\u043d\u043e: \u043e\u0434\u043d\u0430 \u0447\u0430\u0441\u0442\u044c \u043f\u0440\u0435\u0441\u043d\u0430\u044f, \u0434\u0440\u0443\u0433\u0430\u044f \u0441\u043e\u043b\u0435\u043d\u0430\u044f.',
+    '\u0427\u0430\u0440\u044b\u043d\u0441\u043a\u0438\u0439 \u043a\u0430\u043d\u044c\u043e\u043d \u0447\u0430\u0441\u0442\u043e \u043d\u0430\u0437\u044b\u0432\u0430\u044e\u0442 \u043c\u043b\u0430\u0434\u0448\u0438\u043c \u0431\u0440\u0430\u0442\u043e\u043c \u0413\u0440\u0430\u043d\u0434-\u041a\u0430\u043d\u044c\u043e\u043d\u0430.',
+    '\u0412 \u0410\u043b\u043c\u0430\u0442\u044b \u0437\u0430 \u043e\u0434\u0438\u043d \u0434\u0435\u043d\u044c \u043c\u043e\u0436\u043d\u043e \u0443\u0432\u0438\u0434\u0435\u0442\u044c \u0433\u043e\u0440\u044b, \u043a\u0430\u043d\u044c\u043e\u043d\u044b \u0438 \u0441\u0442\u0435\u043f\u044c.',
+  ],
+  en: [
+    'Kazakhstan is one of the ten largest countries in the world by area.',
+    'Lake Balkhash is unusual: one side is fresh water, the other is salty.',
+    'Charyn Canyon is often called the younger sibling of the Grand Canyon.',
+    'Around Almaty, one day can include mountains, canyons, and steppe views.',
+  ],
+};
 
 const getApiBaseUrl = () => {
   if (process.env.EXPO_PUBLIC_API_URL) {
@@ -86,9 +102,13 @@ const MAPS_ENABLED =
   Platform.OS !== 'android' || !!Constants.expoConfig?.android?.config?.googleMaps?.apiKey;
 
 export default function AIRouteBuilderScreen({ navigation }) {
-  const { t } = useLocalization();
+  const { t, language } = useLocalization();
   const { addToCart } = useCart();
   const { requireAuth } = useAuth();
+  const isEnglish = language === 'en';
+  const loadingFacts = isEnglish ? LOADING_FACTS.en : LOADING_FACTS.ru;
+  const customDaysLabel = isEnglish ? 'Custom length:' : '\u0421\u0432\u043e\u0438 \u0434\u043d\u0438:';
+  const daysSuffix = isEnglish ? 'days' : '\u0434\u043d.';
 
   // Form state
   const [ageGroup, setAgeGroup] = useState(USER_GROUPS.FAMILY);
@@ -209,6 +229,13 @@ export default function AIRouteBuilderScreen({ navigation }) {
     const hours = Math.floor(minutesValue / 60);
     const remainingMinutes = minutesValue % 60;
     return `${hours}${t('hoursShort')} ${remainingMinutes}${t('minutesShort')}`;
+  };
+
+  const openIn2GIS = (point) => {
+    const latitude = Number(point?.latitude);
+    const longitude = Number(point?.longitude);
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return;
+    Linking.openURL(`https://2gis.kz/geo/${longitude},${latitude}`).catch(() => {});
   };
 
   const toggleInterest = (interest) => {
@@ -440,7 +467,7 @@ export default function AIRouteBuilderScreen({ navigation }) {
         </View>
         <View style={styles.customDaysRow}>
           <Text style={styles.customDaysLabel}>
-            {t('customDaysLabel') || 'Или сколько дней:'}
+            {customDaysLabel}
           </Text>
           <TextInput
             style={[
@@ -458,7 +485,7 @@ export default function AIRouteBuilderScreen({ navigation }) {
             }}
           />
           <Text style={styles.customDaysSuffix}>
-            {t('daysSuffix') || 'дн.'}
+            {daysSuffix}
           </Text>
         </View>
       </View>
@@ -572,6 +599,12 @@ export default function AIRouteBuilderScreen({ navigation }) {
           <View style={styles.planningTextWrap}>
             <Text style={styles.planningTitle}>AI-куратор прокладывает путь</Text>
             <Text style={styles.planningPhrase}>{LOADING_PHRASES[loadingPhraseIndex]}</Text>
+            <View style={styles.planningFact}>
+              <Ionicons name="bulb-outline" size={14} color="#d4af37" />
+              <Text style={styles.planningFactText}>
+                {loadingFacts[loadingPhraseIndex % loadingFacts.length]}
+              </Text>
+            </View>
           </View>
           <View style={styles.planningDots}>
             {[0, 1, 2].map((dot) => (
@@ -696,6 +729,15 @@ export default function AIRouteBuilderScreen({ navigation }) {
           <View style={[styles.map, styles.mapFallback]}>
             <Ionicons name="map-outline" size={32} color="#d4af37" />
             <Text style={styles.mapFallbackText}>Карта будет доступна после настройки Google Maps для Android.</Text>
+            <TouchableOpacity
+              style={styles.externalMapButton}
+              onPress={() => openIn2GIS(coordinates[0])}
+            >
+              <Ionicons name="navigate-outline" size={16} color="#08110d" />
+              <Text style={styles.externalMapButtonText}>
+                {isEnglish ? 'Open first stop in 2GIS' : '\u041e\u0442\u043a\u0440\u044b\u0442\u044c \u043f\u0435\u0440\u0432\u0443\u044e \u0442\u043e\u0447\u043a\u0443 \u0432 2\u0413\u0418\u0421'}
+              </Text>
+            </TouchableOpacity>
           </View>
         )}
 
@@ -1032,6 +1074,21 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18,
   },
+  planningFact: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(212, 175, 55, 0.22)',
+    gap: 6,
+  },
+  planningFactText: {
+    flex: 1,
+    color: '#f4e9bb',
+    fontSize: 12,
+    lineHeight: 17,
+  },
   planningDots: {
     flexDirection: 'row',
     gap: 4,
@@ -1141,6 +1198,22 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     textAlign: 'center',
     marginTop: 10,
+  },
+  externalMapButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    borderRadius: 999,
+    backgroundColor: '#d4af37',
+  },
+  externalMapButtonText: {
+    color: '#08110d',
+    fontSize: 13,
+    fontWeight: '700',
+    marginLeft: 6,
+    textAlign: 'center',
   },
   markerContainer: {
     backgroundColor: '#d4af37',
