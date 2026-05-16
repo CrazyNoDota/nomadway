@@ -93,6 +93,8 @@ export default function AIRouteBuilderScreen({ navigation }) {
   // Form state
   const [ageGroup, setAgeGroup] = useState(USER_GROUPS.FAMILY);
   const [duration, setDuration] = useState(DURATIONS.ONE_DAY);
+  // Empty string = use the selected preset above; non-empty = override with N days.
+  const [customDays, setCustomDays] = useState('');
   const [budgetMin, setBudgetMin] = useState('5000');
   const [budgetMax, setBudgetMax] = useState('15000');
   const [activityLevel, setActivityLevel] = useState(ACTIVITY_LEVELS.MODERATE);
@@ -217,6 +219,22 @@ export default function AIRouteBuilderScreen({ navigation }) {
     }
   };
 
+  // Resolve the duration string to send to the backend. If the user typed a
+  // custom day count it wins; otherwise we fall through to the selected preset.
+  const customDaysInt = (() => {
+    const n = parseInt(customDays, 10);
+    return Number.isFinite(n) && n >= 1 ? Math.min(30, n) : null;
+  })();
+  const effectiveDuration =
+    customDaysInt != null ? `${customDaysInt}_days` : duration;
+  const effectiveDays =
+    customDaysInt != null
+      ? customDaysInt
+      : duration === DURATIONS.THREE_DAYS
+      ? 3
+      : 1; // THREE_HOURS and ONE_DAY both fit a single day
+  const isMultiDay = effectiveDays > 1;
+
   const buildRoute = async () => {
     setFormError('');
     if (selectedInterests.length === 0) {
@@ -233,7 +251,7 @@ export default function AIRouteBuilderScreen({ navigation }) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          duration,
+          duration: effectiveDuration,
           budget: {
             min: Math.min(2147483647, Math.max(0, parseInt(budgetMin) || 0)),
             max: Math.min(2147483647, Math.max(0, parseInt(budgetMax) || 100000)),
@@ -274,8 +292,7 @@ export default function AIRouteBuilderScreen({ navigation }) {
   const organizeByDays = () => {
     if (!route || route.length === 0) return [];
 
-    const durationDays = duration === DURATIONS.THREE_HOURS ? 1 :
-      duration === DURATIONS.ONE_DAY ? 1 : 3;
+    const durationDays = effectiveDays;
 
     const days = [];
     const stopsPerDay = Math.ceil(route.length / durationDays);
@@ -324,8 +341,7 @@ export default function AIRouteBuilderScreen({ navigation }) {
     }
 
 
-    const durationDays = duration === DURATIONS.THREE_HOURS ? 1 :
-      duration === DURATIONS.ONE_DAY ? 1 : 3;
+    const durationDays = effectiveDays;
 
     setIsAddingToCart(true);
     const result = await addToCart({
@@ -396,25 +412,54 @@ export default function AIRouteBuilderScreen({ navigation }) {
       <View style={styles.fieldContainer}>
         <Text style={styles.label}>{t('duration')}</Text>
         <View style={styles.buttonGroup}>
-          {DURATION_ORDER.map((key) => (
-            <TouchableOpacity
-              key={key}
-              style={[
-                styles.optionButton,
-                duration === key && styles.optionButtonActive,
-              ]}
-              onPress={() => setDuration(key)}
-            >
-              <Text
+          {DURATION_ORDER.map((key) => {
+            const isActive = customDaysInt == null && duration === key;
+            return (
+              <TouchableOpacity
+                key={key}
                 style={[
-                  styles.optionButtonText,
-                  duration === key && styles.optionButtonTextActive,
+                  styles.optionButton,
+                  isActive && styles.optionButtonActive,
                 ]}
+                onPress={() => {
+                  setDuration(key);
+                  setCustomDays('');
+                }}
               >
-                {t(DURATION_LABEL_KEYS[key])}
-              </Text>
-            </TouchableOpacity>
-          ))}
+                <Text
+                  style={[
+                    styles.optionButtonText,
+                    isActive && styles.optionButtonTextActive,
+                  ]}
+                >
+                  {t(DURATION_LABEL_KEYS[key])}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+        <View style={styles.customDaysRow}>
+          <Text style={styles.customDaysLabel}>
+            {t('customDaysLabel') || 'Или сколько дней:'}
+          </Text>
+          <TextInput
+            style={[
+              styles.customDaysInput,
+              customDaysInt != null && styles.customDaysInputActive,
+            ]}
+            placeholder="—"
+            placeholderTextColor="#9aa0a6"
+            keyboardType="number-pad"
+            maxLength={2}
+            value={customDays}
+            onChangeText={(text) => {
+              const cleaned = text.replace(/[^0-9]/g, '').slice(0, 2);
+              setCustomDays(cleaned);
+            }}
+          />
+          <Text style={styles.customDaysSuffix}>
+            {t('daysSuffix') || 'дн.'}
+          </Text>
         </View>
       </View>
 
@@ -604,7 +649,7 @@ export default function AIRouteBuilderScreen({ navigation }) {
         )}
 
         {/* View Mode Toggle for multi-day trips */}
-        {duration === DURATIONS.THREE_DAYS && (
+        {isMultiDay && (
           <View style={styles.viewModeToggle}>
             <TouchableOpacity
               style={[styles.viewModeButton, viewMode === 'timeline' && styles.viewModeButtonActive]}
@@ -710,7 +755,7 @@ export default function AIRouteBuilderScreen({ navigation }) {
         </ScrollView>
 
         {/* Day-by-Day View (for multi-day trips) */}
-        {viewMode === 'daily' && duration === DURATIONS.THREE_DAYS && (
+        {viewMode === 'daily' && isMultiDay && (
           <View style={styles.dailySchedule}>
             <Text style={styles.dailyScheduleTitle}>Расписание по дням</Text>
             {organizeByDays().map((day) => (
@@ -836,6 +881,36 @@ const styles = StyleSheet.create({
   optionButtonTextActive: {
     color: '#fff',
     fontWeight: '600',
+  },
+  customDaysRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 12,
+    gap: 8,
+  },
+  customDaysLabel: {
+    color: '#666',
+    fontSize: 14,
+  },
+  customDaysInput: {
+    width: 64,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    fontSize: 16,
+    color: '#1a4d3a',
+    backgroundColor: '#fff',
+    textAlign: 'center',
+  },
+  customDaysInputActive: {
+    borderColor: '#1a4d3a',
+    borderWidth: 2,
+  },
+  customDaysSuffix: {
+    color: '#666',
+    fontSize: 14,
   },
   budgetRow: {
     flexDirection: 'row',

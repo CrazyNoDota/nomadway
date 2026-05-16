@@ -29,6 +29,7 @@ const GOOGLE_CLIENT_ID_WEB = Constants.expoConfig?.extra?.googleClientIdWeb || u
 const GOOGLE_CLIENT_ID_ANDROID = Constants.expoConfig?.extra?.googleClientIdAndroid || undefined;
 const GOOGLE_CLIENT_ID_IOS = Constants.expoConfig?.extra?.googleClientIdIos || undefined;
 const GOOGLE_ENABLED = !!(GOOGLE_CLIENT_ID_WEB || GOOGLE_CLIENT_ID_ANDROID || GOOGLE_CLIENT_ID_IOS);
+const GOOGLE_ANDROID_REDIRECT_URI = 'com.nomadway.app:/oauthredirect';
 
 const { width, height } = Dimensions.get('window');
 
@@ -43,6 +44,7 @@ export default function AuthScreen({ navigation }) {
         webClientId: GOOGLE_CLIENT_ID_WEB,
         androidClientId: GOOGLE_CLIENT_ID_ANDROID,
         iosClientId: GOOGLE_CLIENT_ID_IOS,
+        redirectUri: Platform.OS === 'android' ? GOOGLE_ANDROID_REDIRECT_URI : undefined,
     });
     const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
 
@@ -90,7 +92,15 @@ export default function AuthScreen({ navigation }) {
         }
         if (!googleRequest) return;
         setIsGoogleSubmitting(true);
-        await promptGoogle();
+        try {
+            await promptGoogle();
+        } catch (error) {
+            setIsGoogleSubmitting(false);
+            Alert.alert(
+                isRussian ? 'ÐžÑˆÐ¸Ð±ÐºÐ°' : 'Error',
+                error?.message || (isRussian ? 'ÐÐµ ÑƒÐ´Ð°Ð»Ð¾ÑÑŒ Ð¾Ñ‚ÐºÑ€Ñ‹Ñ‚ÑŒ Google Ð²Ñ…Ð¾Ð´' : 'Could not open Google sign-in')
+            );
+        }
     };
     
     const [mode, setMode] = useState('login'); // login, register, forgot

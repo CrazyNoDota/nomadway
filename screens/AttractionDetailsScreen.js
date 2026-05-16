@@ -509,7 +509,7 @@ const styles = StyleSheet.create({
   attribution: {
     position: 'absolute',
     bottom: 12,
-    right: 12,
+    left: 12,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 8,

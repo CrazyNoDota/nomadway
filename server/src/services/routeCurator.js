@@ -23,6 +23,29 @@ const DURATION_LABEL = {
   '3_days': '3-day journey',
 };
 
+// Best-effort human label for any "<N>_days" string we receive
+function durationLabelFor(duration) {
+  if (DURATION_LABEL[duration]) return DURATION_LABEL[duration];
+  const m = String(duration || '').match(/^(\d+)_days?$/);
+  if (m) {
+    const n = parseInt(m[1], 10);
+    return `${n}-day journey`;
+  }
+  return String(duration || 'trip');
+}
+
+// How many stops the LLM should plan for. Roughly 3-5 stops per day,
+// capped so the prompt stays small.
+function maxStopsFor(duration) {
+  if (duration === '3_hours') return 4;
+  const m = String(duration || '').match(/^(\d+)_days?$/);
+  if (m) {
+    const n = Math.max(1, parseInt(m[1], 10));
+    return Math.min(25, Math.max(5, n * 4));
+  }
+  return 7;
+}
+
 function buildCandidatePayload(attractions) {
   return attractions.slice(0, 30).map((a) => ({
     id: a.id,
@@ -42,7 +65,7 @@ function buildCandidatePayload(attractions) {
 }
 
 function buildPrompt(candidates, prefs) {
-  const tripLabel = DURATION_LABEL[prefs.duration] || prefs.duration;
+  const tripLabel = durationLabelFor(prefs.duration);
   return `You are a senior travel planner for NomadWay, a Kazakhstan tourism app. You design itineraries that feel curated, not just optimized.
 
 USER PREFERENCES
@@ -57,7 +80,7 @@ CANDIDATES (JSON list, ${candidates.length} places — pick from these only)
 ${JSON.stringify(candidates, null, 2)}
 
 TASK
-1. Choose 4–${prefs.duration === '3_days' ? 12 : prefs.duration === '1_day' ? 7 : 4} stops from the candidates that genuinely fit the audience and interests.
+1. Choose 4–${maxStopsFor(prefs.duration)} stops from the candidates that genuinely fit the audience and interests.
 2. Order them so travel time is minimized (use lat/lon to estimate; ~40 km/h driving in Kazakhstan).
 3. Distribute across time-of-day slots (morning / afternoon / evening) and across days if multi-day.
 4. For each stop write one short sentence (max 18 words) in Russian explaining *why this stop, why now* — the value, not the facts.

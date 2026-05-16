@@ -7,12 +7,24 @@ const { sendRouteSummaryEmail } = require('../services/emailService');
 const { curateRoute } = require('../services/routeCurator');
 const config = require('../config');
 
-// Duration mapping
-const DURATION_MAP = {
-  '3_hours': 180,
-  '1_day': 480,
-  '3_days': 1440,
-};
+// Active minutes per day used to scale multi-day trips
+const MINUTES_PER_DAY = 480;
+
+// Parse "3_hours" or "<N>_days" into the values the rest of the file expects.
+// `tier` keeps the legacy short/single/multi-day heuristic switches working
+// without exploding into N branches.
+function parseDuration(duration) {
+  if (duration === '3_hours') {
+    return { tier: '3_hours', days: 0, minutes: 180 };
+  }
+  const m = String(duration || '').match(/^(\d+)_days?$/);
+  if (m) {
+    const days = Math.max(1, parseInt(m[1], 10));
+    const tier = days >= 2 ? '3_days' : '1_day';
+    return { tier, days, minutes: days * MINUTES_PER_DAY };
+  }
+  return { tier: '1_day', days: 1, minutes: MINUTES_PER_DAY };
+}
 
 // PostgreSQL INT4 ceiling — Prisma Int columns overflow above this.
 const INT4_MAX = 2147483647;
@@ -41,7 +53,7 @@ router.post('/build', optionalAuth, validate(buildRouteSchema), async (req, res)
     };
     if (budget.max < budget.min) budget.max = budget.min;
 
-    const totalMinutes = DURATION_MAP[duration] || 180;
+    const { minutes: totalMinutes } = parseDuration(duration);
 
     // Build database query with filters - OPTIMIZED SQL instead of JS filtering
     const where = {
@@ -506,6 +518,7 @@ function estimateCost(attraction) {
 }
 
 function plannedVisitDuration(attraction, duration) {
+  const { tier } = parseDuration(duration);
   const raw = attraction.averageVisitDuration || 60;
   const caps = {
     '3_hours': 75,
@@ -518,7 +531,7 @@ function plannedVisitDuration(attraction, duration) {
     '3_days': 60,
   };
 
-  return Math.max(floors[duration] || 45, Math.min(raw, caps[duration] || 120));
+  return Math.max(floors[tier] || 45, Math.min(raw, caps[tier] || 120));
 }
 
 function hasCoordinates(attraction) {
@@ -541,29 +554,34 @@ function travelBetween(from, to) {
 }
 
 function maxLegMinutes(duration) {
-  if (duration === '3_hours') return 150;
-  if (duration === '1_day') return 240;
+  const { tier } = parseDuration(duration);
+  if (tier === '3_hours') return 150;
+  if (tier === '1_day') return 240;
   return 300;
 }
 
 function desiredStopCount(duration) {
-  if (duration === '3_hours') return 3;
-  if (duration === '1_day') return 5;
-  return 10;
+  const { tier, days } = parseDuration(duration);
+  if (tier === '3_hours') return 3;
+  if (tier === '1_day') return 5;
+  // Multi-day: roughly 3-4 stops per day, capped so the curator stays sane.
+  return Math.min(30, Math.max(6, Math.round(days * 3.3)));
 }
 
 function timeFlexLimit(totalMinutes, duration) {
+  const { tier } = parseDuration(duration);
   const flex = {
     '3_hours': 1.6,
     '1_day': 1.7,
     '3_days': 1.2,
   };
-  return totalMinutes * (flex[duration] || 1.3);
+  return totalMinutes * (flex[tier] || 1.3);
 }
 
 function buildStop(attraction, from, duration, index) {
   const travel = travelBetween(from, attraction);
   const visitDuration = plannedVisitDuration(attraction, duration);
+  const { days } = parseDuration(duration);
 
   return {
     attraction,
@@ -571,7 +589,7 @@ function buildStop(attraction, from, duration, index) {
     travelTime: travel.minutes,
     travelDistance: travel.distance,
     estimatedCost: estimateCost(attraction),
-    day: duration === '3_days' ? Math.floor(index / 3) + 1 : 1,
+    day: days >= 2 ? Math.min(days, Math.floor(index / 3) + 1) : 1,
     timeSlot: ['morning', 'afternoon', 'evening'][index % 3],
   };
 }

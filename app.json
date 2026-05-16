@@ -41,6 +41,23 @@
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE",
         "android.permission.INTERNET"
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "category": ["DEFAULT", "BROWSABLE"],
+          "data": {
+            "scheme": "com.nomadway.app",
+            "path": "/oauthredirect"
+          }
+        },
+        {
+          "action": "VIEW",
+          "category": ["DEFAULT", "BROWSABLE"],
+          "data": {
+            "scheme": "com.googleusercontent.apps.809036959951-icb3n1i65bij3kbc4bnqujkg0mede8hl"
+          }
+        }
       ]
     },
     "web": {

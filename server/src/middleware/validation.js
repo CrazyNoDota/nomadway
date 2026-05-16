@@ -154,7 +154,11 @@ const reportSchema = z.object({
 // PostgreSQL INT4 ceiling — anything above this overflows Prisma Int columns.
 const INT4_MAX = 2147483647;
 const buildRouteSchema = z.object({
-  duration: z.enum(['3_hours', '1_day', '3_days']),
+  // "3_hours" for a short half-day trip, or "<N>_days" for any N >= 1.
+  // Capped at 30 days to keep the curator bounded.
+  duration: z.string().regex(/^(3_hours|([1-9]|[12]\d|30)_days?)$/, {
+    message: 'duration must be "3_hours" or "<N>_days" with N between 1 and 30',
+  }),
   budget: z.object({
     min: z.number().min(0).max(INT4_MAX),
     max: z.number().min(0).max(INT4_MAX),
