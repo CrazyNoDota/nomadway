@@ -58,8 +58,34 @@ after that it's reused. Preview builds do **not** auto-increment
    (should print the LFS `version` / `oid` / `size` header).
 4. Commit + `git push origin master` — push also uploads the LFS blob
    (~100 MiB, watch for `Uploading LFS objects: ...` line).
-5. On the VPS: `git lfs pull && git pull && docker compose up -d --build website`.
-   First-time on the VPS: `git lfs install` once, then `git lfs pull`.
+5. On the VPS:
+   ```bash
+   cd /opt/nomadway
+   git pull                                                    # auto-smudges LFS if installed
+   cp website/public/nomadway.apk /opt/nomadway-apk/nomadway.apk   # ← see gotcha below
+   docker compose up -d --build website
+   ```
+   **First time only** on the VPS: install git-lfs. apt is currently
+   blocked by a stuck `apt-get upgrade` (debconf prompt on
+   openssh-server postinst, PID 3562450 from May 11). Install the binary
+   directly instead:
+   ```bash
+   cd /tmp
+   curl -sL -o git-lfs.tgz https://github.com/git-lfs/git-lfs/releases/download/v3.5.1/git-lfs-linux-amd64-v3.5.1.tar.gz
+   tar xzf git-lfs.tgz
+   install -m 755 git-lfs-3.5.1/git-lfs /usr/local/bin/git-lfs
+   git lfs install --system
+   ```
+
+### Gotcha: the website container does NOT bind-mount the repo path
+
+`docker-compose.yml` declares the volume as
+`${APK_HOST_PATH:-./website/public/nomadway.apk}:/usr/share/nginx/html/nomadway.apk:ro`,
+but `.env` on the VPS sets `APK_HOST_PATH=/opt/nomadway-apk/nomadway.apk`.
+So `git pull` updates the repo copy, but nginx keeps serving the old APK
+from `/opt/nomadway-apk/` until you `cp` it across. Verify with
+`docker exec nomadway-website sha256sum /usr/share/nginx/html/nomadway.apk`
+vs the on-disk file — they must match.
 
 ## Download flow on the site
 
