@@ -13,8 +13,8 @@ a new build is required.
 
 | Field | Value |
 |---|---|
-| Build ID | `e9609d43-3057-4709-a6b5-979ef1f29fa9` |
-| Git commit | `c2b4b9b` (Maps key + MAPS_ENABLED guards on AttractionDetails/MapScreen) |
+| Build ID | `bfc01bdd-5d79-4866-aeaf-bff61909a57f` |
+| Git commit | `65a4d79` (Google auth redirect + route builder fixes) |
 | versionCode | `3` (`appBuildVersion`) |
 | Profile | `preview` (EAS `distribution: internal`, `buildType: apk`) |
 | API URL in APK | `https://nomadsway.kz` (from `app.json` `extra.apiUrl`) |
@@ -22,8 +22,8 @@ a new build is required.
 | Size | 107.18 MiB (over GitHub 100 MiB hard limit — see Git LFS note below) |
 | Location in repo | `website/public/nomadway.apk` (tracked by git-lfs) |
 | Public URL | https://nomadsway.kz/nomadway.apk |
-| Artifact URL (expires) | https://expo.dev/artifacts/eas/uPtdJwDBrHh4JVqqPMSf44.apk |
-| Build page | https://expo.dev/accounts/crazynodota3/projects/nomadway/builds/e9609d43-3057-4709-a6b5-979ef1f29fa9 |
+| Artifact URL (expires) | https://expo.dev/artifacts/eas/pFkk9EWuj5EuRzExWH3qd8.apk |
+| Build page | https://expo.dev/accounts/crazynodota3/projects/nomadway/builds/bfc01bdd-5d79-4866-aeaf-bff61909a57f |
 
 `app.json` has `"usesCleartextTraffic": true` under `android` and in the
 `expo-build-properties` plugin — historically needed for HTTP-only backend
