@@ -28,6 +28,11 @@
       },
       "package": "com.nomadway.app",
       "usesCleartextTraffic": true,
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyBcXDT9BtyUuIAFkvhuiTdebML2clW-a7M"
+        }
+      },
       "permissions": [
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION",

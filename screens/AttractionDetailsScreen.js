@@ -8,7 +8,9 @@ import {
   Dimensions,
   Linking,
   Alert,
+  Platform,
 } from 'react-native';
+import Constants from 'expo-constants';
 import { Ionicons } from '@expo/vector-icons';
 import MapView, { Marker } from 'react-native-maps';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -35,6 +37,9 @@ import { tokens } from '../theme/tokens';
 
 const { width } = Dimensions.get('window');
 const HERO_HEIGHT = 360;
+
+const MAPS_ENABLED =
+  Platform.OS !== 'android' || !!Constants.expoConfig?.android?.config?.googleMaps?.apiKey;
 
 export default function AttractionDetailsScreen({ route, navigation }) {
   const { attraction: originalAttraction } = route.params;
@@ -340,30 +345,43 @@ export default function AttractionDetailsScreen({ route, navigation }) {
                 }
                 style={styles.mapWrap}
               >
-                <MapView
-                  style={StyleSheet.absoluteFillObject}
-                  initialRegion={{
-                    latitude: attraction.latitude,
-                    longitude: attraction.longitude,
-                    latitudeDelta: 0.1,
-                    longitudeDelta: 0.1,
-                  }}
-                  scrollEnabled={false}
-                  zoomEnabled={false}
-                  pitchEnabled={false}
-                  rotateEnabled={false}
-                >
-                  <Marker
-                    coordinate={{
-                      latitude: attraction.latitude,
-                      longitude: attraction.longitude,
-                    }}
-                  />
-                </MapView>
-                <View style={styles.mapHint}>
-                  <Ionicons name="expand-outline" size={14} color="#fff" />
-                  <Text style={styles.mapHintText}>{isRu ? 'Открыть карту' : 'Open map'}</Text>
-                </View>
+                {MAPS_ENABLED ? (
+                  <>
+                    <MapView
+                      style={StyleSheet.absoluteFillObject}
+                      initialRegion={{
+                        latitude: attraction.latitude,
+                        longitude: attraction.longitude,
+                        latitudeDelta: 0.1,
+                        longitudeDelta: 0.1,
+                      }}
+                      scrollEnabled={false}
+                      zoomEnabled={false}
+                      pitchEnabled={false}
+                      rotateEnabled={false}
+                    >
+                      <Marker
+                        coordinate={{
+                          latitude: attraction.latitude,
+                          longitude: attraction.longitude,
+                        }}
+                      />
+                    </MapView>
+                    <View style={styles.mapHint}>
+                      <Ionicons name="expand-outline" size={14} color="#fff" />
+                      <Text style={styles.mapHintText}>{isRu ? 'Открыть карту' : 'Open map'}</Text>
+                    </View>
+                  </>
+                ) : (
+                  <View style={[StyleSheet.absoluteFillObject, styles.mapFallback]}>
+                    <Ionicons name="map-outline" size={32} color="#d4af37" />
+                    <Text style={styles.mapFallbackText}>
+                      {isRu
+                        ? 'Карта будет доступна после настройки Google Maps для Android.'
+                        : 'Map will be available after Google Maps for Android is configured.'}
+                    </Text>
+                  </View>
+                )}
               </TouchableOpacity>
             </Animated.View>
           )}
@@ -617,6 +635,18 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: tokens.palette.hairline,
+  },
+  mapFallback: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+    backgroundColor: '#0f2e22',
+  },
+  mapFallbackText: {
+    color: '#d4af37',
+    fontSize: 13,
+    textAlign: 'center',
+    marginTop: 8,
   },
   mapHint: {
     position: 'absolute',

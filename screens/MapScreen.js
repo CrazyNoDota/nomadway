@@ -5,7 +5,9 @@ import {
   StyleSheet,
   TouchableOpacity,
   Dimensions,
+  Platform,
 } from 'react-native';
+import Constants from 'expo-constants';
 import { Ionicons } from '@expo/vector-icons';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import * as Location from 'expo-location';
@@ -14,6 +16,9 @@ import { useLocalization } from '../contexts/LocalizationContext';
 import { getTranslatedAttractions } from '../utils/attractionTranslations';
 
 const { width, height } = Dimensions.get('window');
+
+const MAPS_ENABLED =
+  Platform.OS !== 'android' || !!Constants.expoConfig?.android?.config?.googleMaps?.apiKey;
 
 // Default Kazakhstan coordinates
 const KAZAKHSTAN_CENTER = {
@@ -116,6 +121,20 @@ export default function MapScreen({ route, navigation }) {
     longitude: attraction.longitude,
   }));
 
+  if (!MAPS_ENABLED) {
+    const isRu = language !== 'en';
+    return (
+      <View style={[styles.container, styles.mapFallback]}>
+        <Ionicons name="map-outline" size={48} color="#d4af37" />
+        <Text style={styles.mapFallbackText}>
+          {isRu
+            ? 'Карта будет доступна после настройки Google Maps для Android.'
+            : 'Map will be available after Google Maps for Android is configured.'}
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <MapView
@@ -198,6 +217,18 @@ export default function MapScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  mapFallback: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+    backgroundColor: '#0f2e22',
+  },
+  mapFallbackText: {
+    color: '#d4af37',
+    fontSize: 14,
+    textAlign: 'center',
+    marginTop: 12,
   },
   map: {
     width: '100%',
