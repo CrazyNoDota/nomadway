@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   FlatList,
-  Image,
   TouchableOpacity,
   TextInput,
   ScrollView,
@@ -21,6 +20,8 @@ import { useFavorites } from '../contexts/FavoritesContext';
 import { useAuth } from '../contexts/AuthContext';
 import FilterSheet, { ActiveFiltersBar } from '../components/FilterSheet';
 import HotToursSection from '../components/HotToursSection';
+import FallbackImage from '../components/ui/FallbackImage';
+import { getImageUri } from '../utils/imageSources';
 
 export default function ExploreScreen({ navigation, route }) {
   const [attractions, setAttractions] = useState([]);
@@ -34,8 +35,6 @@ export default function ExploreScreen({ navigation, route }) {
   const { addToCart, getItemCount } = useCart();
   const { toggleFavorite, isFavorite } = useFavorites();
   const { requireAuth } = useAuth();
-  const getImageUri = (item) => item?.imageThumb || item?.imageOriginal || item?.image;
-
   // Handle tab switching from navigation params
   useEffect(() => {
     if (route?.params?.tab) {
@@ -192,7 +191,7 @@ export default function ExploreScreen({ navigation, route }) {
       style={styles.card}
       onPress={() => navigation.navigate('AttractionDetails', { attraction: item })}
     >
-      <Image source={{ uri: getImageUri(item) }} style={styles.cardImage} />
+      <FallbackImage item={item} style={styles.cardImage} />
 
       {/* Quick info badges */}
       <View style={styles.cardBadges}>
@@ -297,7 +296,7 @@ export default function ExploreScreen({ navigation, route }) {
       onPress={() => navigation.navigate('RouteDetails', { route: item })}
     >
       <View style={styles.routeImageContainer}>
-        <Image source={{ uri: getImageUri(item) }} style={styles.routeCardImage} />
+        <FallbackImage item={item} style={styles.routeCardImage} />
         <TouchableOpacity
           style={styles.favoriteButton}
           onPress={() => handleToggleFavorite(item, 'route')}

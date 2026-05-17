@@ -5,7 +5,6 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Image,
   Alert,
   RefreshControl,
 } from 'react-native';
@@ -21,7 +20,9 @@ import HotToursSection from '../components/HotToursSection';
 import Card from '../components/ui/Card';
 import Pill from '../components/ui/Pill';
 import AttractionCard from '../components/ui/AttractionCard';
+import FallbackImage from '../components/ui/FallbackImage';
 import attractionsData from '../data/attractions.json';
+import { getImageUri } from '../utils/imageSources';
 import { tokens } from '../theme/tokens';
 
 const QUICK_ACTIONS = [
@@ -59,7 +60,7 @@ export default function HomeScreen({ navigation }) {
   const featured = useMemo(
     () =>
       [...(attractionsData.attractions || [])]
-        .filter((a) => a.image && (a.rating || 0) >= 4.5)
+        .filter((a) => getImageUri(a) && (a.rating || 0) >= 4.5)
         .sort((a, b) => (b.rating || 0) - (a.rating || 0))
         .slice(0, 8),
     []
@@ -299,8 +300,8 @@ export default function HomeScreen({ navigation }) {
                 }
               >
                 <Card padding={0} style={styles.recentCard}>
-                  <Image
-                    source={{ uri: attraction.imageThumb || attraction.image }}
+                  <FallbackImage
+                    item={attraction}
                     style={styles.recentImage}
                   />
                   <View style={styles.recentBody}>

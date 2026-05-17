@@ -8,11 +8,8 @@ import {
   Dimensions,
   Linking,
   Alert,
-  Platform,
 } from 'react-native';
-import Constants from 'expo-constants';
 import { Ionicons } from '@expo/vector-icons';
-import MapView, { Marker } from 'react-native-maps';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Sharing from 'expo-sharing';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -33,13 +30,12 @@ import { useAuth } from '../contexts/AuthContext';
 import Card from '../components/ui/Card';
 import Pill from '../components/ui/Pill';
 import Button from '../components/ui/Button';
+import OSMMapView from '../components/OSMMapView';
+import { getImageCandidates, getImageUri } from '../utils/imageSources';
 import { tokens } from '../theme/tokens';
 
 const { width } = Dimensions.get('window');
 const HERO_HEIGHT = 360;
-
-const MAPS_ENABLED =
-  Platform.OS !== 'android' || !!Constants.expoConfig?.android?.config?.googleMaps?.apiKey;
 
 export default function AttractionDetailsScreen({ route, navigation }) {
   const { attraction: originalAttraction } = route.params;
@@ -62,12 +58,18 @@ export default function AttractionDetailsScreen({ route, navigation }) {
     (attraction?.discountPrice
       ? { min: attraction.discountPrice, max: attraction.originalPrice || attraction.discountPrice }
       : null);
-  const imageUri = attraction?.imageThumb || attraction?.imageOriginal || attraction?.image;
+  const imageCandidates = getImageCandidates(attraction);
+  const [imageIndex, setImageIndex] = useState(0);
+  const imageUri = imageCandidates[imageIndex] || getImageUri(attraction);
 
   useEffect(() => {
     AsyncStorage.getItem(`saved_${attraction.id}`)
       .then((saved) => setIsSaved(saved !== null))
       .catch(() => {});
+  }, [attraction.id]);
+
+  useEffect(() => {
+    setImageIndex(0);
   }, [attraction.id]);
 
   const toggleSave = async () => {
@@ -132,11 +134,6 @@ export default function AttractionDetailsScreen({ route, navigation }) {
     if (attraction.imageAttribution?.sourceUrl) {
       Linking.openURL(attraction.imageAttribution.sourceUrl).catch(() => {});
     }
-  };
-
-  const openIn2GIS = () => {
-    if (!hasLocation) return;
-    Linking.openURL(`https://2gis.kz/geo/${attraction.longitude},${attraction.latitude}`).catch(() => {});
   };
 
   // Parallax scroll
@@ -208,6 +205,11 @@ export default function AttractionDetailsScreen({ route, navigation }) {
             source={{ uri: imageUri }}
             style={[styles.heroImage, heroStyle]}
             resizeMode="cover"
+            onError={() => {
+              if (imageIndex < imageCandidates.length - 1) {
+                setImageIndex(imageIndex + 1);
+              }
+            }}
           />
           <LinearGradient
             colors={['transparent', 'rgba(8, 17, 13, 0.6)', tokens.palette.ink0]}
@@ -351,49 +353,30 @@ export default function AttractionDetailsScreen({ route, navigation }) {
                 }
                 style={styles.mapWrap}
               >
-                {MAPS_ENABLED ? (
-                  <>
-                    <MapView
-                      style={StyleSheet.absoluteFillObject}
-                      initialRegion={{
-                        latitude: attraction.latitude,
-                        longitude: attraction.longitude,
-                        latitudeDelta: 0.1,
-                        longitudeDelta: 0.1,
-                      }}
-                      scrollEnabled={false}
-                      zoomEnabled={false}
-                      pitchEnabled={false}
-                      rotateEnabled={false}
-                    >
-                      <Marker
-                        coordinate={{
-                          latitude: attraction.latitude,
-                          longitude: attraction.longitude,
-                        }}
-                      />
-                    </MapView>
-                    <View style={styles.mapHint}>
-                      <Ionicons name="expand-outline" size={14} color="#fff" />
-                      <Text style={styles.mapHintText}>{isRu ? 'Открыть карту' : 'Open map'}</Text>
-                    </View>
-                  </>
-                ) : (
-                  <View style={[StyleSheet.absoluteFillObject, styles.mapFallback]}>
-                    <Ionicons name="map-outline" size={32} color="#d4af37" />
-                    <Text style={styles.mapFallbackText}>
-                      {isRu
-                        ? 'Карта будет доступна после настройки Google Maps для Android.'
-                        : 'Map will be available after Google Maps for Android is configured.'}
-                    </Text>
-                    <TouchableOpacity style={styles.externalMapButton} onPress={openIn2GIS}>
-                      <Ionicons name="navigate-outline" size={16} color="#08110d" />
-                      <Text style={styles.externalMapButtonText}>
-                        {isRu ? '\u041e\u0442\u043a\u0440\u044b\u0442\u044c \u0432 2\u0413\u0418\u0421' : 'Open in 2GIS'}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                )}
+                <View pointerEvents="none" style={StyleSheet.absoluteFillObject}>
+                  <OSMMapView
+                    style={StyleSheet.absoluteFillObject}
+                    markers={[{
+                      id: attraction.id,
+                      latitude: attraction.latitude,
+                      longitude: attraction.longitude,
+                      title: attraction.name,
+                      description: attraction.description,
+                      color: tokens.palette.gold,
+                    }]}
+                    center={{
+                      latitude: attraction.latitude,
+                      longitude: attraction.longitude,
+                    }}
+                    zoom={11}
+                    interactive={false}
+                    errorLabel={isRu ? 'Не удалось загрузить карту.' : 'Map could not be loaded.'}
+                  />
+                </View>
+                <View style={styles.mapHint}>
+                  <Ionicons name="expand-outline" size={14} color="#fff" />
+                  <Text style={styles.mapHintText}>{isRu ? 'Открыть карту' : 'Open map'}</Text>
+                </View>
               </TouchableOpacity>
             </Animated.View>
           )}

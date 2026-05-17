@@ -1,25 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
-  Dimensions,
-  Platform,
-  Linking,
 } from 'react-native';
-import Constants from 'expo-constants';
 import { Ionicons } from '@expo/vector-icons';
-import MapView, { Marker, Polyline } from 'react-native-maps';
 import * as Location from 'expo-location';
 import attractionsData from '../data/attractions.json';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { getTranslatedAttractions } from '../utils/attractionTranslations';
-
-const { width, height } = Dimensions.get('window');
-
-const MAPS_ENABLED =
-  Platform.OS !== 'android' || !!Constants.expoConfig?.android?.config?.googleMaps?.apiKey;
+import OSMMapView from '../components/OSMMapView';
 
 // Default Kazakhstan coordinates
 const KAZAKHSTAN_CENTER = {
@@ -36,7 +27,6 @@ export default function MapScreen({ route, navigation }) {
   const [region, setRegion] = useState(KAZAKHSTAN_CENTER);
   const [userLocation, setUserLocation] = useState(null);
   const [showUserLocation, setShowUserLocation] = useState(false);
-  const mapRef = useRef(null);
 
   // Load attractions with translations
   useEffect(() => {
@@ -61,13 +51,6 @@ export default function MapScreen({ route, navigation }) {
         longitudeDelta: 0.5,
       };
       setRegion(zoomRegion);
-      
-      // Animate to the location
-      if (mapRef.current) {
-        setTimeout(() => {
-          mapRef.current?.animateToRegion(zoomRegion, 1000);
-        }, 100);
-      }
     } else if (attractions && attractions.length > 0) {
       if (attractions.length === 1) {
         // Single attraction - zoom in closer
@@ -117,89 +100,47 @@ export default function MapScreen({ route, navigation }) {
     }
   };
 
-  const coordinates = attractions.map((attraction) => ({
+  const coordinates = attractions
+    .filter((attraction) => Number.isFinite(Number(attraction.latitude)) && Number.isFinite(Number(attraction.longitude)))
+    .map((attraction) => ({
     latitude: attraction.latitude,
     longitude: attraction.longitude,
   }));
 
-  const openIn2GIS = () => {
-    const point = zoomToPlace || attractions[0] || KAZAKHSTAN_CENTER;
-    const latitude = Number(point?.latitude);
-    const longitude = Number(point?.longitude);
-    const url = Number.isFinite(latitude) && Number.isFinite(longitude)
-      ? `https://2gis.kz/geo/${longitude},${latitude}`
-      : 'https://2gis.kz';
-    Linking.openURL(url).catch(() => {});
-  };
+  const mapMarkers = attractions
+    .filter((attraction) => Number.isFinite(Number(attraction.latitude)) && Number.isFinite(Number(attraction.longitude)))
+    .map((attraction, index) => ({
+      id: attraction.id,
+      latitude: attraction.latitude,
+      longitude: attraction.longitude,
+      title: attraction.name,
+      description: attraction.description,
+      color: routeData?.color || '#1a4d3a',
+      label: routeData ? String(index + 1) : '',
+    }));
 
-  if (!MAPS_ENABLED) {
-    const isRu = language !== 'en';
-    return (
-      <View style={[styles.container, styles.mapFallback]}>
-        <Ionicons name="map-outline" size={48} color="#d4af37" />
-        <Text style={styles.mapFallbackText}>
-          {isRu
-            ? 'Карта будет доступна после настройки Google Maps для Android.'
-            : 'Map will be available after Google Maps for Android is configured.'}
-        </Text>
-        <TouchableOpacity style={styles.externalMapButton} onPress={openIn2GIS}>
-          <Ionicons name="navigate-outline" size={16} color="#08110d" />
-          <Text style={styles.externalMapButtonText}>
-            {isRu ? '\u041e\u0442\u043a\u0440\u044b\u0442\u044c \u0432 2\u0413\u0418\u0421' : 'Open in 2GIS'}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    );
+  if (showUserLocation && userLocation) {
+    mapMarkers.push({
+      id: 'user-location',
+      latitude: userLocation.latitude,
+      longitude: userLocation.longitude,
+      title: language === 'en' ? 'Your location' : 'Ваше местоположение',
+      color: '#2563eb',
+      label: 'U',
+    });
   }
 
   return (
     <View style={styles.container}>
-      <MapView
-        ref={mapRef}
+      <OSMMapView
         style={styles.map}
-        initialRegion={KAZAKHSTAN_CENTER}
-        region={region}
-        showsUserLocation={showUserLocation}
-        showsMyLocationButton={false}
-        onRegionChangeComplete={setRegion}
-      >
-        {attractions.map((attraction, index) => (
-          <Marker
-            key={attraction.id}
-            coordinate={{
-              latitude: attraction.latitude,
-              longitude: attraction.longitude,
-            }}
-            title={attraction.name}
-            description={attraction.description}
-            pinColor={routeData?.color || '#1a4d3a'}
-            onPress={() => {
-              // Zoom to marker when pressed
-              if (mapRef.current) {
-                mapRef.current.animateToRegion({
-                  latitude: attraction.latitude,
-                  longitude: attraction.longitude,
-                  latitudeDelta: 0.5,
-                  longitudeDelta: 0.5,
-                }, 1000);
-              }
-            }}
-          >
-            {routeData && (
-              <View style={[styles.markerContainer, { backgroundColor: routeData.color }]}>
-                <Text style={styles.markerNumber}>{index + 1}</Text>
-              </View>
-            )}
-          </Marker>
-        ))}
-        {routeData && coordinates.length > 1 && (
-          <Polyline
-            coordinates={coordinates}
-            strokeColor={routeData.color}
-            strokeWidth={4}
-          />
-        )}
-      </MapView>
+        markers={mapMarkers}
+        polyline={routeData ? coordinates : []}
+        center={region}
+        zoom={zoomToPlace || attractions.length === 1 ? 10 : 5}
+        interactive
+        errorLabel={language === 'en' ? 'Map could not be loaded.' : 'Не удалось загрузить карту.'}
+      />
 
       <View style={styles.infoPanel}>
         <Text style={styles.infoTitle}>{title || 'Карта Казахстана'}</Text>
@@ -212,9 +153,6 @@ export default function MapScreen({ route, navigation }) {
         style={styles.resetButton}
         onPress={() => {
           setRegion(KAZAKHSTAN_CENTER);
-          if (mapRef.current) {
-            mapRef.current.animateToRegion(KAZAKHSTAN_CENTER, 1000);
-          }
         }}
       >
         <Ionicons name="globe-outline" size={20} color="#1a4d3a" />
@@ -235,50 +173,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  mapFallback: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-    backgroundColor: '#0f2e22',
-  },
-  mapFallbackText: {
-    color: '#d4af37',
-    fontSize: 14,
-    textAlign: 'center',
-    marginTop: 12,
-  },
-  externalMapButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 999,
-    backgroundColor: '#d4af37',
-  },
-  externalMapButtonText: {
-    color: '#08110d',
-    fontSize: 14,
-    fontWeight: '700',
-    marginLeft: 6,
-  },
   map: {
     width: '100%',
     height: '100%',
-  },
-  markerContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 3,
-    borderColor: '#fff',
-  },
-  markerNumber: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#fff',
   },
   infoPanel: {
     position: 'absolute',
@@ -303,12 +200,6 @@ const styles = StyleSheet.create({
   infoSubtitle: {
     fontSize: 14,
     color: '#8e8e93',
-  },
-  errorText: {
-    fontSize: 16,
-    color: '#8e8e93',
-    textAlign: 'center',
-    marginTop: 40,
   },
   locationButton: {
     position: 'absolute',

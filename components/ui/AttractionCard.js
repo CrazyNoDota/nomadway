@@ -1,9 +1,10 @@
 import React from 'react';
-import { TouchableOpacity, View, Text, Image, StyleSheet } from 'react-native';
+import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { tokens } from '../../theme/tokens';
+import FallbackImage from './FallbackImage';
 
 /**
  * Premium attraction tile. Photo-first, with a glassy meta footer.
@@ -12,7 +13,6 @@ import { tokens } from '../../theme/tokens';
  *   - wide:    horizontal banner, used in featured strips
  */
 export default function AttractionCard({ attraction, onPress, layout = 'default', index = 0 }) {
-  const image = attraction.imageThumb || attraction.image;
   const isWide = layout === 'wide';
 
   return (
@@ -22,7 +22,7 @@ export default function AttractionCard({ attraction, onPress, layout = 'default'
         activeOpacity={0.92}
         style={[styles.base, isWide ? styles.wide : styles.portrait]}
       >
-        <Image source={{ uri: image }} style={styles.image} resizeMode="cover" />
+        <FallbackImage item={attraction} style={styles.image} resizeMode="cover" />
         <LinearGradient
           colors={['transparent', 'rgba(8, 17, 13, 0.35)', 'rgba(8, 17, 13, 0.95)']}
           style={StyleSheet.absoluteFillObject}

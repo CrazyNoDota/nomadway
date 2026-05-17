@@ -6,17 +6,12 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
-  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import MapView, { Marker, Polyline } from 'react-native-maps';
-import Constants from 'expo-constants';
 import attractionsData from '../data/attractions.json';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { getTranslatedAttraction } from '../utils/attractionTranslations';
-
-const MAPS_ENABLED =
-  Platform.OS !== 'android' || !!Constants.expoConfig?.android?.config?.googleMaps?.apiKey;
+import OSMMapView from '../components/OSMMapView';
 
 export default function RouteDetailsScreen({ route, navigation }) {
   const { route: routeData } = route.params;
@@ -119,39 +114,29 @@ export default function RouteDetailsScreen({ route, navigation }) {
 
         <Text style={styles.description}>{description}</Text>
 
-        {MAPS_ENABLED ? (
-          <TouchableOpacity style={styles.mapButton} onPress={openMap}>
-            <Ionicons name="map" size={24} color="#1a4d3a" />
-            <Text style={styles.mapButtonText}>Открыть полную карту</Text>
-          </TouchableOpacity>
-        ) : (
-          <View style={styles.mapFallback}>
-            <Ionicons name="map-outline" size={32} color="#d4af37" />
-            <Text style={styles.mapFallbackText}>
-              Карта будет доступна после настройки Google Maps для Android.
-            </Text>
-          </View>
-        )}
+        <TouchableOpacity style={styles.mapButton} onPress={openMap}>
+          <Ionicons name="map" size={24} color="#1a4d3a" />
+          <Text style={styles.mapButtonText}>Открыть полную карту</Text>
+        </TouchableOpacity>
 
-        {MAPS_ENABLED && region ? (
+        {region ? (
           <View style={styles.mapContainer}>
-            <MapView style={styles.map} initialRegion={region} scrollEnabled={false}>
-              {stops.map((stop, index) => (
-                <Marker
-                  key={stop.id}
-                  coordinate={{ latitude: Number(stop.latitude), longitude: Number(stop.longitude) }}
-                  title={stop.name}
-                  pinColor={routeData.color}
-                >
-                  <View style={styles.markerContainer}>
-                    <Text style={styles.markerNumber}>{index + 1}</Text>
-                  </View>
-                </Marker>
-              ))}
-              {coordinates.length > 1 ? (
-                <Polyline coordinates={coordinates} strokeColor={routeData.color} strokeWidth={3} />
-              ) : null}
-            </MapView>
+            <OSMMapView
+              style={styles.map}
+              markers={stops.map((stop, index) => ({
+                id: stop.id,
+                latitude: Number(stop.latitude),
+                longitude: Number(stop.longitude),
+                title: stop.name,
+                description: stop.description,
+                color: routeData.color || '#1a4d3a',
+                label: String(index + 1),
+              }))}
+              polyline={coordinates}
+              center={region}
+              zoom={8}
+              interactive={false}
+            />
           </View>
         ) : null}
 

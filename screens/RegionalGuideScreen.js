@@ -13,6 +13,7 @@ import regionsData from '../data/regions.json';
 import attractionsData from '../data/attractions.json';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { getTranslatedAttractions } from '../utils/attractionTranslations';
+import FallbackImage from '../components/ui/FallbackImage';
 
 export default function RegionalGuideScreen({ navigation, route }) {
   const { language } = useLocalization();
@@ -144,7 +145,7 @@ export default function RegionalGuideScreen({ navigation, route }) {
                     setSelectedRegion(null);
                   }}
                 >
-                  <Image source={{ uri: attraction.image }} style={styles.attractionImage} />
+                  <FallbackImage item={attraction} style={styles.attractionImage} />
                   <View style={styles.attractionContent}>
                     <Text style={styles.attractionName}>{attraction.name}</Text>
                     <Text style={styles.attractionDescription} numberOfLines={2}>

@@ -8,12 +8,10 @@ import {
   TextInput,
   ActivityIndicator,
   Platform,
-  Linking,
   Animated,
   Easing,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import MapView, { Marker, Polyline } from 'react-native-maps';
 import Constants from 'expo-constants';
 import { notify } from '../utils/notify';
 import { useAuth } from '../contexts/AuthContext';
@@ -25,6 +23,7 @@ import {
 } from '../constants/userSegments';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { useCart } from '../contexts/CartContext';
+import OSMMapView from '../components/OSMMapView';
 
 const DURATION_LABEL_KEYS = {
   [DURATIONS.THREE_HOURS]: 'duration_3_hours',
@@ -97,9 +96,6 @@ async function fetchWithTimeout(url, options = {}, timeoutMs = 20000) {
     clearTimeout(timer);
   }
 }
-
-const MAPS_ENABLED =
-  Platform.OS !== 'android' || !!Constants.expoConfig?.android?.config?.googleMaps?.apiKey;
 
 export default function AIRouteBuilderScreen({ navigation }) {
   const { t, language } = useLocalization();
@@ -229,13 +225,6 @@ export default function AIRouteBuilderScreen({ navigation }) {
     const hours = Math.floor(minutesValue / 60);
     const remainingMinutes = minutesValue % 60;
     return `${hours}${t('hoursShort')} ${remainingMinutes}${t('minutesShort')}`;
-  };
-
-  const openIn2GIS = (point) => {
-    const latitude = Number(point?.latitude);
-    const longitude = Number(point?.longitude);
-    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return;
-    Linking.openURL(`https://2gis.kz/geo/${longitude},${latitude}`).catch(() => {});
   };
 
   const toggleInterest = (interest) => {
@@ -702,44 +691,23 @@ export default function AIRouteBuilderScreen({ navigation }) {
         )}
 
         {/* Map */}
-        {MAPS_ENABLED ? (
-          <MapView style={styles.map} initialRegion={region}>
-            {route.map((stop, index) => (
-              <Marker
-                key={stop.attraction.id}
-                coordinate={{
-                  latitude: stop.attraction.latitude,
-                  longitude: stop.attraction.longitude,
-                }}
-                title={stop.attraction.name}
-                description={stop.attraction.description}
-              >
-                <View style={styles.markerContainer}>
-                  <Text style={styles.markerNumber}>{index + 1}</Text>
-                </View>
-              </Marker>
-            ))}
-            <Polyline
-              coordinates={coordinates}
-              strokeColor="#d4af37"
-              strokeWidth={3}
-            />
-          </MapView>
-        ) : (
-          <View style={[styles.map, styles.mapFallback]}>
-            <Ionicons name="map-outline" size={32} color="#d4af37" />
-            <Text style={styles.mapFallbackText}>Карта будет доступна после настройки Google Maps для Android.</Text>
-            <TouchableOpacity
-              style={styles.externalMapButton}
-              onPress={() => openIn2GIS(coordinates[0])}
-            >
-              <Ionicons name="navigate-outline" size={16} color="#08110d" />
-              <Text style={styles.externalMapButtonText}>
-                {isEnglish ? 'Open first stop in 2GIS' : '\u041e\u0442\u043a\u0440\u044b\u0442\u044c \u043f\u0435\u0440\u0432\u0443\u044e \u0442\u043e\u0447\u043a\u0443 \u0432 2\u0413\u0418\u0421'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        )}
+        <OSMMapView
+          style={styles.map}
+          markers={route.map((stop, index) => ({
+            id: stop.attraction.id,
+            latitude: stop.attraction.latitude,
+            longitude: stop.attraction.longitude,
+            title: stop.attraction.name,
+            description: stop.attraction.description,
+            color: '#d4af37',
+            label: String(index + 1),
+          }))}
+          polyline={coordinates}
+          center={region}
+          zoom={8}
+          interactive={false}
+          errorLabel={isEnglish ? 'Map could not be loaded.' : 'Не удалось загрузить карту.'}
+        />
 
         {/* Route Timeline */}
         <ScrollView style={styles.timeline}>
