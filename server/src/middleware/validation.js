@@ -159,10 +159,12 @@ const buildRouteSchema = z.object({
   duration: z.string().regex(/^(3_hours|([1-9]|[12]\d|30)_days?)$/, {
     message: 'duration must be "3_hours" or "<N>_days" with N between 1 and 30',
   }),
+  // Budget is optional. When omitted the route builder skips the
+  // affordability filter and ranks by interests / description instead.
   budget: z.object({
     min: z.number().min(0).max(INT4_MAX),
     max: z.number().min(0).max(INT4_MAX),
-  }),
+  }).optional(),
   interests: z.array(z.string()).min(1),
   activityLevel: z.enum(['easy', 'moderate', 'intense']),
   ageGroup: z.enum(['family', 'young', 'adults']),

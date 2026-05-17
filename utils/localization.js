@@ -33,6 +33,8 @@ export const translations = {
     nav_achievements: 'Достижения',
     nav_leaderboard: 'Таблица лидеров',
     nav_settings: 'Настройки',
+    nav_cart: 'Корзина',
+    cart: 'Корзина',
 
     // Common
     loading: 'Загрузка...',
@@ -69,6 +71,8 @@ export const translations = {
     duration: 'Продолжительность',
     budget: 'Бюджет',
     budgetCurrency: 'Бюджет (₸)',
+    budgetOptional: 'Бюджет (₸) — необязательно',
+    budgetOptionalHint: 'Оставьте пустым, и мы подберём маршрут по интересам и описанию без ограничения по цене.',
     budgetMin: 'Мин.',
     budgetMax: 'Макс.',
     interests: 'Интересы',
@@ -198,6 +202,8 @@ export const translations = {
     nav_achievements: 'Achievements',
     nav_leaderboard: 'Leaderboard',
     nav_settings: 'Settings',
+    nav_cart: 'Cart',
+    cart: 'Cart',
 
     // Common
     loading: 'Loading...',
@@ -234,6 +240,8 @@ export const translations = {
     duration: 'Duration',
     budget: 'Budget',
     budgetCurrency: 'Budget (₸)',
+    budgetOptional: 'Budget (₸) — optional',
+    budgetOptionalHint: 'Leave blank and we will match places using your interests and description, with no price ceiling.',
     budgetMin: 'Min.',
     budgetMax: 'Max.',
     interests: 'Interests',
@@ -363,6 +371,8 @@ export const translations = {
     nav_achievements: 'Жетістіктер',
     nav_leaderboard: 'Көшбасшылар',
     nav_settings: 'Баптаулар',
+    nav_cart: 'Себет',
+    cart: 'Себет',
 
     // Common
     loading: 'Жүктелуде...',
@@ -399,6 +409,8 @@ export const translations = {
     duration: 'Ұзақтығы',
     budget: 'Бюджет',
     budgetCurrency: 'Бюджет (₸)',
+    budgetOptional: 'Бюджет (₸) — міндетті емес',
+    budgetOptionalHint: 'Бос қалдырсаңыз, маршрутты қызығушылықтар мен сипаттама бойынша баға шектеуінсіз таңдаймыз.',
     budgetMin: 'Мин.',
     budgetMax: 'Макс.',
     interests: 'Қызығушылықтар',

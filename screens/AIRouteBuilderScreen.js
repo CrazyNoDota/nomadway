@@ -111,8 +111,10 @@ export default function AIRouteBuilderScreen({ navigation }) {
   const [duration, setDuration] = useState(DURATIONS.ONE_DAY);
   // Empty string = use the selected preset above; non-empty = override with N days.
   const [customDays, setCustomDays] = useState('');
-  const [budgetMin, setBudgetMin] = useState('5000');
-  const [budgetMax, setBudgetMax] = useState('15000');
+  // Budget is optional — empty by default. When blank, the backend skips the
+  // affordability filter and ranks by interests / description instead.
+  const [budgetMin, setBudgetMin] = useState('');
+  const [budgetMax, setBudgetMax] = useState('');
   const [activityLevel, setActivityLevel] = useState(ACTIVITY_LEVELS.MODERATE);
   const [selectedInterests, setSelectedInterests] = useState([]);
   const [routeDescription, setRouteDescription] = useState('');
@@ -268,10 +270,16 @@ export default function AIRouteBuilderScreen({ navigation }) {
         },
         body: JSON.stringify({
           duration: effectiveDuration,
-          budget: {
-            min: Math.min(2147483647, Math.max(0, parseInt(budgetMin) || 0)),
-            max: Math.min(2147483647, Math.max(0, parseInt(budgetMax) || 100000)),
-          },
+          // Budget is optional. Send it only when the user filled in at least
+          // one bound — otherwise let the backend rank by interests/description.
+          ...((budgetMin.trim() !== '' || budgetMax.trim() !== '')
+            ? {
+                budget: {
+                  min: Math.min(2147483647, Math.max(0, parseInt(budgetMin) || 0)),
+                  max: Math.min(2147483647, Math.max(0, parseInt(budgetMax) || 2147483647)),
+                },
+              }
+            : {}),
           interests: selectedInterests,
           activityLevel,
           ageGroup,
@@ -479,9 +487,10 @@ export default function AIRouteBuilderScreen({ navigation }) {
         </View>
       </View>
 
-      {/* Budget Input */}
+      {/* Budget Input — optional */}
       <View style={styles.fieldContainer}>
-        <Text style={styles.label}>{t('budgetCurrency')}</Text>
+        <Text style={styles.label}>{t('budgetOptional')}</Text>
+        <Text style={styles.helperText}>{t('budgetOptionalHint')}</Text>
         <View style={styles.budgetRow}>
           <TextInput
             style={styles.budgetInput}
@@ -866,6 +875,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#333',
     marginBottom: 10,
+  },
+  helperText: {
+    fontSize: 12,
+    color: '#777',
+    marginTop: -4,
+    marginBottom: 10,
+    lineHeight: 16,
   },
   buttonGroup: {
     flexDirection: 'row',

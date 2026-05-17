@@ -46,12 +46,22 @@ router.post('/build', optionalAuth, validate(buildRouteSchema), async (req, res)
       startLocation,
     } = req.body;
 
-    // Clamp budget to INT4 range so Prisma doesn't blow up on stray big numbers
-    const budget = {
-      min: clampInt(rawBudget?.min ?? 0),
-      max: clampInt(rawBudget?.max ?? 100000),
-    };
-    if (budget.max < budget.min) budget.max = budget.min;
+    // Budget is optional. When the user leaves it blank, treat it as "no
+    // ceiling" so we rank by interests / description without filtering anything
+    // out. When present, clamp to INT4 range so Prisma doesn't blow up on
+    // stray big numbers. Downstream curators always receive a budget object —
+    // an unbounded one (max=INT4_MAX) when the user did not specify limits.
+    const budgetProvided = !!rawBudget && (rawBudget.min != null || rawBudget.max != null);
+    const budget = budgetProvided
+      ? (() => {
+          const b = {
+            min: clampInt(rawBudget.min ?? 0),
+            max: clampInt(rawBudget.max ?? INT4_MAX),
+          };
+          if (b.max < b.min) b.max = b.min;
+          return b;
+        })()
+      : { min: 0, max: INT4_MAX };
 
     const { minutes: totalMinutes } = parseDuration(duration);
 
@@ -76,8 +86,9 @@ router.post('/build', optionalAuth, validate(buildRouteSchema), async (req, res)
     }
 
     // Budget filter: max budget is the affordability ceiling. Do not exclude
-    // cheaper stops just because the user can spend more.
-    if (budget) {
+    // cheaper stops just because the user can spend more. Skip the filter
+    // entirely when the user did not provide a budget.
+    if (budgetProvided) {
       where.AND = [
         { budgetMin: { lte: budget.max } },
       ];

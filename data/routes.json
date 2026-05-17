@@ -21,8 +21,8 @@
       "region": "south",
       "tourType": "historical",
       "price": {
-        "min": 50000,
-        "max": 120000
+        "min": 90000,
+        "max": 216000
       },
       "bestSeason": [
         "spring",
@@ -49,8 +49,8 @@
       "region": "south",
       "tourType": "nature",
       "price": {
-        "min": 15000,
-        "max": 35000
+        "min": 27000,
+        "max": 63000
       },
       "bestSeason": [
         "spring"
@@ -78,8 +78,8 @@
       "region": "south",
       "tourType": "mountain",
       "price": {
-        "min": 80000,
-        "max": 200000
+        "min": 144000,
+        "max": 360000
       },
       "bestSeason": [
         "summer"
@@ -106,8 +106,8 @@
       "region": "south",
       "tourType": "nature",
       "price": {
-        "min": 30000,
-        "max": 70000
+        "min": 54000,
+        "max": 126000
       },
       "bestSeason": [
         "summer",
@@ -133,8 +133,8 @@
       "region": "north",
       "tourType": "nature",
       "price": {
-        "min": 8000,
-        "max": 15000
+        "min": 14000,
+        "max": 27000
       },
       "bestSeason": [
         "summer",
@@ -192,8 +192,8 @@
       "region": "north",
       "tourType": "nature",
       "price": {
-        "min": 10000,
-        "max": 18000
+        "min": 18000,
+        "max": 32000
       },
       "bestSeason": [
         "summer",
@@ -251,8 +251,8 @@
       "region": "central",
       "tourType": "cultural",
       "price": {
-        "min": 25000,
-        "max": 50000
+        "min": 45000,
+        "max": 90000
       },
       "bestSeason": [
         "spring",
@@ -330,8 +330,8 @@
       "region": "central",
       "tourType": "nature",
       "price": {
-        "min": 8000,
-        "max": 15000
+        "min": 14000,
+        "max": 27000
       },
       "bestSeason": [
         "spring",
@@ -390,8 +390,8 @@
       "region": "north",
       "tourType": "cultural",
       "price": {
-        "min": 15000,
-        "max": 30000
+        "min": 27000,
+        "max": 54000
       },
       "bestSeason": [
         "spring",
@@ -468,8 +468,8 @@
       "region": "north",
       "tourType": "cultural",
       "price": {
-        "min": 12000,
-        "max": 22000
+        "min": 22000,
+        "max": 40000
       },
       "bestSeason": [
         "summer"
@@ -526,8 +526,8 @@
       "region": "north",
       "tourType": "adventure",
       "price": {
-        "min": 8000,
-        "max": 15000
+        "min": 14000,
+        "max": 27000
       },
       "bestSeason": [
         "spring",
@@ -590,8 +590,8 @@
       "region": "north",
       "tourType": "cultural",
       "price": {
-        "min": 6000,
-        "max": 12000
+        "min": 11000,
+        "max": 22000
       },
       "bestSeason": [
         "spring",
@@ -645,8 +645,8 @@
       "region": "north",
       "tourType": "adventure",
       "price": {
-        "min": 5000,
-        "max": 10000
+        "min": 9000,
+        "max": 18000
       },
       "bestSeason": [
         "spring",
@@ -705,8 +705,8 @@
       "region": "west",
       "tourType": "adventure",
       "price": {
-        "min": 60000,
-        "max": 120000
+        "min": 108000,
+        "max": 216000
       },
       "bestSeason": [
         "spring",
@@ -733,8 +733,8 @@
       "region": "south",
       "tourType": "nature",
       "price": {
-        "min": 25000,
-        "max": 50000
+        "min": 45000,
+        "max": 90000
       },
       "bestSeason": [
         "summer",

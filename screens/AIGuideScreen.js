@@ -9,9 +9,71 @@ import {
   FlatList,
   KeyboardAvoidingView,
   Platform,
+  Animated,
+  Easing,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { askAIGuide, streamAIGuide } from '../utils/aiGuide';
+
+// Rotated through while the AI is thinking so the user has something to read.
+const THINKING_PHRASES = [
+  '🔍 Ищем по базе знаний...',
+  '📚 Подбираем источники о Казахстане...',
+  '🧭 Строим логичный ответ...',
+  '✨ Шлифуем детали...',
+  '🗺️ Сверяем маршруты и сезоны...',
+];
+
+function ThinkingIndicator() {
+  const dot1 = useRef(new Animated.Value(0.3)).current;
+  const dot2 = useRef(new Animated.Value(0.3)).current;
+  const dot3 = useRef(new Animated.Value(0.3)).current;
+  const [phraseIndex, setPhraseIndex] = useState(0);
+
+  useEffect(() => {
+    const pulse = (val, delay) =>
+      Animated.loop(
+        Animated.sequence([
+          Animated.delay(delay),
+          Animated.timing(val, {
+            toValue: 1,
+            duration: 360,
+            easing: Easing.inOut(Easing.quad),
+            useNativeDriver: true,
+          }),
+          Animated.timing(val, {
+            toValue: 0.3,
+            duration: 360,
+            easing: Easing.inOut(Easing.quad),
+            useNativeDriver: true,
+          }),
+        ])
+      );
+
+    const animations = [pulse(dot1, 0), pulse(dot2, 150), pulse(dot3, 300)];
+    animations.forEach((a) => a.start());
+
+    const phraseTimer = setInterval(() => {
+      setPhraseIndex((idx) => (idx + 1) % THINKING_PHRASES.length);
+    }, 1800);
+
+    return () => {
+      animations.forEach((a) => a.stop());
+      clearInterval(phraseTimer);
+    };
+  }, [dot1, dot2, dot3]);
+
+  return (
+    <View style={styles.thinkingBubble}>
+      <View style={styles.thinkingDots}>
+        <Animated.View style={[styles.thinkingDot, { opacity: dot1 }]} />
+        <Animated.View style={[styles.thinkingDot, { opacity: dot2 }]} />
+        <Animated.View style={[styles.thinkingDot, { opacity: dot3 }]} />
+      </View>
+      <Text style={styles.thinkingPhrase}>{THINKING_PHRASES[phraseIndex]}</Text>
+    </View>
+  );
+}
 
 export default function AIGuideScreen({ navigation }) {
   const [messages, setMessages] = useState([
@@ -194,6 +256,13 @@ export default function AIGuideScreen({ navigation }) {
         </View>
       </View>
 
+      <View style={styles.devBanner}>
+        <Ionicons name="construct-outline" size={14} color="#8a6d1a" />
+        <Text style={styles.devBannerText}>
+          Бета-версия AI: ответ может занять до минуты. Скорость улучшим в следующих обновлениях.
+        </Text>
+      </View>
+
       <ScrollView
         ref={scrollViewRef}
         style={styles.messagesContainer}
@@ -224,7 +293,7 @@ export default function AIGuideScreen({ navigation }) {
 
         {isLoading && streamingMessageId && (
           <View style={styles.loadingContainer}>
-            <Text style={styles.loadingText}>AI отвечает...</Text>
+            <ThinkingIndicator />
           </View>
         )}
       </ScrollView>
@@ -411,13 +480,62 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   loadingContainer: {
-    padding: 16,
-    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 4,
+    alignItems: 'flex-start',
   },
   loadingText: {
     fontSize: 14,
     color: '#8e8e93',
     fontStyle: 'italic',
+  },
+  thinkingBubble: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 16,
+    borderTopLeftRadius: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+    maxWidth: '90%',
+  },
+  thinkingDots: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  thinkingDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: '#d4af37',
+    marginHorizontal: 2,
+  },
+  thinkingPhrase: {
+    fontSize: 13,
+    color: '#1a4d3a',
+    fontWeight: '500',
+  },
+  devBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff8dc',
+    borderLeftWidth: 3,
+    borderLeftColor: '#d4af37',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    gap: 8,
+  },
+  devBannerText: {
+    flex: 1,
+    fontSize: 12,
+    color: '#8a6d1a',
+    lineHeight: 16,
   },
   inputContainer: {
     flexDirection: 'row',

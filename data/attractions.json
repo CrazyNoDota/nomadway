@@ -61,8 +61,8 @@
       ],
       "averageVisitDuration": 180,
       "budget": {
-        "min": 2000,
-        "max": 5000
+        "min": 3500,
+        "max": 8500
       },
       "bestSeason": [
         "spring",
@@ -141,8 +141,8 @@
       ],
       "averageVisitDuration": 480,
       "budget": {
-        "min": 3000,
-        "max": 8000
+        "min": 5000,
+        "max": 13500
       },
       "bestSeason": [
         "spring",
@@ -222,8 +222,8 @@
       ],
       "averageVisitDuration": 90,
       "budget": {
-        "min": 500,
-        "max": 2000
+        "min": 1000,
+        "max": 3500
       },
       "bestSeason": [
         "spring",
@@ -300,8 +300,8 @@
       ],
       "averageVisitDuration": 120,
       "budget": {
-        "min": 3000,
-        "max": 7000
+        "min": 5000,
+        "max": 12000
       },
       "bestSeason": [
         "summer",
@@ -345,8 +345,8 @@
       ],
       "averageVisitDuration": 360,
       "budget": {
-        "min": 5000,
-        "max": 15000
+        "min": 8500,
+        "max": 25500
       },
       "bestSeason": [
         "spring",
@@ -425,8 +425,8 @@
       ],
       "averageVisitDuration": 90,
       "budget": {
-        "min": 1000,
-        "max": 3000
+        "min": 1500,
+        "max": 5000
       },
       "bestSeason": [
         "spring"
@@ -469,8 +469,8 @@
       ],
       "averageVisitDuration": 480,
       "budget": {
-        "min": 50000,
-        "max": 150000
+        "min": 85000,
+        "max": 255000
       },
       "bestSeason": [
         "summer"
@@ -546,8 +546,8 @@
       ],
       "averageVisitDuration": 120,
       "budget": {
-        "min": 2000,
-        "max": 5000
+        "min": 3500,
+        "max": 8500
       },
       "bestSeason": [
         "winter",
@@ -590,8 +590,8 @@
       ],
       "averageVisitDuration": 360,
       "budget": {
-        "min": 5000,
-        "max": 12000
+        "min": 8500,
+        "max": 20500
       },
       "bestSeason": [
         "summer",
@@ -635,8 +635,8 @@
       ],
       "averageVisitDuration": 480,
       "budget": {
-        "min": 15000,
-        "max": 40000
+        "min": 25500,
+        "max": 68000
       },
       "bestSeason": [
         "spring",
@@ -679,8 +679,8 @@
       ],
       "averageVisitDuration": 120,
       "budget": {
-        "min": 8000,
-        "max": 20000
+        "min": 13500,
+        "max": 34000
       },
       "bestSeason": [
         "spring",
@@ -722,8 +722,8 @@
       ],
       "averageVisitDuration": 720,
       "budget": {
-        "min": 30000,
-        "max": 80000
+        "min": 51000,
+        "max": 136000
       },
       "bestSeason": [
         "summer"
@@ -767,8 +767,8 @@
       ],
       "averageVisitDuration": 480,
       "budget": {
-        "min": 5000,
-        "max": 15000
+        "min": 8500,
+        "max": 25500
       },
       "bestSeason": [
         "summer",
@@ -813,8 +813,8 @@
       ],
       "averageVisitDuration": 720,
       "budget": {
-        "min": 10000,
-        "max": 30000
+        "min": 17000,
+        "max": 51000
       },
       "bestSeason": [
         "summer"
@@ -854,8 +854,8 @@
       ],
       "averageVisitDuration": 480,
       "budget": {
-        "min": 8000,
-        "max": 25000
+        "min": 13500,
+        "max": 42500
       },
       "bestSeason": [
         "summer",
@@ -898,8 +898,8 @@
       ],
       "averageVisitDuration": 360,
       "budget": {
-        "min": 3000,
-        "max": 8000
+        "min": 5000,
+        "max": 13500
       },
       "bestSeason": [
         "summer",
@@ -943,8 +943,8 @@
       ],
       "averageVisitDuration": 720,
       "budget": {
-        "min": 10000,
-        "max": 30000
+        "min": 17000,
+        "max": 51000
       },
       "bestSeason": [
         "spring",
@@ -989,8 +989,8 @@
       ],
       "averageVisitDuration": 360,
       "budget": {
-        "min": 3000,
-        "max": 8000
+        "min": 5000,
+        "max": 13500
       },
       "bestSeason": [
         "spring",
@@ -1034,8 +1034,8 @@
       ],
       "averageVisitDuration": 480,
       "budget": {
-        "min": 5000,
-        "max": 12000
+        "min": 8500,
+        "max": 20500
       },
       "bestSeason": [
         "spring",
@@ -1079,8 +1079,8 @@
       ],
       "averageVisitDuration": 360,
       "budget": {
-        "min": 5000,
-        "max": 12000
+        "min": 8500,
+        "max": 20500
       },
       "bestSeason": [
         "summer"
@@ -1121,8 +1121,8 @@
       ],
       "averageVisitDuration": 360,
       "budget": {
-        "min": 3000,
-        "max": 7000
+        "min": 5000,
+        "max": 12000
       },
       "bestSeason": [
         "spring",
@@ -1158,8 +1158,8 @@
       ],
       "averageVisitDuration": 240,
       "budget": {
-        "min": 2000,
-        "max": 5000
+        "min": 3500,
+        "max": 8500
       },
       "bestSeason": [
         "spring",
@@ -1204,8 +1204,8 @@
       ],
       "averageVisitDuration": 300,
       "budget": {
-        "min": 2000,
-        "max": 5000
+        "min": 3500,
+        "max": 8500
       },
       "bestSeason": [
         "spring",

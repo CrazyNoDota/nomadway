@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
     View,
     Text,
@@ -7,6 +7,7 @@ import {
     TouchableOpacity,
     Alert,
     ActivityIndicator,
+    Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -29,6 +30,7 @@ const CartScreen = ({ navigation }) => {
     } = useCart();
 
     const [optimizing, setOptimizing] = useState(false);
+    const [analysisVisible, setAnalysisVisible] = useState(false);
 
     useEffect(() => {
         // Request AI optimization when cart has items
@@ -41,6 +43,32 @@ const CartScreen = ({ navigation }) => {
         setOptimizing(true);
         await requestAiOptimization();
         setOptimizing(false);
+    };
+
+    const handleAnalysisPress = async () => {
+        // Refresh suggestions so the modal reflects the latest cart state,
+        // then open the detailed breakdown.
+        if (!optimizing) {
+            await handleOptimize();
+        }
+        setAnalysisVisible(true);
+    };
+
+    const groupSuggestions = (items) => {
+        const groups = {
+            discounts: { title: '💰 Скидки и экономия', items: [] },
+            tours: { title: '🗺️ Доступные туры', items: [] },
+            alternatives: { title: '🔁 Альтернативы', items: [] },
+            optimization: { title: '⚡ Оптимизация', items: [] },
+        };
+        (items || []).forEach((s) => {
+            if (s.type === 'discount') groups.discounts.items.push(s);
+            else if (s.type === 'budget' || s.type === 'savings') groups.discounts.items.push(s);
+            else if (s.type === 'season') groups.alternatives.items.push(s);
+            else if (s.type === 'logistics' || s.type === 'duration') groups.optimization.items.push(s);
+            else groups.tours.items.push(s);
+        });
+        return Object.values(groups).filter((g) => g.items.length > 0);
     };
 
     const handleRemoveItem = (cartId, itemName) => {
@@ -132,11 +160,16 @@ const CartScreen = ({ navigation }) => {
                 {/* AI Analysis Button */}
                 <TouchableOpacity
                     style={styles.aiAnalysisButton}
-                    onPress={handleOptimize}
+                    onPress={handleAnalysisPress}
                     disabled={optimizing}
+                    activeOpacity={0.8}
                 >
                     <View style={styles.aiAnalysisContent}>
-                        <Ionicons name="sparkles" size={24} color="#d4af37" />
+                        {optimizing ? (
+                            <ActivityIndicator size="small" color="#d4af37" />
+                        ) : (
+                            <Ionicons name="sparkles" size={24} color="#d4af37" />
+                        )}
                         <View style={styles.aiAnalysisTextContainer}>
                             <Text style={styles.aiAnalysisTitle}>🤖 AI Анализ корзины</Text>
                             <Text style={styles.aiAnalysisSubtitle}>
@@ -254,6 +287,97 @@ const CartScreen = ({ navigation }) => {
                     ))}
                 </View>
             </ScrollView>
+
+            {/* AI Analysis Detailed Modal */}
+            <Modal
+                visible={analysisVisible}
+                animationType="slide"
+                transparent
+                onRequestClose={() => setAnalysisVisible(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalCard}>
+                        <View style={styles.modalHeader}>
+                            <View style={styles.modalHeaderTitleRow}>
+                                <Ionicons name="sparkles" size={20} color="#d4af37" />
+                                <Text style={styles.modalTitle}>AI Анализ корзины</Text>
+                            </View>
+                            <TouchableOpacity
+                                onPress={() => setAnalysisVisible(false)}
+                                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                            >
+                                <Ionicons name="close" size={24} color="#1a4d3a" />
+                            </TouchableOpacity>
+                        </View>
+
+                        <ScrollView
+                            style={styles.modalScroll}
+                            contentContainerStyle={styles.modalScrollContent}
+                            showsVerticalScrollIndicator={false}
+                        >
+                            <View style={styles.modalStatRow}>
+                                <View style={styles.modalStatBlock}>
+                                    <Text style={styles.modalStatNumber}>{getItemCount()}</Text>
+                                    <Text style={styles.modalStatLabel}>Позиций</Text>
+                                </View>
+                                <View style={styles.modalStatBlock}>
+                                    <Text style={styles.modalStatNumber}>{getTotalDuration()}</Text>
+                                    <Text style={styles.modalStatLabel}>Дней</Text>
+                                </View>
+                                <View style={styles.modalStatBlock}>
+                                    <Text style={styles.modalStatNumber}>
+                                        {formatPrice(getTotalPrice())}
+                                    </Text>
+                                    <Text style={styles.modalStatLabel}>Итого</Text>
+                                </View>
+                            </View>
+
+                            {optimizing && (
+                                <View style={styles.modalLoading}>
+                                    <ActivityIndicator size="small" color="#1a4d3a" />
+                                    <Text style={styles.modalLoadingText}>
+                                        Анализируем корзину...
+                                    </Text>
+                                </View>
+                            )}
+
+                            {!optimizing && (!aiSuggestions || aiSuggestions.length === 0) && (
+                                <Text style={styles.modalEmpty}>
+                                    Добавьте туры в корзину, чтобы получить рекомендации.
+                                </Text>
+                            )}
+
+                            {!optimizing && groupSuggestions(aiSuggestions).map((group) => (
+                                <View key={group.title} style={styles.modalGroup}>
+                                    <Text style={styles.modalGroupTitle}>{group.title}</Text>
+                                    {group.items.map((s, idx) => (
+                                        <View key={idx} style={styles.modalSuggestion}>
+                                            <Text style={styles.modalSuggestionIcon}>{s.icon}</Text>
+                                            <View style={{ flex: 1 }}>
+                                                <Text style={styles.modalSuggestionTitle}>
+                                                    {s.title}
+                                                </Text>
+                                                <Text style={styles.modalSuggestionMessage}>
+                                                    {s.message}
+                                                </Text>
+                                            </View>
+                                        </View>
+                                    ))}
+                                </View>
+                            ))}
+
+                            <TouchableOpacity
+                                style={styles.modalRefreshButton}
+                                onPress={handleOptimize}
+                                disabled={optimizing}
+                            >
+                                <Ionicons name="refresh" size={16} color="#1a4d3a" />
+                                <Text style={styles.modalRefreshText}>Обновить анализ</Text>
+                            </TouchableOpacity>
+                        </ScrollView>
+                    </View>
+                </View>
+            </Modal>
 
             {/* Bottom Checkout Bar */}
             <View style={styles.checkoutBar}>
@@ -620,6 +744,134 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: '#666',
         marginTop: 2,
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.45)',
+        justifyContent: 'flex-end',
+    },
+    modalCard: {
+        backgroundColor: '#fff',
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        maxHeight: '85%',
+        paddingBottom: 8,
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        paddingTop: 18,
+        paddingBottom: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: '#f0f0f0',
+    },
+    modalHeaderTitleRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    modalTitle: {
+        fontSize: 17,
+        fontWeight: '700',
+        color: '#1a4d3a',
+    },
+    modalScroll: {
+        maxHeight: '100%',
+    },
+    modalScrollContent: {
+        paddingHorizontal: 20,
+        paddingTop: 16,
+        paddingBottom: 24,
+    },
+    modalStatRow: {
+        flexDirection: 'row',
+        backgroundColor: '#f7f7f5',
+        borderRadius: 12,
+        padding: 14,
+        marginBottom: 18,
+    },
+    modalStatBlock: {
+        flex: 1,
+        alignItems: 'center',
+    },
+    modalStatNumber: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#1a4d3a',
+    },
+    modalStatLabel: {
+        fontSize: 11,
+        color: '#666',
+        marginTop: 4,
+    },
+    modalLoading: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 18,
+        gap: 10,
+    },
+    modalLoadingText: {
+        color: '#1a4d3a',
+        fontSize: 14,
+    },
+    modalEmpty: {
+        textAlign: 'center',
+        color: '#666',
+        fontSize: 14,
+        paddingVertical: 12,
+    },
+    modalGroup: {
+        marginBottom: 18,
+    },
+    modalGroupTitle: {
+        fontSize: 14,
+        fontWeight: '700',
+        color: '#1a4d3a',
+        marginBottom: 8,
+        letterSpacing: 0.2,
+    },
+    modalSuggestion: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        backgroundColor: '#fffef0',
+        borderRadius: 10,
+        padding: 12,
+        marginBottom: 8,
+        borderWidth: 1,
+        borderColor: '#f0e6c0',
+    },
+    modalSuggestionIcon: {
+        fontSize: 18,
+        marginRight: 10,
+    },
+    modalSuggestionTitle: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#333',
+        marginBottom: 2,
+    },
+    modalSuggestionMessage: {
+        fontSize: 13,
+        color: '#666',
+        lineHeight: 18,
+    },
+    modalRefreshButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 6,
+        paddingVertical: 12,
+        borderRadius: 10,
+        backgroundColor: '#f0f0f0',
+        marginTop: 4,
+    },
+    modalRefreshText: {
+        color: '#1a4d3a',
+        fontSize: 14,
+        fontWeight: '600',
     },
 });
 
