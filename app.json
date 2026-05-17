@@ -27,7 +27,6 @@
         "backgroundColor": "#1a4d3a"
       },
       "package": "com.nomadway.app",
-      "usesCleartextTraffic": true,
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyBcXDT9BtyUuIAFkvhuiTdebML2clW-a7M"
