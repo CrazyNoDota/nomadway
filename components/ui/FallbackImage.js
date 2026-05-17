@@ -21,8 +21,14 @@ export default function FallbackImage({ item, uri, sources, style, resizeMode = 
       if (local) list.push(local);
     }
 
-    const uris = sources || (item ? getImageCandidates(item) : [uri]);
-    (uris || []).filter(Boolean).forEach((u) => list.push({ uri: u }));
+    const candidates = sources || (item ? getImageCandidates(item) : [uri]);
+    (candidates || []).filter(Boolean).forEach((candidate) => {
+      if (typeof candidate === 'string') {
+        list.push({ uri: candidate });
+      } else {
+        list.push(candidate);
+      }
+    });
 
     // De-duplicate by URI string when possible; pass through module ids.
     const seen = new Set();

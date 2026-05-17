@@ -98,7 +98,7 @@ const HotToursSection = ({ onTourPress, onAddToCart, onSeeAllPress, language = '
             activeOpacity={0.9}
         >
             <View style={styles.hotTourImageContainer}>
-                <Image source={{ uri: tour.image }} style={styles.hotTourImage} />
+                <Image source={getImageSource(tour)} style={styles.hotTourImage} />
                 <LinearGradient
                     colors={['transparent', 'rgba(0,0,0,0.8)']}
                     style={styles.hotTourGradient}
