@@ -12,6 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../contexts/ThemeContext';
 import { TOURS, HOT_TOURS } from '../data/tours';
+import { getImageSource } from '../utils/imageSources';
 
 const { width } = Dimensions.get('window');
 
@@ -34,7 +35,7 @@ const HotToursSection = ({ onTourPress, onAddToCart, onSeeAllPress, language = '
             activeOpacity={0.9}
         >
             <View style={styles.tourImageContainer}>
-                <Image source={{ uri: tour.image }} style={styles.tourImage} />
+                <Image source={getImageSource(tour)} style={styles.tourImage} />
                 <LinearGradient
                     colors={['transparent', 'rgba(0,0,0,0.7)']}
                     style={styles.tourImageGradient}

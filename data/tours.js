@@ -1,6 +1,17 @@
 // Shared tours data - used by both HotToursSection and ExploreScreen
 // This ensures places and tours are the same data source
 
+// Bundled tour photos. Static require() so Metro packs the JPEGs into the APK.
+const IMG = {
+    charyn: require('../assets/tours/charyn.jpg'),
+    borovoe: require('../assets/tours/borovoe.jpg'),
+    turkestan: require('../assets/tours/turkestan.jpg'),
+    kolsai: require('../assets/tours/kolsai.jpg'),
+    kaindy: require('../assets/tours/kaindy.jpg'),
+    bozzhyra: require('../assets/tours/bozzhyra.jpg'),
+    astana: require('../assets/tours/astana.jpg'),
+};
+
 // Regular tours data
 export const TOURS = [
     {
@@ -8,7 +19,7 @@ export const TOURS = [
         attractionId: 1, // Links to attractions.json
         name: 'Чарынский каньон',
         nameEn: 'Charyn Canyon',
-        image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Charyn_Canyon%2C_Kazakhstan_03.jpg/1280px-Charyn_Canyon%2C_Kazakhstan_03.jpg',
+        image: IMG.charyn,
         price: 42000,
         duration: '1 день',
         durationDays: 1,
@@ -27,7 +38,7 @@ export const TOURS = [
         attractionId: 2,
         name: 'Боровое',
         nameEn: 'Burabay',
-        image: 'https://upload.wikimedia.org/wikipedia/commons/c/cf/%D0%9F%D0%B5%D1%80%D0%B5%D1%88%D0%B5%D0%B5%D0%BA_%D0%BC%D0%B5%D0%B6%D0%B4%D1%83_%D0%BE%D0%B7%D0%B5%D1%80%D0%BE%D0%BC_%D0%91%D0%BE%D1%80%D0%BE%D0%B2%D0%BE%D0%B5_%D0%B8_%D0%91%D0%BE%D0%BB%D1%8C%D1%88%D0%BE%D0%B5_%D0%A7%D0%B5%D0%B1%D0%B0%D1%87%D1%8C%D0%B5.JPG',
+        image: IMG.borovoe,
         price: 165000,
         duration: '3 дня',
         durationDays: 3,
@@ -46,7 +57,7 @@ export const TOURS = [
         attractionId: 3, // Мавзолей Туркестан
         name: 'Туркестан',
         nameEn: 'Turkestan',
-        image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/%D0%9C%D0%B0%D1%83%D0%B7%D0%BE%D0%BB%D0%B5%D1%98_%D0%A5%D0%BE%D0%B4%D0%B6%D0%B5_%D0%90%D1%85%D0%BC%D0%B5%D0%B4%D0%B0_%D0%88%D0%B0%D1%81%D0%B0%D0%B2%D0%B8%D1%98%D0%B0_%28%D0%B3%D1%80%D0%B0%D0%B4_%D0%A2%D1%83%D1%80%D0%BA%D0%B5%D1%81%D1%82%D0%B0%D0%BD%2C_%D0%9A%D0%B0%D0%B7%D0%B0%D1%85%D1%81%D1%82%D0%B0%D0%BD%29.jpg/1280px-%D0%9C%D0%B0%D1%83%D0%B7%D0%BE%D0%BB%D0%B5%D1%98_%D0%A5%D0%BE%D0%B4%D0%B6%D0%B5_%D0%90%D1%85%D0%BC%D0%B5%D0%B4%D0%B0_%D0%88%D0%B0%D1%81%D0%B0%D0%B2%D0%B8%D1%98%D0%B0_%28%D0%B3%D1%80%D0%B0%D0%B4_%D0%A2%D1%83%D1%80%D0%BA%D0%B5%D1%81%D1%82%D0%B0%D0%BD%2C_%D0%9A%D0%B0%D0%B7%D0%B0%D1%85%D1%81%D1%82%D0%B0%D0%BD%29.jpg',
+        image: IMG.turkestan,
         price: 110000,
         duration: '2 дня',
         durationDays: 2,
@@ -65,7 +76,7 @@ export const TOURS = [
         attractionId: 9, // Кольсайские озёра
         name: 'Кольсайские озёра',
         nameEn: 'Kolsai Lakes',
-        image: 'https://upload.wikimedia.org/wikipedia/commons/0/05/Kolsai_lakes.Mountains.jpg',
+        image: IMG.kolsai,
         price: 95000,
         duration: '2 дня',
         durationDays: 2,
@@ -84,7 +95,7 @@ export const TOURS = [
         attractionId: 6, // Тюльпаны в степи (визуально подходит Алтын-Эмелю)
         name: 'Алтын-Эмель',
         nameEn: 'Altyn-Emel',
-        image: 'https://upload.wikimedia.org/wikipedia/commons/2/26/Kaindy_lake_south-east_Kazakhstan.jpg',
+        image: IMG.kaindy,
         price: 60000,
         duration: '1 день',
         durationDays: 1,
@@ -107,7 +118,7 @@ export const HOT_TOURS = [
         attractionId: 1,
         name: 'Чарынский Каньон',
         nameEn: 'Charyn Canyon',
-        image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Charyn_Canyon%2C_Kazakhstan_03.jpg/1280px-Charyn_Canyon%2C_Kazakhstan_03.jpg',
+        image: IMG.charyn,
         originalPrice: 42000,
         discountPrice: 32000,
         discount: 24,
@@ -129,7 +140,7 @@ export const HOT_TOURS = [
         attractionId: 2,
         name: 'Боровое — 3 дня',
         nameEn: 'Burabay - 3 days',
-        image: 'https://upload.wikimedia.org/wikipedia/commons/c/cf/%D0%9F%D0%B5%D1%80%D0%B5%D1%88%D0%B5%D0%B5%D0%BA_%D0%BC%D0%B5%D0%B6%D0%B4%D1%83_%D0%BE%D0%B7%D0%B5%D1%80%D0%BE%D0%BC_%D0%91%D0%BE%D1%80%D0%BE%D0%B2%D0%BE%D0%B5_%D0%B8_%D0%91%D0%BE%D0%BB%D1%8C%D1%88%D0%BE%D0%B5_%D0%A7%D0%B5%D0%B1%D0%B0%D1%87%D1%8C%D0%B5.JPG',
+        image: IMG.borovoe,
         originalPrice: 165000,
         discountPrice: 132000,
         discount: 20,
@@ -151,7 +162,7 @@ export const HOT_TOURS = [
         attractionId: 10, // Мангистау Бозжыра
         name: 'Мангистау Экспедиция',
         nameEn: 'Mangystau Expedition',
-        image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/%D0%91%D0%BE%D1%81%D0%B6%D0%B8%D1%80%D0%B07.jpg/1920px-%D0%91%D0%BE%D1%81%D0%B6%D0%B8%D1%80%D0%B07.jpg',
+        image: IMG.bozzhyra,
         originalPrice: 380000,
         discountPrice: 310000,
         discount: 18,
@@ -173,7 +184,7 @@ export const HOT_TOURS = [
         attractionId: 17, // Астана
         name: 'Астана Weekend',
         nameEn: 'Astana Weekend',
-        image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Astana_DSC04362_%287711355642%29.jpg/1920px-Astana_DSC04362_%287711355642%29.jpg',
+        image: IMG.astana,
         originalPrice: 115000,
         discountPrice: 95000,
         discount: 17,

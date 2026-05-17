@@ -31,7 +31,8 @@ import Card from '../components/ui/Card';
 import Pill from '../components/ui/Pill';
 import Button from '../components/ui/Button';
 import OSMMapView from '../components/OSMMapView';
-import { getImageCandidates, getImageUri } from '../utils/imageSources';
+import { getImageCandidates, getImageSource, getImageUri } from '../utils/imageSources';
+import { getLocalAttractionImage } from '../utils/attractionImages';
 import { tokens } from '../theme/tokens';
 
 const { width } = Dimensions.get('window');
@@ -58,8 +59,17 @@ export default function AttractionDetailsScreen({ route, navigation }) {
     (attraction?.discountPrice
       ? { min: attraction.discountPrice, max: attraction.originalPrice || attraction.discountPrice }
       : null);
+  // Prefer the bundled require()'d image (instant, offline-safe). Fall back
+  // to the remote URI candidates if for some reason it is missing.
+  const localImage =
+    (attraction?.image && typeof attraction.image !== 'string' ? attraction.image : null) ||
+    getLocalAttractionImage(attraction?.attractionId ?? attraction?.id);
   const imageCandidates = getImageCandidates(attraction);
   const [imageIndex, setImageIndex] = useState(0);
+  const heroSource =
+    localImage ||
+    (imageCandidates[imageIndex] ? { uri: imageCandidates[imageIndex] } : null) ||
+    getImageSource(attraction);
   const imageUri = imageCandidates[imageIndex] || getImageUri(attraction);
 
   useEffect(() => {
@@ -202,7 +212,7 @@ export default function AttractionDetailsScreen({ route, navigation }) {
         {/* Parallax hero */}
         <View style={styles.heroWrap}>
           <Animated.Image
-            source={{ uri: imageUri }}
+            source={heroSource}
             style={[styles.heroImage, heroStyle]}
             resizeMode="cover"
             onError={() => {

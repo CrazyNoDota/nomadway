@@ -20,6 +20,7 @@ import AvatarUpload from '../components/AvatarUpload';
 import Card from '../components/ui/Card';
 import Pill from '../components/ui/Pill';
 import Button from '../components/ui/Button';
+import FallbackImage from '../components/ui/FallbackImage';
 import { tokens } from '../theme/tokens';
 
 const MENU = [
@@ -243,7 +244,7 @@ export default function ProfileScreen({ navigation }) {
                   }
                 >
                   <Card padding={0} style={styles.favCard}>
-                    <Image source={{ uri: item.image }} style={styles.favImage} />
+                    <FallbackImage item={item} style={styles.favImage} />
                     <View style={styles.favBody}>
                       <Text style={styles.favTitle} numberOfLines={1}>
                         {item.name}
